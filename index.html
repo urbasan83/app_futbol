@@ -223,19 +223,29 @@
     <!-- SECCIÓN 3: ENFRENTAMIENTO (11 vs 11 HORIZONTAL) -->
     <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
       <!-- Selector de Rival Superior / Overlay -->
-      <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20">
-        <div class="text-xs font-semibold text-emerald-400">
-          Mi Equipo: <span id="matchup-my-side-label" class="text-white font-normal">(Izquierda)</span>
+      <div class="mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20 space-y-2">
+        <div class="flex justify-between items-center gap-2 flex-wrap">
+          <div class="text-xs font-semibold text-emerald-400">
+            Mi Equipo: <span id="matchup-my-side-label" class="text-white font-normal">(Izquierda)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-300 font-medium">Rival:</label>
+            <select id="select-rival-team" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
+              <option value="">-- Seleccionar Rival --</option>
+            </select>
+            <select id="select-rival-kit" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
+              <option value="local">🔴 Kit Local</option>
+              <option value="visitante">⚪ Kit Visitante</option>
+            </select>
+          </div>
         </div>
         <div class="flex items-center gap-2">
-          <label class="text-xs text-slate-300 font-medium">Rival:</label>
-          <select id="select-rival-team" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
-            <option value="">-- Seleccionar Rival --</option>
-          </select>
-          <select id="select-rival-kit" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
-            <option value="local">🔴 Kit Local</option>
-            <option value="visitante">⚪ Kit Visitante</option>
-          </select>
+          <button id="btn-save-confrontation-modal" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow active:scale-95">
+            💾 Guardar Enfrentamiento
+          </button>
+          <button id="btn-load-confrontations-modal" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 border border-slate-600 active:scale-95">
+            📂 Cargar Enfrentamiento
+          </button>
         </div>
       </div>
 
@@ -493,11 +503,121 @@
           <input type="date" id="match-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
         </div>
         <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Campo</label>
+          <input type="text" id="match-field" placeholder="Ej: Ciudad Deportiva" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo Rival</label>
           <input type="text" id="match-rival" placeholder="Ej: Rayo" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
         </div>
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
           Guardar Partido
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR ALINEACIÓN / PARTIDO GUARDADO -->
+  <div id="modal-edit-match-info" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Editar Alineación / Partido</h3>
+        <button id="btn-close-edit-match-info" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-edit-match-info" class="space-y-3">
+        <input type="hidden" id="edit-match-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Alineación</label>
+          <input type="text" id="edit-match-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="edit-match-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Campo</label>
+          <input type="text" id="edit-match-field" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo Rival</label>
+          <input type="text" id="edit-match-rival" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
+          Actualizar Partido
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GUARDAR ENFRENTAMIENTO -->
+  <div id="modal-save-confrontation" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Guardar Enfrentamiento</h3>
+        <button id="btn-close-save-confrontation" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-save-confrontation" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre</label>
+          <input type="text" id="confrontation-name" placeholder="Ej: Jornada 1 vs Rayo" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="confrontation-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Campo</label>
+          <input type="text" id="confrontation-field" placeholder="Ej: Ciudad Deportiva" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción</label>
+          <textarea id="confrontation-desc" rows="3" placeholder="Notas sobre el enfrentamiento..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
+          Guardar Enfrentamiento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CARGAR Y EDITAR ENFRENTAMIENTOS -->
+  <div id="modal-load-confrontations" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Enfrentamientos Guardados</h3>
+        <button id="btn-close-load-confrontations" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div id="confrontations-saved-list" class="flex-1 overflow-y-auto space-y-3 my-2 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR INFORMACIÓN DE ENFRENTAMIENTO -->
+  <div id="modal-edit-confrontation-info" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Editar Enfrentamiento</h3>
+        <button id="btn-close-edit-confrontation-info" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-edit-confrontation-info" class="space-y-3">
+        <input type="hidden" id="edit-confrontation-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre</label>
+          <input type="text" id="edit-confrontation-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="edit-confrontation-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Campo</label>
+          <input type="text" id="edit-confrontation-field" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción</label>
+          <textarea id="edit-confrontation-desc" rows="3" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
+          Actualizar Enfrentamiento
         </button>
       </form>
     </div>
@@ -546,6 +666,7 @@
 
     let savedMatches = JSON.parse(localStorage.getItem('f11_matches')) || [];
     let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
+    let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
 
     const formations = {
       '4-3-3': [
@@ -1237,6 +1358,150 @@
       }
     };
 
+    // --- GUARDAR, CARGAR Y EDITAR ENFRENTAMIENTOS ---
+    document.getElementById('btn-save-confrontation-modal').addEventListener('click', () => {
+      document.getElementById('confrontation-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-save-confrontation').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-save-confrontation').onclick = () => {
+      document.getElementById('modal-save-confrontation').classList.add('hidden');
+    };
+
+    document.getElementById('form-save-confrontation').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('confrontation-name').value.trim();
+      const date = document.getElementById('confrontation-date').value;
+      const field = document.getElementById('confrontation-field').value.trim();
+      const desc = document.getElementById('confrontation-desc').value.trim();
+
+      const newConfrontation = {
+        id: Date.now(),
+        name,
+        date,
+        field,
+        desc,
+        formation: currentFormationKey,
+        kit: currentKit,
+        tokens: JSON.parse(JSON.stringify(activeTokens)),
+        bench: JSON.parse(JSON.stringify(activeBench)),
+        rivalId: selectedRivalId,
+        rivalKit: selectedRivalKit,
+        rivalTokens: JSON.parse(JSON.stringify(activeRivalTokens))
+      };
+
+      savedConfrontations.unshift(newConfrontation);
+      localStorage.setItem('f11_confrontations', JSON.stringify(savedConfrontations));
+
+      document.getElementById('modal-save-confrontation').classList.add('hidden');
+      document.getElementById('form-save-confrontation').reset();
+      alert("¡Enfrentamiento guardado con éxito!");
+    });
+
+    document.getElementById('btn-load-confrontations-modal').addEventListener('click', () => {
+      renderSavedConfrontationsList();
+      document.getElementById('modal-load-confrontations').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-load-confrontations').onclick = () => {
+      document.getElementById('modal-load-confrontations').classList.add('hidden');
+    };
+
+    function renderSavedConfrontationsList() {
+      const container = document.getElementById('confrontations-saved-list');
+      container.innerHTML = '';
+
+      if (savedConfrontations.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No tienes enfrentamientos guardados.</p>`;
+        return;
+      }
+
+      savedConfrontations.forEach(c => {
+        const rival = rivalTeams.find(r => r.id === parseInt(c.rivalId));
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-bold text-emerald-400 text-xs">${c.name}</h4>
+              <span class="text-[10px] text-slate-400">${c.date}${c.field ? ' · ' + c.field : ''}</span>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="openEditConfrontationModal(${c.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">✏️</button>
+              <button onclick="deleteConfrontation(${c.id})" class="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">🗑️</button>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400">Rival: <span class="text-slate-200 font-semibold">${rival ? rival.name : '—'}</span></p>
+          ${c.desc ? `<p class="text-[11px] text-slate-300 italic bg-slate-800/60 p-2 rounded">${c.desc}</p>` : ''}
+          <button onclick="loadConfrontationToBoard(${c.id})" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 text-xs font-bold py-1.5 rounded-lg transition">
+            👁️ Cargar este Enfrentamiento
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.loadConfrontationToBoard = function(id) {
+      const c = savedConfrontations.find(x => x.id === id);
+      if (!c) return;
+
+      currentFormationKey = c.formation;
+      currentKit = c.kit;
+      activeTokens = JSON.parse(JSON.stringify(c.tokens));
+      activeBench = c.bench ? JSON.parse(JSON.stringify(c.bench)) : [];
+      selectedRivalId = c.rivalId;
+      selectedRivalKit = c.rivalKit;
+      activeRivalTokens = c.rivalTokens ? JSON.parse(JSON.stringify(c.rivalTokens)) : [];
+
+      selectFormation.value = currentFormationKey;
+      selectKit.value = currentKit;
+
+      savePitchState();
+      document.getElementById('modal-load-confrontations').classList.add('hidden');
+      switchView('enfrentamiento');
+    };
+
+    window.openEditConfrontationModal = function(id) {
+      const c = savedConfrontations.find(x => x.id === id);
+      if (!c) return;
+
+      document.getElementById('edit-confrontation-id').value = c.id;
+      document.getElementById('edit-confrontation-name').value = c.name;
+      document.getElementById('edit-confrontation-date').value = c.date;
+      document.getElementById('edit-confrontation-field').value = c.field || '';
+      document.getElementById('edit-confrontation-desc').value = c.desc || '';
+
+      document.getElementById('modal-edit-confrontation-info').classList.remove('hidden');
+    };
+
+    document.getElementById('btn-close-edit-confrontation-info').onclick = () => {
+      document.getElementById('modal-edit-confrontation-info').classList.add('hidden');
+    };
+
+    document.getElementById('form-edit-confrontation-info').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-confrontation-id').value);
+      const c = savedConfrontations.find(x => x.id === id);
+      if (c) {
+        c.name = document.getElementById('edit-confrontation-name').value.trim();
+        c.date = document.getElementById('edit-confrontation-date').value;
+        c.field = document.getElementById('edit-confrontation-field').value.trim();
+        c.desc = document.getElementById('edit-confrontation-desc').value.trim();
+
+        localStorage.setItem('f11_confrontations', JSON.stringify(savedConfrontations));
+        renderSavedConfrontationsList();
+        document.getElementById('modal-edit-confrontation-info').classList.add('hidden');
+      }
+    });
+
+    window.deleteConfrontation = function(id) {
+      if (confirm("¿Deseas eliminar este enfrentamiento?")) {
+        savedConfrontations = savedConfrontations.filter(x => x.id !== id);
+        localStorage.setItem('f11_confrontations', JSON.stringify(savedConfrontations));
+        renderSavedConfrontationsList();
+      }
+    };
+
     // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 GRANDES + SELECCIÓN DE RIVAL) ---
     function initMatchupView() {
       const container = document.getElementById('matchup-pitch');
@@ -1329,9 +1594,9 @@
         const assignedRivalPlayer = rival.squad.find(p => p.id === token.rivalPlayerId);
 
         const tokenEl = document.createElement('div');
-        tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-2 border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-        tokenEl.style.width = '42px'; // Fichas más grandes
-        tokenEl.style.height = '42px';
+        tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-[3px] border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
+        tokenEl.style.width = '63px'; // Fichas x1.5 más grandes
+        tokenEl.style.height = '63px';
         tokenEl.style.backgroundColor = rivalBgColor;
         tokenEl.style.color = getContrastTextColor(rivalBgColor);
         tokenEl.style.left = `${posX}%`;
@@ -1342,8 +1607,8 @@
         const displayName = assignedRivalPlayer ? assignedRivalPlayer.name : token.role;
 
         tokenEl.innerHTML = `
-          <span class="text-xs leading-none">${displayNum}</span>
-          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
+          <span class="text-[18px] leading-none">${displayNum}</span>
+          <span class="text-[11px] leading-tight opacity-90 truncate max-w-[54px]">${displayName}</span>
         `;
 
         const tokenData = { x: posX, y: posY };
@@ -1359,16 +1624,16 @@
 
     function createMatchupToken(data, container) {
       const tokenEl = document.createElement('div');
-      tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-      tokenEl.style.width = '42px'; // Fichas más grandes
-      tokenEl.style.height = '42px';
+      tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-[3px] shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+      tokenEl.style.width = '63px'; // Fichas x1.5 más grandes
+      tokenEl.style.height = '63px';
       tokenEl.style.left = `${data.x}%`;
       tokenEl.style.top = `${data.y}%`;
       tokenEl.style.transform = 'translate(-50%, -50%)';
 
       tokenEl.innerHTML = `
-        <span class="text-xs leading-none">${data.num}</span>
-        <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${data.name}</span>
+        <span class="text-[18px] leading-none">${data.num}</span>
+        <span class="text-[11px] leading-tight opacity-90 truncate max-w-[54px]">${data.name}</span>
       `;
 
       makeDraggable(tokenEl, data, container);
@@ -1856,12 +2121,14 @@
       e.preventDefault();
       const matchName = document.getElementById('match-name').value.trim();
       const matchDate = document.getElementById('match-date').value;
+      const matchField = document.getElementById('match-field').value.trim();
       const matchRival = document.getElementById('match-rival').value.trim();
 
       const newMatch = {
         id: Date.now(),
         name: matchName,
         date: matchDate,
+        field: matchField,
         rival: matchRival,
         formation: currentFormationKey,
         kit: currentKit,
@@ -1895,8 +2162,12 @@
             <div>
               <h4 class="font-bold text-emerald-400 text-sm">${match.name}</h4>
               <p class="text-xs text-slate-300 font-medium mt-0.5">Rival: <span class="text-white font-semibold">${match.rival}</span></p>
+              ${match.field ? `<p class="text-xs text-slate-400 mt-0.5">📍 ${match.field}</p>` : ''}
             </div>
-            <span class="bg-slate-900 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono">${match.date}</span>
+            <div class="flex flex-col items-end gap-1">
+              <span class="bg-slate-900 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono">${match.date}</span>
+              <button onclick="openEditMatchModal(${match.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
+            </div>
           </div>
 
           <div class="flex flex-wrap gap-2 text-[10px]">
@@ -1940,6 +2211,39 @@
         renderMatchesList();
       }
     };
+
+    window.openEditMatchModal = function(matchId) {
+      const match = savedMatches.find(m => m.id === matchId);
+      if (!match) return;
+
+      document.getElementById('edit-match-id').value = match.id;
+      document.getElementById('edit-match-name').value = match.name;
+      document.getElementById('edit-match-date').value = match.date;
+      document.getElementById('edit-match-field').value = match.field || '';
+      document.getElementById('edit-match-rival').value = match.rival;
+
+      document.getElementById('modal-edit-match-info').classList.remove('hidden');
+    };
+
+    document.getElementById('btn-close-edit-match-info').onclick = () => {
+      document.getElementById('modal-edit-match-info').classList.add('hidden');
+    };
+
+    document.getElementById('form-edit-match-info').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-match-id').value);
+      const match = savedMatches.find(m => m.id === id);
+      if (match) {
+        match.name = document.getElementById('edit-match-name').value.trim();
+        match.date = document.getElementById('edit-match-date').value;
+        match.field = document.getElementById('edit-match-field').value.trim();
+        match.rival = document.getElementById('edit-match-rival').value.trim();
+
+        localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
+        renderMatchesList();
+        document.getElementById('modal-edit-match-info').classList.add('hidden');
+      }
+    });
 
     // INICIALIZACIÓN
     syncTokensWithFormation(true);
