@@ -1,9 +1,11 @@
-const CACHE_NAME = 'pizarra-f11-v2';
+const CACHE_NAME = 'pizarra-f11-v3';
 
+// Archivos críticos guardados desde el segundo 1
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,7 +39,8 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
       return fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        // Guarda en caché respuestas normales (200) u opacas de CDN externas (0)
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.status === 0)) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
@@ -46,9 +49,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       });
     }).catch(() => {
-      if (event.request.mode === 'navigate') {
-        return caches.match('./index.html');
-      }
+      return caches.match('./index.html') || caches.match('./');
     })
   );
 });
