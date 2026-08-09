@@ -135,6 +135,7 @@
     <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS Y GUARDADO) -->
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
+        <!-- Media Cancha -->
         <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
           <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
             <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
@@ -150,12 +151,14 @@
           </div>
         </div>
 
+        <!-- Panel Lateral Desplegable de Herramientas + Guardado -->
         <div class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
           <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 hidden sm:block border-b border-slate-700 pb-2">
             🛠️ Herramientas
           </div>
 
           <div class="space-y-3">
+            <!-- BOTONES GUARDAR / CARGAR TÁCTICA -->
             <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-700 space-y-1.5">
               <button id="btn-save-tactic-modal" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow">
                 💾 <span class="hidden sm:inline">Guardar Táctica</span>
@@ -165,6 +168,7 @@
               </button>
             </div>
 
+            <!-- DIBUJAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-draw" onclick="setActiveTool('draw')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">✏️ <span class="hidden sm:inline">Dibujar</span></span>
@@ -185,6 +189,7 @@
               </div>
             </div>
 
+            <!-- BORRAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-erase" onclick="setActiveTool('erase')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">🧹 <span class="hidden sm:inline">Borrar</span></span>
@@ -199,6 +204,7 @@
               </div>
             </div>
 
+            <!-- ICONOS / OBJETOS -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <div class="font-bold text-xs flex items-center justify-between text-slate-200 mb-2">
                 <span class="flex items-center gap-2">🎯 <span class="hidden sm:inline">Objetos</span></span>
@@ -216,6 +222,7 @@
 
     <!-- SECCIÓN 3: ENFRENTAMIENTO (11 vs 11 HORIZONTAL) -->
     <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
+      <!-- Selector de Rival Superior / Overlay -->
       <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20">
         <div class="text-xs font-semibold text-emerald-400">
           Mi Equipo: <span id="matchup-my-side-label" class="text-white font-normal">(Izquierda)</span>
@@ -403,7 +410,7 @@
     </div>
   </div>
 
-  <!-- MODAL: GUARDAR TÁCTICA -->
+  <!-- MODAL: GUARDAR TÁCTICA (CON NOMBRE, FECHA Y DESCRIPCIÓN) -->
   <div id="modal-save-tactic" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -788,17 +795,10 @@
         `;
 
         makeDraggable(tokenEl, token, pitch);
-        
-        let tapTimer = null;
-        let isMoved = false;
-
-        tokenEl.addEventListener('pointerdown', () => { isMoved = false; });
-        tokenEl.addEventListener('pointermove', () => { isMoved = true; });
-
         tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
         
+        let tapTimer = null;
         tokenEl.addEventListener('touchend', () => {
-          if (isMoved) return;
           if (!tapTimer) {
             tapTimer = setTimeout(() => { tapTimer = null; }, 300);
           } else {
@@ -845,11 +845,11 @@
       });
     }
 
-    function removeBenchPlayer(index) {
+    window.removeBenchPlayer = function(index) {
       activeBench.splice(index, 1);
       savePitchState();
       renderBench();
-    }
+    };
 
     function makeDraggable(element, dataObj, container) {
       let isDragging = false;
@@ -883,14 +883,14 @@
         isDragging = false;
         element.releasePointerCapture(e.pointerId);
         element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-        savePitchState();
+        if (container === pitch) savePitchState();
       };
 
       element.addEventListener('pointerup', stopDrag);
       element.addEventListener('pointercancel', stopDrag);
     }
 
-    // --- SECCIÓN TÁCTICAS ---
+    // --- SECCIÓN TÁCTICAS (SINCRONIZADO CON PIZARRA + DIBUJO Y GUARDADO) ---
     let tacticsCanvas, tacticsCtx;
     let isDrawing = false;
     let activeTool = 'draw';
@@ -903,27 +903,14 @@
       tacticsCanvas = document.getElementById('tactics-canvas');
       tacticsCtx = tacticsCanvas.getContext('2d');
 
-      let savedCanvasData = null;
-      if (tacticsCanvas.width > 0 && tacticsCanvas.height > 0) {
-        savedCanvasData = tacticsCanvas.toDataURL();
-      }
-
       setTimeout(() => {
-        const newWidth = container.clientWidth;
-        const newHeight = container.clientHeight;
-        if (tacticsCanvas.width !== newWidth || tacticsCanvas.height !== newHeight) {
-          tacticsCanvas.width = newWidth;
-          tacticsCanvas.height = newHeight;
-          if (savedCanvasData) {
-            const img = new Image();
-            img.onload = () => tacticsCtx.drawImage(img, 0, 0);
-            img.src = savedCanvasData;
-          }
-        }
+        tacticsCanvas.width = container.clientWidth;
+        tacticsCanvas.height = container.clientHeight;
       }, 50);
 
       document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
 
+      // Sincronización exacta con los 11 jugadores de Pizarra Táctica
       currentTacticsTokens = activeTokens.map(t => {
         const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
         return {
@@ -1019,7 +1006,7 @@
       tacticsCanvas.onpointercancel = stopDraw;
     }
 
-    function setActiveTool(tool) {
+    window.setActiveTool = function(tool) {
       activeTool = tool;
       const panelDraw = document.getElementById('panel-draw-options');
       const panelErase = document.getElementById('panel-erase-options');
@@ -1031,25 +1018,25 @@
         panelDraw.classList.add('hidden');
         panelErase.classList.remove('hidden');
       }
-    }
+    };
 
-    function setDrawColor(color) {
+    window.setDrawColor = function(color) {
       currentDrawColor = color;
       setActiveTool('draw');
       document.getElementById('custom-color-picker').value = color;
-    }
+    };
 
-    function setEraserSize(size) {
+    window.setEraserSize = function(size) {
       eraserSize = size;
-    }
+    };
 
-    function clearTacticsCanvas() {
+    window.clearTacticsCanvas = function() {
       if (tacticsCtx) {
         tacticsCtx.clearRect(0, 0, tacticsCanvas.width, tacticsCanvas.height);
       }
-    }
+    };
 
-    function spawnProp(type, customX = 50, customY = 50) {
+    window.spawnProp = function(type, customX = 50, customY = 50) {
       const container = document.getElementById('tactics-pitch');
       const propEl = document.createElement('div');
       propEl.className = 'tactics-prop absolute z-20 cursor-grab active:cursor-grabbing text-xl touch-none select-none';
@@ -1067,7 +1054,7 @@
       propEl.ondblclick = () => propEl.remove();
 
       container.appendChild(propEl);
-    }
+    };
 
     // --- GUARDAR Y CARGAR TÁCTICAS ---
     document.getElementById('btn-save-tactic-modal').addEventListener('click', () => {
@@ -1244,7 +1231,7 @@
       }
     };
 
-    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11) ---
+    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 GRANDES + SELECCIÓN DE RIVAL) ---
     function initMatchupView() {
       const container = document.getElementById('matchup-pitch');
       document.querySelectorAll('#matchup-pitch .matchup-token').forEach(e => e.remove());
@@ -1336,8 +1323,8 @@
         tokenEl.style.height = '42px';
         tokenEl.style.backgroundColor = rivalBgColor;
         tokenEl.style.color = getContrastTextColor(rivalBgColor);
-        tokenEl.style.left = `${token.x || posX}%`;
-        tokenEl.style.top = `${token.y || posY}%`;
+        tokenEl.style.left = `${posX}%`;
+        tokenEl.style.top = `${posY}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
 
         const displayNum = assignedRivalPlayer ? assignedRivalPlayer.num : token.slot;
@@ -1348,18 +1335,11 @@
           <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
         `;
 
-        makeDraggable(tokenEl, token, container);
-
-        let isMoved = false;
-        tokenEl.addEventListener('pointerdown', () => { isMoved = false; });
-        tokenEl.addEventListener('pointermove', () => { isMoved = true; });
+        const tokenData = { x: posX, y: posY };
+        makeDraggable(tokenEl, tokenData, container);
 
         tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
-        tokenEl.addEventListener('touchend', () => {
-          if (!isMoved) {
-            openAssignRivalPlayerModal(token.slot, rival);
-          }
-        });
+        tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
 
         container.appendChild(tokenEl);
       });
@@ -1557,14 +1537,14 @@
     };
 
     // Modal Plantilla Rival
-    function openRivalSquadModal(rivalId) {
+    window.openRivalSquadModal = function(rivalId) {
       currentEditingRivalForSquad = rivalTeams.find(r => r.id === rivalId);
       if (!currentEditingRivalForSquad) return;
 
       document.getElementById('modal-rival-title').innerText = `Plantilla de ${currentEditingRivalForSquad.name}`;
       renderRivalSquadList();
       document.getElementById('modal-rival-squad').classList.remove('hidden');
-    }
+    };
 
     document.getElementById('btn-close-rival-squad').onclick = () => {
       document.getElementById('modal-rival-squad').classList.add('hidden');
