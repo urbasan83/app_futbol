@@ -272,7 +272,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 4: EQUIPOS RIVALES -->
+    <!-- SECCIÓN 4: EQUIPOS RIVALES (NUEVO) -->
     <section id="sec-rivales" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
         <h3 id="rival-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Crear Nuevo Equipo Rival</h3>
@@ -420,7 +420,7 @@
     </div>
   </div>
 
-  <!-- MODAL: GUARDAR TÁCTICA -->
+  <!-- MODAL: GUARDAR TÁCTICA (CON NOMBRE, FECHA Y DESCRIPCIÓN) -->
   <div id="modal-save-tactic" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -1011,7 +1011,7 @@
       element.addEventListener('pointercancel', stopDrag);
     }
 
-    // --- SECCIÓN TÁCTICAS ---
+    // --- SECCIÓN TÁCTICAS (SINCRONIZADO CON PIZARRA + DIBUJO Y GUARDADO) ---
     let tacticsCanvas, tacticsCtx;
     let isDrawing = false;
     let activeTool = 'draw';
@@ -1031,7 +1031,9 @@
 
       document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
 
+      // Sincronización exacta con los 11 jugadores de Pizarra Táctica
       currentTacticsTokens = activeTokens.map(t => {
+        // Mapear posición Y de campo completo a medio campo (0% a 90%)
         const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
         return {
           slot: t.slot,
@@ -1192,6 +1194,7 @@
       const date = document.getElementById('tactic-date').value;
       const desc = document.getElementById('tactic-desc').value.trim();
 
+      // Guardar Objetos/Props en el campo
       const propsList = [];
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
         propsList.push({
@@ -1264,9 +1267,11 @@
       const tac = savedTactics.find(t => t.id === id);
       if (!tac) return;
 
+      // Limpiar canvas y props
       clearTacticsCanvas();
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
 
+      // Restaurar Canvas Dibujado
       if (tac.canvasData) {
         const img = new Image();
         img.onload = () => {
@@ -1275,10 +1280,12 @@
         img.src = tac.canvasData;
       }
 
+      // Restaurar Objetos
       if (tac.props) {
         tac.props.forEach(p => spawnProp(p.type, p.x, p.y));
       }
 
+      // Restaurar Posiciones de fichas
       if (tac.tokens) {
         const container = document.getElementById('tactics-pitch');
         document.querySelectorAll('#tactics-pitch .tactics-token').forEach(e => e.remove());
@@ -1495,7 +1502,7 @@
       }
     };
 
-    // --- SECCIÓN ENFRENTAMIENTO ---
+    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 GRANDES + SELECCIÓN DE RIVAL) ---
     function initMatchupView() {
       const container = document.getElementById('matchup-pitch');
       document.querySelectorAll('#matchup-pitch .matchup-token').forEach(e => e.remove());
@@ -1508,13 +1515,16 @@
 
       document.getElementById('select-rival-kit').value = selectedRivalKit;
 
+      // Determinar lado del usuario según su equipación
       const isMyTeamLeft = currentKit === 'local';
       document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? "(Lado Izquierdo - Local)" : "(Lado Derecho - Visitante)";
 
+      // Renderizar Mi Equipo
       activeTokens.forEach(token => {
         const assignedPlayer = squad.find(p => p.id === token.playerId);
         let posX, posY;
 
+        // Transformación de coordenadas verticales a horizontales según el lado
         if (isMyTeamLeft) {
           posX = 6 + (92 - token.y) * 0.42;
           posY = token.x;
@@ -1542,6 +1552,7 @@
         }, container);
       });
 
+      // Renderizar Equipo Rival
       renderRivalInMatchup();
     }
 
@@ -1552,9 +1563,10 @@
       const rival = rivalTeams.find(r => r.id === parseInt(selectedRivalId));
       if (!rival) return;
 
-      const isRivalRight = currentKit === 'local';
+      const isRivalRight = currentKit === 'local'; // Lado contrario a mi equipo
       const rivalForm = formations[rival.formation] || formations['4-3-3'];
 
+      // Sincronizar fichas del rival si no están inicializadas
       if (!activeRivalTokens || activeRivalTokens.length !== rivalForm.length) {
         activeRivalTokens = rivalForm.map((f, idx) => ({
           slot: f.slot,
@@ -1583,7 +1595,7 @@
 
         const tokenEl = document.createElement('div');
         tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-[3px] border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-        tokenEl.style.width = '63px';
+        tokenEl.style.width = '63px'; // Fichas x1.5 más grandes
         tokenEl.style.height = '63px';
         tokenEl.style.backgroundColor = rivalBgColor;
         tokenEl.style.color = getContrastTextColor(rivalBgColor);
@@ -1602,6 +1614,7 @@
         const tokenData = { x: posX, y: posY };
         makeDraggable(tokenEl, tokenData, container);
 
+        // Click para cambiar jugador del rival
         tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
         tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
 
@@ -1612,7 +1625,7 @@
     function createMatchupToken(data, container) {
       const tokenEl = document.createElement('div');
       tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-[3px] shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-      tokenEl.style.width = '63px';
+      tokenEl.style.width = '63px'; // Fichas x1.5 más grandes
       tokenEl.style.height = '63px';
       tokenEl.style.left = `${data.x}%`;
       tokenEl.style.top = `${data.y}%`;
@@ -1638,7 +1651,7 @@
 
     document.getElementById('select-rival-team').addEventListener('change', (e) => {
       selectedRivalId = e.target.value;
-      activeRivalTokens = [];
+      activeRivalTokens = []; // Reset para regenerar
       savePitchState();
       renderRivalInMatchup();
     });
@@ -1689,7 +1702,7 @@
       modalSelectPlayer.classList.add('hidden');
     }
 
-    // --- SECCIÓN EQUIPOS RIVALES ---
+    // --- SECCIÓN EQUIPOS RIVALES (NUEVO MENÚ HAMBURGUESA) ---
     const formAddRival = document.getElementById('form-add-rival');
     const editRivalIdInput = document.getElementById('edit-rival-id');
     const btnSaveRival = document.getElementById('btn-save-rival');
@@ -1800,6 +1813,7 @@
       }
     };
 
+    // Modal Plantilla Rival
     function openRivalSquadModal(rivalId) {
       currentEditingRivalForSquad = rivalTeams.find(r => r.id === rivalId);
       if (!currentEditingRivalForSquad) return;
@@ -1866,7 +1880,7 @@
       renderRivalsList();
     };
 
-    // --- SECCIÓN PLANTILLA MI EQUIPO Y MODAL DE SELECCIÓN ---
+    // --- SECCIÓN PLANTILLA MI EQUIPO ---
     function openAssignPlayerModal(slotId, role) {
       selectedSlotId = slotId;
       selectedBenchIndex = null;
@@ -1944,26 +1958,13 @@
       modalSelectPlayer.classList.remove('hidden');
     }
 
-    document.getElementById('btn-close-modal').onclick = () => {
-      modalSelectPlayer.classList.add('hidden');
-    };
-
     function assignPlayerToSlot(playerId) {
-      if (selectedSlotId !== null) {
-        if (playerId !== null) {
+      const token = activeTokens.find(t => t.slot === selectedSlotId);
+      if (token) {
+        token.playerId = playerId;
+        if (playerId && activeBench.includes(playerId)) {
           activeBench = activeBench.filter(id => id !== playerId);
-          activeTokens.forEach(t => {
-            if (t.playerId === playerId && t.slot !== selectedSlotId) {
-              t.playerId = null;
-            }
-          });
         }
-        
-        const token = activeTokens.find(t => t.slot === selectedSlotId);
-        if (token) {
-          token.playerId = playerId;
-        }
-
         savePitchState();
         renderPitch();
       }
@@ -1974,18 +1975,18 @@
       if (selectedBenchIndex !== null) {
         activeBench[selectedBenchIndex] = playerId;
       } else {
-        if (!activeBench.includes(playerId)) {
-          activeBench.push(playerId);
-        }
+        activeBench.push(playerId);
       }
       savePitchState();
-      renderBench();
+      renderPitch();
       modalSelectPlayer.classList.add('hidden');
     }
 
-    btnAddBenchPlayer.addEventListener('click', () => {
-      openAssignBenchModal(null);
-    });
+    btnAddBenchPlayer.addEventListener('click', () => openAssignBenchModal(null));
+    document.getElementById('btn-close-modal').onclick = () => modalSelectPlayer.classList.add('hidden');
+
+    selectFormation.value = currentFormationKey;
+    selectKit.value = currentKit;
 
     selectFormation.addEventListener('change', (e) => {
       currentFormationKey = e.target.value;
@@ -2000,17 +2001,14 @@
     });
 
     resetBtn.addEventListener('click', () => {
-      if (confirm("¿Deseas resetear las posiciones y alineación actual?")) {
-        activeTokens = null;
-        activeBench = [];
-        syncTokensWithFormation(false);
-        renderPitch();
-      }
+      syncTokensWithFormation(true);
+      renderPitch();
     });
 
-    // --- GESTIÓN DE PLANTILLA MI EQUIPO ---
+    // Gestión Plantilla Mi Equipo
     const formAddPlayer = document.getElementById('form-add-player');
     const editPlayerIdInput = document.getElementById('edit-player-id');
+    const formTitle = document.getElementById('player-form-title');
     const btnSavePlayer = document.getElementById('btn-save-player');
     const btnCancelEdit = document.getElementById('btn-cancel-edit');
 
@@ -2019,7 +2017,7 @@
       sortSquad();
 
       if (squad.length === 0) {
-        squadList.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay jugadores en la plantilla.</p>`;
+        squadList.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No hay jugadores en la plantilla.</p>`;
         return;
       }
 
@@ -2028,15 +2026,17 @@
         item.className = "bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm";
         item.innerHTML = `
           <div class="flex items-center gap-3">
-            <span class="bg-slate-900 text-emerald-400 font-bold border border-slate-700 w-8 h-8 rounded-full flex items-center justify-center text-xs">${player.num}</span>
+            <span class="bg-emerald-600/30 text-emerald-400 border border-emerald-500/50 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">${player.num}</span>
             <div>
-              <h4 class="font-bold text-white text-xs">${player.name}</h4>
-              <p class="text-[10px] text-slate-400">${player.roles.length > 0 ? player.roles.join(', ') : 'Sin posición'}</p>
+              <h4 class="font-bold text-sm text-white">${player.name}</h4>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${player.roles.map(r => `<span class="bg-slate-900 border border-slate-700 text-[9px] text-slate-300 px-1.5 py-0.5 rounded">${r}</span>`).join('')}
+              </div>
             </div>
           </div>
-          <div class="flex gap-1">
-            <button onclick="editPlayer(${player.id})" class="text-slate-400 hover:text-white p-1 rounded bg-slate-900 border border-slate-700 text-xs">✏️</button>
-            <button onclick="deletePlayer(${player.id})" class="text-slate-400 hover:text-red-400 p-1 rounded bg-slate-900 border border-slate-700 text-xs">🗑️</button>
+          <div class="flex items-center gap-1">
+            <button onclick="editPlayer(${player.id})" class="text-slate-400 hover:text-emerald-400 p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs transition">✏️ Editar</button>
+            <button onclick="deletePlayer(${player.id})" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs transition">🗑️</button>
           </div>
         `;
         squadList.appendChild(item);
@@ -2048,29 +2048,23 @@
       const editId = editPlayerIdInput.value;
       const num = parseInt(document.getElementById('player-num').value);
       const name = document.getElementById('player-name').value.trim();
+      const selectedRoles = Array.from(document.querySelectorAll('input[name="pos"]:checked')).map(cb => cb.value);
 
-      const roles = [];
-      document.querySelectorAll('input[name="pos"]:checked').forEach(cb => {
-        roles.push(cb.value);
-      });
-
-      if (editId) {
-        const player = squad.find(p => p.id === parseInt(editId));
-        if (player) {
-          player.num = num;
-          player.name = name;
-          player.roles = roles;
-        }
-      } else {
-        const newPlayer = {
-          id: Date.now(),
-          num,
-          name,
-          roles
-        };
-        squad.push(newPlayer);
+      if (selectedRoles.length === 0) {
+        alert("Selecciona al menos una posición para el jugador.");
+        return;
       }
 
+      if (editId) {
+        const index = squad.findIndex(p => p.id === parseInt(editId));
+        if (index !== -1) {
+          squad[index] = { id: parseInt(editId), num, name, roles: selectedRoles };
+        }
+      } else {
+        squad.push({ id: Date.now(), num, name, roles: selectedRoles });
+      }
+
+      sortSquad();
       localStorage.setItem('f11_squad', JSON.stringify(squad));
       resetPlayerForm();
       renderSquadList();
@@ -2089,7 +2083,7 @@
         cb.checked = player.roles.includes(cb.value);
       });
 
-      document.getElementById('player-form-title').innerText = "Editar Jugador";
+      formTitle.innerText = "Editar Jugador";
       btnSavePlayer.innerText = "Actualizar Jugador";
       btnCancelEdit.classList.remove('hidden');
     };
@@ -2097,8 +2091,7 @@
     function resetPlayerForm() {
       editPlayerIdInput.value = '';
       formAddPlayer.reset();
-      document.querySelectorAll('input[name="pos"]').forEach(cb => cb.checked = false);
-      document.getElementById('player-form-title').innerText = "Añadir Jugador a Mi Equipo";
+      formTitle.innerText = "Añadir Jugador a Mi Equipo";
       btnSavePlayer.innerText = "Guardar Jugador";
       btnCancelEdit.classList.add('hidden');
     }
@@ -2106,43 +2099,37 @@
     btnCancelEdit.addEventListener('click', resetPlayerForm);
 
     window.deletePlayer = function(id) {
-      if (confirm("¿Seguro que deseas eliminar a este jugador de la plantilla?")) {
+      if (confirm("¿Seguro que deseas eliminar este jugador?")) {
         squad = squad.filter(p => p.id !== id);
-        if (activeTokens) {
-          activeTokens.forEach(t => { if (t.playerId === id) t.playerId = null; });
-        }
         activeBench = activeBench.filter(bId => bId !== id);
-
+        sortSquad();
         localStorage.setItem('f11_squad', JSON.stringify(squad));
-        savePitchState();
         renderSquadList();
         renderPitch();
       }
     };
 
-    // --- GUARDAR Y GESTIONAR PARTIDOS / ALINEACIONES ---
+    // --- SECCIÓN PARTIDOS GUARDADOS ---
     btnSaveLineupModal.addEventListener('click', () => {
       document.getElementById('match-date').value = new Date().toISOString().split('T')[0];
-      document.getElementById('modal-save-lineup').classList.remove('hidden');
+      modalSaveLineup.classList.remove('hidden');
     });
 
-    document.getElementById('btn-close-save-modal').onclick = () => {
-      document.getElementById('modal-save-lineup').classList.add('hidden');
-    };
+    document.getElementById('btn-close-save-modal').onclick = () => modalSaveLineup.classList.add('hidden');
 
     document.getElementById('form-save-match').addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('match-name').value.trim();
-      const date = document.getElementById('match-date').value;
-      const field = document.getElementById('match-field').value.trim();
-      const rival = document.getElementById('match-rival').value.trim();
+      const matchName = document.getElementById('match-name').value.trim();
+      const matchDate = document.getElementById('match-date').value;
+      const matchField = document.getElementById('match-field').value.trim();
+      const matchRival = document.getElementById('match-rival').value.trim();
 
       const newMatch = {
         id: Date.now(),
-        name,
-        date,
-        field,
-        rival,
+        name: matchName,
+        date: matchDate,
+        field: matchField,
+        rival: matchRival,
         formation: currentFormationKey,
         kit: currentKit,
         tokens: JSON.parse(JSON.stringify(activeTokens)),
@@ -2152,47 +2139,56 @@
       savedMatches.unshift(newMatch);
       localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
 
-      document.getElementById('modal-save-lineup').classList.add('hidden');
+      modalSaveLineup.classList.add('hidden');
       document.getElementById('form-save-match').reset();
-      alert("¡Alineación / Partido guardado con éxito!");
+      alert("¡Alineación guardada!");
     });
 
     function renderMatchesList() {
       matchesList.innerHTML = '';
 
       if (savedMatches.length === 0) {
-        matchesList.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No tienes alineaciones/partidos guardados.</p>`;
+        matchesList.innerHTML = `<p class="text-slate-500 text-xs text-center py-6">No tienes partidos guardados.</p>`;
         return;
       }
 
-      savedMatches.forEach(m => {
+      savedMatches.forEach(match => {
         const card = document.createElement('div');
-        card.className = "bg-slate-800 p-3.5 rounded-xl border border-slate-700 space-y-2.5 shadow-md";
+        card.className = "bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 shadow-md";
+        const benchSize = match.bench ? match.bench.length : 0;
+
         card.innerHTML = `
-          <div class="flex justify-between items-start">
+          <div class="flex justify-between items-start border-b border-slate-700/60 pb-2">
             <div>
-              <h4 class="font-bold text-emerald-400 text-sm">${m.name}</h4>
-              <span class="text-xs text-slate-400">${m.date}${m.field ? ' · ' + m.field : ''}</span>
+              <h4 class="font-bold text-emerald-400 text-sm">${match.name}</h4>
+              <p class="text-xs text-slate-300 font-medium mt-0.5">Rival: <span class="text-white font-semibold">${match.rival}</span></p>
+              ${match.field ? `<p class="text-xs text-slate-400 mt-0.5">📍 ${match.field}</p>` : ''}
             </div>
-            <div class="flex gap-1">
-              <button onclick="openEditMatchModal(${m.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-2 py-1 rounded bg-slate-900 border border-slate-700">✏️</button>
-              <button onclick="deleteMatch(${m.id})" class="text-slate-400 hover:text-red-400 text-xs px-2 py-1 rounded bg-slate-900 border border-slate-700">🗑️</button>
+            <div class="flex flex-col items-end gap-1">
+              <span class="bg-slate-900 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono">${match.date}</span>
+              <button onclick="openEditMatchModal(${match.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
             </div>
           </div>
-          <div class="flex justify-between items-center text-xs text-slate-300 bg-slate-900/60 p-2 rounded-lg border border-slate-700/50">
-            <span>Rival: <b class="text-white">${m.rival}</b></span>
-            <span class="bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono border border-slate-700">${m.formation}</span>
+
+          <div class="flex flex-wrap gap-2 text-[10px]">
+            <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Sistema: <b>${match.formation}</b></span>
+            <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Kit: <b>${match.kit === 'local' ? 'Local' : 'Visitante'}</b></span>
+            <span class="bg-slate-900 border border-slate-700 text-emerald-400 px-2 py-1 rounded">Suplentes: <b>${benchSize}</b></span>
           </div>
-          <button onclick="loadMatchToBoard(${m.id})" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 text-xs font-bold py-2 rounded-lg transition active:scale-95">
-            📋 Cargar en Pizarra Principal
-          </button>
+
+          <div class="flex gap-2 pt-1 border-t border-slate-700/40">
+            <button onclick="loadMatchToPitch(${match.id})" class="flex-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
+              👁️ Cargar en Pizarra
+            </button>
+            <button onclick="deleteMatch(${match.id})" class="bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-red-300 px-2.5 py-1.5 rounded-lg text-xs transition">🗑️</button>
+          </div>
         `;
         matchesList.appendChild(card);
       });
     }
 
-    window.loadMatchToBoard = function(id) {
-      const match = savedMatches.find(m => m.id === id);
+    window.loadMatchToPitch = function(matchId) {
+      const match = savedMatches.find(m => m.id === matchId);
       if (!match) return;
 
       currentFormationKey = match.formation;
@@ -2204,12 +2200,20 @@
       selectKit.value = currentKit;
 
       savePitchState();
-      switchView('pizarra');
       renderPitch();
+      switchView('pizarra');
     };
 
-    window.openEditMatchModal = function(id) {
-      const match = savedMatches.find(m => m.id === id);
+    window.deleteMatch = function(matchId) {
+      if (confirm("¿Deseas eliminar este partido?")) {
+        savedMatches = savedMatches.filter(m => m.id !== matchId);
+        localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
+        renderMatchesList();
+      }
+    };
+
+    window.openEditMatchModal = function(matchId) {
+      const match = savedMatches.find(m => m.id === matchId);
       if (!match) return;
 
       document.getElementById('edit-match-id').value = match.id;
@@ -2241,24 +2245,9 @@
       }
     });
 
-    window.deleteMatch = function(id) {
-      if (confirm("¿Deseas eliminar este partido/alineación?")) {
-        savedMatches = savedMatches.filter(m => m.id !== id);
-        localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
-        renderMatchesList();
-      }
-    };
-
-    // --- INICIALIZACIÓN ---
-    function initApp() {
-      sortSquad();
-      selectFormation.value = currentFormationKey;
-      selectKit.value = currentKit;
-      syncTokensWithFormation(true);
-      renderPitch();
-    }
-
-    initApp();
+    // INICIALIZACIÓN
+    syncTokensWithFormation(true);
+    renderPitch();
   </script>
 </body>
 </html>
