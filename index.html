@@ -135,7 +135,6 @@
     <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS Y GUARDADO) -->
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
-        <!-- Media Cancha -->
         <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
           <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
             <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
@@ -151,14 +150,12 @@
           </div>
         </div>
 
-        <!-- Panel Lateral Desplegable de Herramientas + Guardado -->
         <div class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
           <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 hidden sm:block border-b border-slate-700 pb-2">
             🛠️ Herramientas
           </div>
 
           <div class="space-y-3">
-            <!-- BOTONES GUARDAR / CARGAR TÁCTICA -->
             <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-700 space-y-1.5">
               <button id="btn-save-tactic-modal" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow">
                 💾 <span class="hidden sm:inline">Guardar Táctica</span>
@@ -168,7 +165,6 @@
               </button>
             </div>
 
-            <!-- DIBUJAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-draw" onclick="setActiveTool('draw')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">✏️ <span class="hidden sm:inline">Dibujar</span></span>
@@ -189,7 +185,6 @@
               </div>
             </div>
 
-            <!-- BORRAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-erase" onclick="setActiveTool('erase')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">🧹 <span class="hidden sm:inline">Borrar</span></span>
@@ -204,7 +199,6 @@
               </div>
             </div>
 
-            <!-- ICONOS / OBJETOS -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <div class="font-bold text-xs flex items-center justify-between text-slate-200 mb-2">
                 <span class="flex items-center gap-2">🎯 <span class="hidden sm:inline">Objetos</span></span>
@@ -222,7 +216,6 @@
 
     <!-- SECCIÓN 3: ENFRENTAMIENTO (11 vs 11 HORIZONTAL) -->
     <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
-      <!-- Selector de Rival Superior / Overlay -->
       <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20">
         <div class="text-xs font-semibold text-emerald-400">
           Mi Equipo: <span id="matchup-my-side-label" class="text-white font-normal">(Izquierda)</span>
@@ -262,7 +255,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 4: EQUIPOS RIVALES (NUEVO) -->
+    <!-- SECCIÓN 4: EQUIPOS RIVALES -->
     <section id="sec-rivales" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
         <h3 id="rival-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Crear Nuevo Equipo Rival</h3>
@@ -410,7 +403,7 @@
     </div>
   </div>
 
-  <!-- MODAL: GUARDAR TÁCTICA (CON NOMBRE, FECHA Y DESCRIPCIÓN) -->
+  <!-- MODAL: GUARDAR TÁCTICA -->
   <div id="modal-save-tactic" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -795,10 +788,17 @@
         `;
 
         makeDraggable(tokenEl, token, pitch);
-        tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
         
         let tapTimer = null;
+        let isMoved = false;
+
+        tokenEl.addEventListener('pointerdown', () => { isMoved = false; });
+        tokenEl.addEventListener('pointermove', () => { isMoved = true; });
+
+        tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
+        
         tokenEl.addEventListener('touchend', () => {
+          if (isMoved) return;
           if (!tapTimer) {
             tapTimer = setTimeout(() => { tapTimer = null; }, 300);
           } else {
@@ -883,14 +883,14 @@
         isDragging = false;
         element.releasePointerCapture(e.pointerId);
         element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-        if (container === pitch) savePitchState();
+        savePitchState();
       };
 
       element.addEventListener('pointerup', stopDrag);
       element.addEventListener('pointercancel', stopDrag);
     }
 
-    // --- SECCIÓN TÁCTICAS (SINCRONIZADO CON PIZARRA + DIBUJO Y GUARDADO) ---
+    // --- SECCIÓN TÁCTICAS ---
     let tacticsCanvas, tacticsCtx;
     let isDrawing = false;
     let activeTool = 'draw';
@@ -903,16 +903,28 @@
       tacticsCanvas = document.getElementById('tactics-canvas');
       tacticsCtx = tacticsCanvas.getContext('2d');
 
+      let savedCanvasData = null;
+      if (tacticsCanvas.width > 0 && tacticsCanvas.height > 0) {
+        savedCanvasData = tacticsCanvas.toDataURL();
+      }
+
       setTimeout(() => {
-        tacticsCanvas.width = container.clientWidth;
-        tacticsCanvas.height = container.clientHeight;
+        const newWidth = container.clientWidth;
+        const newHeight = container.clientHeight;
+        if (tacticsCanvas.width !== newWidth || tacticsCanvas.height !== newHeight) {
+          tacticsCanvas.width = newWidth;
+          tacticsCanvas.height = newHeight;
+          if (savedCanvasData) {
+            const img = new Image();
+            img.onload = () => tacticsCtx.drawImage(img, 0, 0);
+            img.src = savedCanvasData;
+          }
+        }
       }, 50);
 
       document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
 
-      // Sincronización exacta con los 11 jugadores de Pizarra Táctica
       currentTacticsTokens = activeTokens.map(t => {
-        // Mapear posición Y de campo completo a medio campo (0% a 90%)
         const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
         return {
           slot: t.slot,
@@ -1073,7 +1085,6 @@
       const date = document.getElementById('tactic-date').value;
       const desc = document.getElementById('tactic-desc').value.trim();
 
-      // Guardar Objetos/Props en el campo
       const propsList = [];
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
         propsList.push({
@@ -1146,11 +1157,9 @@
       const tac = savedTactics.find(t => t.id === id);
       if (!tac) return;
 
-      // Limpiar canvas y props
       clearTacticsCanvas();
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
 
-      // Restaurar Canvas Dibujado
       if (tac.canvasData) {
         const img = new Image();
         img.onload = () => {
@@ -1159,12 +1168,10 @@
         img.src = tac.canvasData;
       }
 
-      // Restaurar Objetos
       if (tac.props) {
         tac.props.forEach(p => spawnProp(p.type, p.x, p.y));
       }
 
-      // Restaurar Posiciones de fichas
       if (tac.tokens) {
         const container = document.getElementById('tactics-pitch');
         document.querySelectorAll('#tactics-pitch .tactics-token').forEach(e => e.remove());
@@ -1237,7 +1244,7 @@
       }
     };
 
-    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 GRANDES + SELECCIÓN DE RIVAL) ---
+    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11) ---
     function initMatchupView() {
       const container = document.getElementById('matchup-pitch');
       document.querySelectorAll('#matchup-pitch .matchup-token').forEach(e => e.remove());
@@ -1250,16 +1257,13 @@
 
       document.getElementById('select-rival-kit').value = selectedRivalKit;
 
-      // Determinar lado del usuario según su equipación
       const isMyTeamLeft = currentKit === 'local';
       document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? "(Lado Izquierdo - Local)" : "(Lado Derecho - Visitante)";
 
-      // Renderizar Mi Equipo
       activeTokens.forEach(token => {
         const assignedPlayer = squad.find(p => p.id === token.playerId);
         let posX, posY;
 
-        // Transformación de coordenadas verticales a horizontales según el lado
         if (isMyTeamLeft) {
           posX = 6 + (92 - token.y) * 0.42;
           posY = token.x;
@@ -1287,7 +1291,6 @@
         }, container);
       });
 
-      // Renderizar Equipo Rival
       renderRivalInMatchup();
     }
 
@@ -1298,10 +1301,9 @@
       const rival = rivalTeams.find(r => r.id === parseInt(selectedRivalId));
       if (!rival) return;
 
-      const isRivalRight = currentKit === 'local'; // Lado contrario a mi equipo
+      const isRivalRight = currentKit === 'local';
       const rivalForm = formations[rival.formation] || formations['4-3-3'];
 
-      // Sincronizar fichas del rival si no están inicializadas
       if (!activeRivalTokens || activeRivalTokens.length !== rivalForm.length) {
         activeRivalTokens = rivalForm.map((f, idx) => ({
           slot: f.slot,
@@ -1330,12 +1332,12 @@
 
         const tokenEl = document.createElement('div');
         tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-2 border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-        tokenEl.style.width = '42px'; // Fichas más grandes
+        tokenEl.style.width = '42px';
         tokenEl.style.height = '42px';
         tokenEl.style.backgroundColor = rivalBgColor;
         tokenEl.style.color = getContrastTextColor(rivalBgColor);
-        tokenEl.style.left = `${posX}%`;
-        tokenEl.style.top = `${posY}%`;
+        tokenEl.style.left = `${token.x || posX}%`;
+        tokenEl.style.top = `${token.y || posY}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
 
         const displayNum = assignedRivalPlayer ? assignedRivalPlayer.num : token.slot;
@@ -1346,12 +1348,18 @@
           <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
         `;
 
-        const tokenData = { x: posX, y: posY };
-        makeDraggable(tokenEl, tokenData, container);
+        makeDraggable(tokenEl, token, container);
 
-        // Click para cambiar jugador del rival
+        let isMoved = false;
+        tokenEl.addEventListener('pointerdown', () => { isMoved = false; });
+        tokenEl.addEventListener('pointermove', () => { isMoved = true; });
+
         tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
-        tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
+        tokenEl.addEventListener('touchend', () => {
+          if (!isMoved) {
+            openAssignRivalPlayerModal(token.slot, rival);
+          }
+        });
 
         container.appendChild(tokenEl);
       });
@@ -1360,7 +1368,7 @@
     function createMatchupToken(data, container) {
       const tokenEl = document.createElement('div');
       tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-      tokenEl.style.width = '42px'; // Fichas más grandes
+      tokenEl.style.width = '42px';
       tokenEl.style.height = '42px';
       tokenEl.style.left = `${data.x}%`;
       tokenEl.style.top = `${data.y}%`;
@@ -1386,7 +1394,7 @@
 
     document.getElementById('select-rival-team').addEventListener('change', (e) => {
       selectedRivalId = e.target.value;
-      activeRivalTokens = []; // Reset para regenerar
+      activeRivalTokens = [];
       savePitchState();
       renderRivalInMatchup();
     });
@@ -1437,7 +1445,7 @@
       modalSelectPlayer.classList.add('hidden');
     }
 
-    // --- SECCIÓN EQUIPOS RIVALES (NUEVO MENÚ HAMBURGUESA) ---
+    // --- SECCIÓN EQUIPOS RIVALES ---
     const formAddRival = document.getElementById('form-add-rival');
     const editRivalIdInput = document.getElementById('edit-rival-id');
     const btnSaveRival = document.getElementById('btn-save-rival');
