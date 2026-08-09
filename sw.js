@@ -1,9 +1,9 @@
-const CACHE_NAME = 'tactica-f11-v1';
+const CACHE_NAME = 'tacticas-v1';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
-  'https://cdn.tailwindcss.com'
+  './app.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (e) => {
@@ -14,6 +14,6 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+    caches.match(e.request).then((response) => response || fetch(e.request))
   );
 });
