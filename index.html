@@ -11,145 +11,842 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Tailwind CSS via CDN -->
+  <!-- Tailwind CSS & FontAwesome CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <style>
-    /* Deshabilita gestos del navegador (scroll/zoom) al arrastrar fichas */
-    body, html {
+    /* Prevención de gestos accidentales del navegador durante el arrastre */
+    .touch-none-pitch {
       touch-action: none;
-      overflow: hidden;
       user-select: none;
       -webkit-user-select: none;
     }
+    
+    /* Animaciones suaves */
+    .drawer-transition {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    /* Scrollbars discretos */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
   </style>
 </head>
-<body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none">
+<body class="bg-slate-900 text-slate-100 h-screen w-screen flex flex-col font-sans overflow-hidden select-none">
 
-  <!-- Cabecera -->
-  <header class="p-3 bg-slate-800 border-b border-slate-700 flex justify-between items-center z-10 shadow-md">
-    <h1 class="text-base font-bold text-emerald-400 flex items-center gap-2">
-      ⚽ Táctica F11
-    </h1>
-    <div class="flex gap-2">
-      <button id="reset-btn" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded-lg font-semibold transition active:scale-95 border border-slate-600">
-        Resetear
+  <!-- CABECERA PRINCIPAL CON MENÚ HAMBURGUESA -->
+  <header class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex justify-between items-center z-30 shadow-md">
+    <div class="flex items-center gap-3">
+      <!-- Botón Menú Hamburguesa -->
+      <button id="menu-btn" class="text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-700 transition active:scale-95">
+        <i class="fa-solid fa-bars text-xl"></i>
       </button>
+      <h1 id="view-title" class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+        <i class="fa-solid fa-chalkboard-user"></i> Pizarra Táctica
+      </h1>
+    </div>
+
+    <!-- Indicador rápido de vista -->
+    <div id="quick-status" class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full font-medium">
+      4-3-3 | Local
     </div>
   </header>
 
-  <!-- Contenedor del Campo de Fútbol -->
-  <main class="flex-1 relative flex items-center justify-center p-3 overflow-hidden">
-    <div id="pitch" class="relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
+  <!-- MENÚ LATERAL DESPLEGABLE (DRAWER) -->
+  <div id="drawer-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm transition-opacity"></div>
+  <aside id="drawer" class="fixed top-0 left-0 h-full w-72 bg-slate-800 border-r border-slate-700 z-50 transform -translate-x-full drawer-transition flex flex-col shadow-2xl">
+    <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-850">
+      <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-lg">
+        <i class="fa-solid fa-futbol"></i> Táctica F11
+      </div>
+      <button id="close-drawer-btn" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    </div>
+
+    <nav class="p-4 flex-1 space-y-2">
+      <button id="nav-pizarra" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-semibold bg-emerald-600 text-white shadow-lg transition">
+        <i class="fa-solid fa-chalkboard text-lg"></i>
+        <span>Pizarra Táctica</span>
+      </button>
+      <button id="nav-plantilla" class="w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition">
+        <i class="fa-solid fa-users text-lg"></i>
+        <span>Plantilla del Equipo</span>
+      </button>
+    </nav>
+
+    <div class="p-4 border-t border-slate-700 text-xs text-slate-400 text-center">
+      Entrenador F11 &bull; Modo Offline
+    </div>
+  </aside>
+
+  <!-- SECCIÓN 1: VISTA PIZARRA TÁCTICA -->
+  <main id="view-pizarra" class="flex-1 flex flex-col overflow-hidden relative">
+    
+    <!-- BARRA DE HERRAMIENTAS DE LA PIZARRA -->
+    <div class="bg-slate-800/80 backdrop-blur border-b border-slate-700 p-2 px-3 flex flex-wrap justify-between items-center gap-2 text-xs z-10">
       
-      <!-- Marcado del campo en SVG -->
-      <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
-        <!-- Línea Central y Círculo -->
-        <line x1="0" y1="50%" x2="100%" y2="50%" />
-        <circle cx="50%" cy="50%" r="15%" />
-        <circle cx="50%" cy="50%" r="2" fill="white" />
+      <!-- Selector de Equipación (Local / Visitante) -->
+      <div class="flex items-center bg-slate-900/80 p-1 rounded-lg border border-slate-700">
+        <span class="text-slate-400 px-2 font-medium hidden sm:inline">Equipación:</span>
+        <button id="kit-local-btn" class="px-2.5 py-1 rounded-md font-bold transition flex items-center gap-1.5 bg-indigo-900 text-white border border-indigo-500 shadow">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Local
+        </button>
+        <button id="kit-visitante-btn" class="px-2.5 py-1 rounded-md font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span> Visitante
+        </button>
+      </div>
+
+      <!-- Selector de Formación Táctica -->
+      <div class="flex items-center bg-slate-900/80 p-1 rounded-lg border border-slate-700">
+        <span class="text-slate-400 px-2 font-medium hidden sm:inline">Formación:</span>
+        <button id="form-433-btn" class="px-3 py-1 rounded-md font-bold bg-emerald-600 text-white transition shadow">
+          4-3-3
+        </button>
+        <button id="form-442-btn" class="px-3 py-1 rounded-md font-bold text-slate-400 hover:text-white transition">
+          4-4-2
+        </button>
+      </div>
+
+      <!-- Acciones de Limpieza -->
+      <button id="reset-positions-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1 rounded-md font-medium transition flex items-center gap-1 border border-slate-600" title="Reiniciar posiciones">
+        <i class="fa-solid fa-arrows-rotate"></i> Reset
+      </button>
+    </div>
+
+    <!-- CAMPO DE FÚTBOL INTERACTIVO -->
+    <div class="flex-1 relative flex items-center justify-center p-2 sm:p-4 overflow-hidden touch-none-pitch">
+      <div id="pitch" class="relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
         
-        <!-- Área Grande y Chica Superior -->
-        <rect x="20%" y="0" width="60%" height="16%" />
-        <rect x="35%" y="0" width="30%" height="6%" />
-        <circle cx="50%" cy="11%" r="2" fill="white" />
+        <!-- Marcado de líneas del campo en SVG -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
+          <line x1="0" y1="50%" x2="100%" y2="50%" />
+          <circle cx="50%" cy="50%" r="15%" />
+          <circle cx="50%" cy="50%" r="2" fill="white" />
+          
+          <!-- Área Superior -->
+          <rect x="20%" y="0" width="60%" height="16%" />
+          <rect x="35%" y="0" width="30%" height="6%" />
+          <circle cx="50%" cy="11%" r="2" fill="white" />
 
-        <!-- Área Grande y Chica Inferior -->
-        <rect x="20%" y="84%" width="60%" height="16%" />
-        <rect x="35%" y="94%" width="30%" height="6%" />
-        <circle cx="50%" cy="89%" r="2" fill="white" />
-      </svg>
+          <!-- Área Inferior -->
+          <rect x="20%" y="84%" width="60%" height="16%" />
+          <rect x="35%" y="94%" width="30%" height="6%" />
+          <circle cx="50%" cy="89%" r="2" fill="white" />
+        </svg>
 
-      <!-- Las fichas de los jugadores se inyectan aquí -->
+        <!-- Fichas dinámicas se inyectan mediante JS -->
+      </div>
     </div>
   </main>
 
+  <!-- SECCIÓN 2: VISTA GESTIÓN DE PLANTILLA -->
+  <main id="view-plantilla" class="flex-1 flex flex-col overflow-hidden hidden bg-slate-900 p-4 max-w-4xl mx-auto w-full">
+    
+    <!-- Encabezado de Plantilla -->
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-user text-emerald-400"></i> Mi Jugadores
+        </h2>
+        <p class="text-xs text-slate-400">Administra los dorsales y posiciones asignadas a cada futbolista.</p>
+      </div>
+      <button id="open-add-player-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl text-sm transition shadow-lg flex items-center gap-2 active:scale-95">
+        <i class="fa-solid fa-user-plus"></i> Añadir
+      </button>
+    </div>
+
+    <!-- Filtro por Posiciones -->
+    <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3 text-xs scrollbar-none">
+      <button class="filter-pos-btn active bg-slate-700 text-emerald-400 border border-emerald-500 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="TODOS">Todos</button>
+      <button class="filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="POR">Porteros</button>
+      <button class="filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="DFC">Defensas</button>
+      <button class="filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="LATERALES">Laterales</button>
+      <button class="filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="MC">Mediocampistas</button>
+      <button class="filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="EXTREMOS">Extremos</button>
+      <button class="filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap" data-pos="DC">Delanteros</button>
+    </div>
+
+    <!-- Lista de Jugadores Registrados -->
+    <div id="players-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+      <!-- Inyectado por JS -->
+    </div>
+  </main>
+
+
+  <!-- MODAL: AÑADIR JUGADOR -->
+  <div id="modal-add-player" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <h3 class="text-base font-bold text-emerald-400 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus"></i> Nuevo Jugador
+        </h3>
+        <button id="close-add-modal-btn" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="add-player-form" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Nombre y Apellidos</label>
+          <input type="text" id="player-name-input" required placeholder="Ej. Alex Baena" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-emerald-500 focus:outline-none text-sm">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Dorsal / Camiseta</label>
+          <input type="number" id="player-number-input" min="1" max="99" required placeholder="10" class="w-24 bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-emerald-500 focus:outline-none text-sm font-bold">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1.5">Posiciones compatibles (Puedes marcar varias):</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-900 p-3 rounded-xl border border-slate-700 text-slate-300">
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="POR" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Portero (POR)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="DFC" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Defensa Central (DFC)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="LI" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Lateral Izquierdo (LI)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="LD" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Lateral Derecho (LD)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="MC" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Mediocampista (MC)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="EI" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Extremo Izquierdo (EI)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="ED" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Extremo Derecho (ED)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer hover:text-white">
+              <input type="checkbox" value="DC" class="pos-checkbox rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
+              Delantero (DC)
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" id="cancel-add-modal-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold px-4 py-2 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-xl transition shadow-lg">Guardar Jugador</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- MODAL: SELECCIONAR JUGADOR PARA FICHA DE LA PIZARRA -->
+  <div id="modal-select-player" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+        <div>
+          <h3 id="select-modal-title" class="text-base font-bold text-emerald-400">Asignar Jugador</h3>
+          <p id="select-modal-subtitle" class="text-xs text-slate-400">Selecciona un jugador para esta posición</p>
+        </div>
+        <button id="close-select-modal-btn" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Toggle filtro estricto por posición o ver todos -->
+      <div class="flex justify-between items-center text-xs bg-slate-900 p-2 rounded-xl">
+        <span class="text-slate-300">Mostrar solo especialistas de la posición</span>
+        <input type="checkbox" id="filter-strict-toggle" checked class="rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0 cursor-pointer">
+      </div>
+
+      <!-- Lista de Selección -->
+      <div id="select-players-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+        <!-- Inyectado por JS -->
+      </div>
+
+      <div class="pt-2 border-t border-slate-700 flex justify-between items-center">
+        <button id="unassign-player-btn" class="bg-rose-900/60 hover:bg-rose-800 text-rose-300 border border-rose-700 font-semibold px-3 py-1.5 rounded-xl text-xs transition">
+          <i class="fa-solid fa-user-slash"></i> Desasignar
+        </button>
+        <button id="close-select-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold px-4 py-1.5 rounded-xl text-xs transition">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- LÓGICA DE LA APLICACIÓN -->
   <script>
-    // Posiciones iniciales (Formación 1-4-3-3) en porcentajes (%) respecto al campo
-    const initialPositions = [
-      { id: 1,  num: '1',  role: 'POR', x: 50, y: 92, bg: 'bg-amber-500' },
-      { id: 2,  num: '2',  role: 'LD',  x: 85, y: 76, bg: 'bg-blue-600' },
-      { id: 3,  num: '4',  role: 'DFC', x: 63, y: 82, bg: 'bg-blue-600' },
-      { id: 4,  num: '5',  role: 'DFC', x: 37, y: 82, bg: 'bg-blue-600' },
-      { id: 5,  num: '3',  role: 'LI',  x: 15, y: 76, bg: 'bg-blue-600' },
-      { id: 6,  num: '6',  role: 'MCD', x: 50, y: 66, bg: 'bg-blue-600' },
-      { id: 7,  num: '8',  role: 'MC',  x: 70, y: 54, bg: 'bg-blue-600' },
-      { id: 8,  num: '10', role: 'MC',  x: 30, y: 54, bg: 'bg-blue-600' },
-      { id: 9,  num: '7',  role: 'ED',  x: 82, y: 34, bg: 'bg-blue-600' },
-      { id: 10, num: '9',  role: 'DC',  x: 50, y: 26, bg: 'bg-blue-600' },
-      { id: 11, num: '11', role: 'EI',  x: 18, y: 34, bg: 'bg-blue-600' },
+    /* ==========================================================================
+       1. ESTADO Y CONFIGURACIÓN INICIAL
+       ========================================================================== */
+
+    // Plantilla de demostración por defecto
+    const DEFAULT_PLANTILLA = [
+      { id: 'p1',  name: 'Marc Ter Stegen', number: '1',  positions: ['POR'] },
+      { id: 'p2',  name: 'Jules Koundé',    number: '23', positions: ['LD', 'DFC'] },
+      { id: 'p3',  name: 'Pau Cubarsí',     number: '2',  positions: ['DFC'] },
+      { id: 'p4',  name: 'Iñigo Martínez',  number: '5',  positions: ['DFC'] },
+      { id: 'p5',  name: 'Alejandro Balde', number: '3',  positions: ['LI'] },
+      { id: 'p6',  name: 'Marc Casadó',     number: '17', positions: ['MC'] },
+      { id: 'p7',  name: 'Pedri González',  number: '8',  positions: ['MC'] },
+      { id: 'p8',  name: 'Dani Olmo',       number: '20', positions: ['MC', 'EI', 'ED'] },
+      { id: 'p9',  name: 'Lamine Yamal',    number: '19', positions: ['ED'] },
+      { id: 'p10', name: 'Robert Lewandowski', number: '9', positions: ['DC'] },
+      { id: 'p11', name: 'Raphinha',        number: '11', positions: ['EI', 'ED', 'MC'] },
+      { id: 'p12', name: 'Iñaki Peña',      number: '13', positions: ['POR'] },
+      { id: 'p13', name: 'Ronald Araujo',   number: '4',  positions: ['DFC', 'LD'] },
+      { id: 'p14', name: 'Gavi',            number: '6',  positions: ['MC'] },
+      { id: 'p15', name: 'Ferran Torres',   number: '7',  positions: ['DC', 'EI', 'ED'] }
     ];
 
-    const pitch = document.getElementById('pitch');
-    const resetBtn = document.getElementById('reset-btn');
+    // Definición de Formaciones (porcentajes X, Y)
+    const FORMATIONS = {
+      '4-3-3': [
+        { slotId: 's1',  role: 'POR', x: 50, y: 91 },
+        { slotId: 's2',  role: 'LD',  x: 84, y: 75 },
+        { slotId: 's3',  role: 'DFC', x: 63, y: 81 },
+        { slotId: 's4',  role: 'DFC', x: 37, y: 81 },
+        { slotId: 's5',  role: 'LI',  x: 16, y: 75 },
+        { slotId: 's6',  role: 'MC',  x: 50, y: 64 },
+        { slotId: 's7',  role: 'MC',  x: 72, y: 52 },
+        { slotId: 's8',  role: 'MC',  x: 28, y: 52 },
+        { slotId: 's9',  role: 'ED',  x: 82, y: 32 },
+        { slotId: 's10', role: 'DC',  x: 50, y: 24 },
+        { slotId: 's11', role: 'EI',  x: 18, y: 32 }
+      ],
+      '4-4-2': [
+        { slotId: 's1',  role: 'POR', x: 50, y: 91 },
+        { slotId: 's2',  role: 'LD',  x: 84, y: 75 },
+        { slotId: 's3',  role: 'DFC', x: 63, y: 81 },
+        { slotId: 's4',  role: 'DFC', x: 37, y: 81 },
+        { slotId: 's5',  role: 'LI',  x: 16, y: 75 },
+        { slotId: 's6',  role: 'ED',  x: 85, y: 52 },
+        { slotId: 's7',  role: 'MC',  x: 61, y: 56 },
+        { slotId: 's8',  role: 'MC',  x: 39, y: 56 },
+        { slotId: 's9',  role: 'EI',  x: 15, y: 52 },
+        { slotId: 's10', role: 'DC',  x: 62, y: 26 },
+        { slotId: 's11', role: 'DC',  x: 38, y: 26 }
+      ]
+    };
 
-    function renderPlayers() {
-      // Limpiar fichas existentes
+    // Estado Global persistente en LocalStorage
+    let state = {
+      kit: 'local',           // 'local' | 'visitante'
+      formation: '4-3-3',     // '4-3-3' | '4-4-2'
+      plantilla: [],
+      assignments: {},        // Map slotId -> playerId
+      positions: {}           // Map slotId -> {x, y}
+    };
+
+    // Cargar datos guardados
+    function loadState() {
+      const saved = localStorage.getItem('tactica_f11_state');
+      if (saved) {
+        try {
+          state = JSON.parse(saved);
+        } catch(e) {
+          console.error("Error al cargar estado", e);
+        }
+      }
+      if (!state.plantilla || state.plantilla.length === 0) {
+        state.plantilla = [...DEFAULT_PLANTILLA];
+      }
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem('tactica_f11_state', JSON.stringify(state));
+    }
+
+
+    /* ==========================================================================
+       2. GESTIÓN DE NAVEGACIÓN Y MENÚ HAMBURGUESA
+       ========================================================================== */
+
+    const menuBtn = document.getElementById('menu-btn');
+    const drawer = document.getElementById('drawer');
+    const drawerBackdrop = document.getElementById('drawer-backdrop');
+    const closeDrawerBtn = document.getElementById('close-drawer-btn');
+    
+    const navPizarra = document.getElementById('nav-pizarra');
+    const navPlantilla = document.getElementById('nav-plantilla');
+    const viewPizarra = document.getElementById('view-pizarra');
+    const viewPlantilla = document.getElementById('view-plantilla');
+    const viewTitle = document.getElementById('view-title');
+
+    function openDrawer() {
+      drawer.classList.remove('-translate-x-full');
+      drawerBackdrop.classList.remove('hidden');
+    }
+
+    function closeDrawer() {
+      drawer.classList.add('-translate-x-full');
+      drawerBackdrop.classList.add('hidden');
+    }
+
+    menuBtn.addEventListener('click', openDrawer);
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+
+    function switchView(target) {
+      closeDrawer();
+      if (target === 'pizarra') {
+        viewPizarra.classList.remove('hidden');
+        viewPlantilla.classList.add('hidden');
+        navPizarra.className = "w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-semibold bg-emerald-600 text-white shadow-lg transition";
+        navPlantilla.className = "w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition";
+        viewTitle.innerHTML = `<i class="fa-solid fa-chalkboard-user"></i> Pizarra Táctica`;
+        renderPitch();
+      } else {
+        viewPizarra.classList.add('hidden');
+        viewPlantilla.classList.remove('hidden');
+        navPlantilla.className = "w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-semibold bg-emerald-600 text-white shadow-lg transition";
+        navPizarra.className = "w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition";
+        viewTitle.innerHTML = `<i class="fa-solid fa-users"></i> Plantilla del Equipo`;
+        renderPlantillaList();
+      }
+    }
+
+    navPizarra.addEventListener('click', () => switchView('pizarra'));
+    navPlantilla.addEventListener('click', () => switchView('plantilla'));
+
+
+    /* ==========================================================================
+       3. RENDERIZADO Y CONTROL DE LA PIZARRA TÁCTICA
+       ========================================================================== */
+
+    const pitch = document.getElementById('pitch');
+    const kitLocalBtn = document.getElementById('kit-local-btn');
+    const kitVisitanteBtn = document.getElementById('kit-visitante-btn');
+    const form433Btn = document.getElementById('form-433-btn');
+    const form442Btn = document.getElementById('form-442-btn');
+    const resetPositionsBtn = document.getElementById('reset-positions-btn');
+    const quickStatus = document.getElementById('quick-status');
+
+    let activeSlotForSelection = null;
+
+    function updateQuickStatus() {
+      quickStatus.textContent = `${state.formation} | ${state.kit === 'local' ? 'Local' : 'Visitante'}`;
+    }
+
+    // Cambiar Equipación (Local vs Visitante)
+    kitLocalBtn.addEventListener('click', () => {
+      state.kit = 'local';
+      kitLocalBtn.className = "px-2.5 py-1 rounded-md font-bold transition flex items-center gap-1.5 bg-indigo-900 text-white border border-indigo-500 shadow";
+      kitVisitanteBtn.className = "px-2.5 py-1 rounded-md font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+      saveState();
+      updateQuickStatus();
+      renderPitch();
+    });
+
+    kitVisitanteBtn.addEventListener('click', () => {
+      state.kit = 'visitante';
+      kitVisitanteBtn.className = "px-2.5 py-1 rounded-md font-bold transition flex items-center gap-1.5 bg-fuchsia-900 text-white border border-fuchsia-500 shadow";
+      kitLocalBtn.className = "px-2.5 py-1 rounded-md font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+      saveState();
+      updateQuickStatus();
+      renderPitch();
+    });
+
+    // Cambiar Formación
+    form433Btn.addEventListener('click', () => {
+      setFormation('4-3-3');
+    });
+
+    form442Btn.addEventListener('click', () => {
+      setFormation('4-4-2');
+    });
+
+    function setFormation(form) {
+      state.formation = form;
+      if (form === '4-3-3') {
+        form433Btn.className = "px-3 py-1 rounded-md font-bold bg-emerald-600 text-white transition shadow";
+        form442Btn.className = "px-3 py-1 rounded-md font-bold text-slate-400 hover:text-white transition";
+      } else {
+        form442Btn.className = "px-3 py-1 rounded-md font-bold bg-emerald-600 text-white transition shadow";
+        form433Btn.className = "px-3 py-1 rounded-md font-bold text-slate-400 hover:text-white transition";
+      }
+      // Reiniciar posiciones tácticas al cambiar formación
+      state.positions = {};
+      saveState();
+      updateQuickStatus();
+      renderPitch();
+    }
+
+    resetPositionsBtn.addEventListener('click', () => {
+      state.positions = {};
+      saveState();
+      renderPitch();
+    });
+
+    // Renderizar Fichas en el Campo
+    function renderPitch() {
+      // Limpiar fichas previas
       document.querySelectorAll('.player-token').forEach(el => el.remove());
 
-      initialPositions.forEach(player => {
+      const slots = FORMATIONS[state.formation];
+
+      slots.forEach(slot => {
+        const assignedPlayerId = state.assignments[slot.slotId];
+        const playerObj = state.plantilla.find(p => p.id === assignedPlayerId);
+
+        // Estilos de colores según equipación
+        let bgColor = '';
+        let textColor = 'text-white';
+        let isGk = (slot.role === 'POR');
+
+        if (state.kit === 'local') {
+          // Local: Azul Oscuro | Portero: Amarillo
+          bgColor = isGk ? 'bg-amber-400 text-slate-900 border-amber-200' : 'bg-slate-950 text-white border-blue-400/60';
+        } else {
+          // Visitante: Rosa Fucsia | Portero: Azul Mar
+          bgColor = isGk ? 'bg-cyan-400 text-slate-900 border-cyan-200' : 'bg-fuchsia-600 text-white border-fuchsia-300/80';
+        }
+
+        // Posición actual (personalizada o por defecto)
+        const customPos = state.positions[slot.slotId];
+        const posX = customPos ? customPos.x : slot.x;
+        const posY = customPos ? customPos.y : slot.y;
+
+        // Texto mostrado
+        const dorsalText = playerObj ? playerObj.number : slot.role;
+        const nameText = playerObj ? playerObj.name.split(' ').pop() : ''; // Mostrar primer apellido/nombre corto
+
         const token = document.createElement('div');
-        token.className = `player-token absolute rounded-full ${player.bg} text-white font-black text-xs flex flex-col items-center justify-center border-2 border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-        token.style.width = '38px';
-        token.style.height = '38px';
-        token.style.left = `${player.x}%`;
-        token.style.top = `${player.y}%`;
+        token.className = `player-token absolute flex flex-col items-center justify-center rounded-full ${bgColor} font-black border-2 shadow-2xl touch-none cursor-grab active:cursor-grabbing z-20 transition-transform active:scale-110`;
+        token.style.width = '42px';
+        token.style.height = '42px';
+        token.style.left = `${posX}%`;
+        token.style.top = `${posY}%`;
         token.style.transform = 'translate(-50%, -50%)';
-        
+
         token.innerHTML = `
-          <span>${player.num}</span>
-          <span class="text-[8px] leading-none opacity-80">${player.role}</span>
+          <span class="text-sm leading-tight tracking-tighter">${dorsalText}</span>
+          ${nameText ? `<span class="text-[8.5px] font-bold truncate max-w-[55px] leading-none bg-black/60 px-1 py-0.5 rounded text-white mt-0.5 border border-white/20">${nameText}</span>` : `<span class="text-[8px] opacity-75 font-normal leading-none">${slot.role}</span>`}
         `;
 
-        makeDraggable(token);
+        makeTokenInteractive(token, slot);
         pitch.appendChild(token);
       });
     }
 
-    function makeDraggable(element) {
+    // Lógica dual: Arrastrar (Pointer Events) o Pulsar (Abrir Modal)
+    function makeTokenInteractive(element, slot) {
       let isDragging = false;
+      let startX, startY;
+      let hasDragged = false;
 
       element.addEventListener('pointerdown', (e) => {
         isDragging = true;
+        hasDragged = false;
+        startX = e.clientX;
+        startY = e.clientY;
         element.setPointerCapture(e.pointerId);
-        element.classList.add('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
       });
 
       element.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
 
-        const rect = pitch.getBoundingClientRect();
-        // Cálculo relativo en porcentaje para mantener responsividad
-        let x = ((e.clientX - rect.left) / rect.width) * 100;
-        let y = ((e.clientY - rect.top) / rect.height) * 100;
+        const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
+        if (dist > 6) {
+          hasDragged = true;
+        }
 
-        // Limites para no sacar la ficha del campo
-        x = Math.max(4, Math.min(96, x));
-        y = Math.max(4, Math.min(96, y));
+        if (hasDragged) {
+          const rect = pitch.getBoundingClientRect();
+          let x = ((e.clientX - rect.left) / rect.width) * 100;
+          let y = ((e.clientY - rect.top) / rect.height) * 100;
 
-        element.style.left = `${x}%`;
-        element.style.top = `${y}%`;
+          // Límites dentro del campo
+          x = Math.max(5, Math.min(95, x));
+          y = Math.max(5, Math.min(95, y));
+
+          element.style.left = `${x}%`;
+          element.style.top = `${y}%`;
+
+          // Guardar posición personalizada
+          if (!state.positions) state.positions = {};
+          state.positions[slot.slotId] = { x, y };
+        }
       });
 
-      const stopDrag = (e) => {
+      const handlePointerUp = (e) => {
         if (!isDragging) return;
         isDragging = false;
         element.releasePointerCapture(e.pointerId);
-        element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
+
+        if (hasDragged) {
+          saveState();
+        } else {
+          // Si fue solo un clic/tap rápido, abrir selector de jugador
+          openSelectPlayerModal(slot);
+        }
       };
 
-      element.addEventListener('pointerup', stopDrag);
-      element.addEventListener('pointercancel', stopDrag);
+      element.addEventListener('pointerup', handlePointerUp);
+      element.addEventListener('pointercancel', handlePointerUp);
     }
 
-    resetBtn.addEventListener('click', renderPlayers);
-    renderPlayers();
 
-    // Registro de Service Worker para PWA
+    /* ==========================================================================
+       4. MODAL DE ASIGNACIÓN DE JUGADORES A LA FICHA
+       ========================================================================== */
+
+    const modalSelectPlayer = document.getElementById('modal-select-player');
+    const closeSelectModalBtn = document.getElementById('close-select-modal-btn');
+    const closeSelectBtn = document.getElementById('close-select-btn');
+    const unassignPlayerBtn = document.getElementById('unassign-player-btn');
+    const selectModalTitle = document.getElementById('select-modal-title');
+    const selectModalSubtitle = document.getElementById('select-modal-subtitle');
+    const selectPlayersList = document.getElementById('select-players-list');
+    const filterStrictToggle = document.getElementById('filter-strict-toggle');
+
+    function openSelectPlayerModal(slot) {
+      activeSlotForSelection = slot;
+      selectModalTitle.textContent = `Asignar Posición: ${slot.role}`;
+      selectModalSubtitle.textContent = `Busca un jugador de la plantilla para el puesto de ${slot.role}`;
+      
+      renderSelectablePlayers();
+      modalSelectPlayer.classList.remove('hidden');
+    }
+
+    function closeSelectPlayerModal() {
+      modalSelectPlayer.classList.add('hidden');
+      activeSlotForSelection = null;
+    }
+
+    closeSelectModalBtn.addEventListener('click', closeSelectPlayerModal);
+    closeSelectBtn.addEventListener('click', closeSelectPlayerModal);
+    filterStrictToggle.addEventListener('change', renderSelectablePlayers);
+
+    unassignPlayerBtn.addEventListener('click', () => {
+      if (activeSlotForSelection) {
+        delete state.assignments[activeSlotForSelection.slotId];
+        saveState();
+        renderPitch();
+        closeSelectPlayerModal();
+      }
+    });
+
+    function renderSelectablePlayers() {
+      if (!activeSlotForSelection) return;
+
+      const targetRole = activeSlotForSelection.role;
+      const isStrict = filterStrictToggle.checked;
+
+      // Filtrar plantilla por posición seleccionada
+      let candidates = state.plantilla;
+      if (isStrict) {
+        candidates = state.plantilla.filter(p => p.positions && p.positions.includes(targetRole));
+      }
+
+      selectPlayersList.innerHTML = '';
+
+      if (candidates.length === 0) {
+        selectPlayersList.innerHTML = `
+          <div class="text-center py-6 text-slate-400 text-xs">
+            <i class="fa-solid fa-user-slash text-2xl mb-2 block"></i>
+            No hay jugadores compatibles con la posición <strong>${targetRole}</strong>.
+            <br>Desmarca la casilla superior para ver toda la plantilla.
+          </div>
+        `;
+        return;
+      }
+
+      candidates.forEach(player => {
+        const isAssigned = state.assignments[activeSlotForSelection.slotId] === player.id;
+
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-xl border flex justify-between items-center cursor-pointer transition ${isAssigned ? 'bg-emerald-950/80 border-emerald-500' : 'bg-slate-900 border-slate-700 hover:border-slate-500'}`;
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full bg-slate-800 text-emerald-400 font-extrabold flex items-center justify-center border border-slate-700 text-sm">
+              ${player.number}
+            </span>
+            <div>
+              <div class="font-bold text-sm text-white">${player.name}</div>
+              <div class="text-[10px] text-slate-400 flex gap-1 mt-0.5">
+                ${player.positions.map(pos => `<span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">${pos}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          ${isAssigned ? '<span class="text-xs bg-emerald-600 text-white px-2 py-1 rounded-md font-bold"><i class="fa-solid fa-check"></i> En el campo</span>' : '<span class="text-xs text-emerald-400 font-semibold">Seleccionar &rarr;</span>'}
+        `;
+
+        item.addEventListener('click', () => {
+          state.assignments[activeSlotForSelection.slotId] = player.id;
+          saveState();
+          renderPitch();
+          closeSelectPlayerModal();
+        });
+
+        selectPlayersList.appendChild(item);
+      });
+    }
+
+
+    /* ==========================================================================
+       5. GESTIÓN DE PLANTILLA DE JUGADORES (AÑADIR / ELIMINAR / FILTRAR)
+       ========================================================================== */
+
+    const playersList = document.getElementById('players-list');
+    const openAddPlayerBtn = document.getElementById('open-add-player-btn');
+    const modalAddPlayer = document.getElementById('modal-add-player');
+    const closeAddModalBtn = document.getElementById('close-add-modal-btn');
+    const cancelAddModalBtn = document.getElementById('cancel-add-modal-btn');
+    const addPlayerForm = document.getElementById('add-player-form');
+    
+    let currentPlantillaFilter = 'TODOS';
+
+    // Manejo del Modal para añadir
+    openAddPlayerBtn.addEventListener('click', () => {
+      addPlayerForm.reset();
+      modalAddPlayer.classList.remove('hidden');
+    });
+
+    function closeAddModal() {
+      modalAddPlayer.classList.add('hidden');
+    }
+
+    closeAddModalBtn.addEventListener('click', closeAddModal);
+    cancelAddModalBtn.addEventListener('click', closeAddModal);
+
+    // Guardar nuevo jugador
+    addPlayerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('player-name-input').value.trim();
+      const number = document.getElementById('player-number-input').value.trim();
+
+      const selectedPositions = [];
+      document.querySelectorAll('.pos-checkbox:checked').forEach(cb => {
+        selectedPositions.push(cb.value);
+      });
+
+      if (selectedPositions.length === 0) {
+        alert("Debes seleccionar al menos una posición para el jugador.");
+        return;
+      }
+
+      const newPlayer = {
+        id: 'p_' + Date.now(),
+        name,
+        number,
+        positions: selectedPositions
+      };
+
+      state.plantilla.push(newPlayer);
+      saveState();
+      renderPlantillaList();
+      closeAddModal();
+    });
+
+    // Filtros de Posición en la vista Plantilla
+    document.querySelectorAll('.filter-pos-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.filter-pos-btn').forEach(b => {
+          b.className = "filter-pos-btn bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap text-xs";
+        });
+        e.target.className = "filter-pos-btn active bg-slate-700 text-emerald-400 border border-emerald-500 px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap text-xs";
+        
+        currentPlantillaFilter = e.target.dataset.pos;
+        renderPlantillaList();
+      });
+    });
+
+    // Renderizar lista completa de la plantilla
+    function renderPlantillaList() {
+      playersList.innerHTML = '';
+
+      let list = state.plantilla;
+
+      if (currentPlantillaFilter !== 'TODOS') {
+        if (currentPlantillaFilter === 'LATERALES') {
+          list = list.filter(p => p.positions.includes('LI') || p.positions.includes('LD'));
+        } else if (currentPlantillaFilter === 'EXTREMOS') {
+          list = list.filter(p => p.positions.includes('EI') || p.positions.includes('ED'));
+        } else {
+          list = list.filter(p => p.positions.includes(currentPlantillaFilter));
+        }
+      }
+
+      if (list.length === 0) {
+        playersList.innerHTML = `
+          <div class="text-center py-12 text-slate-500">
+            <i class="fa-solid fa-users-slash text-3xl mb-2"></i>
+            <p class="text-sm">No hay jugadores en esta categoría.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(player => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800 border border-slate-700 rounded-2xl p-3.5 flex justify-between items-center shadow-md hover:border-slate-600 transition";
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3.5">
+            <span class="w-10 h-10 rounded-xl bg-slate-900 text-emerald-400 font-black text-base flex items-center justify-center border border-slate-700 shadow-inner">
+              ${player.number}
+            </span>
+            <div>
+              <h4 class="font-bold text-white text-sm">${player.name}</h4>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${player.positions.map(pos => `<span class="bg-slate-900 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-700">${pos}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <button class="delete-player-btn text-slate-500 hover:text-rose-400 p-2 rounded-lg transition" title="Eliminar jugador">
+            <i class="fa-solid fa-trash-can text-base"></i>
+          </button>
+        `;
+
+        // Eliminar Jugador
+        card.querySelector('.delete-player-btn').addEventListener('click', () => {
+          if (confirm(`¿Seguro que deseas eliminar a ${player.name} de la plantilla?`)) {
+            state.plantilla = state.plantilla.filter(p => p.id !== player.id);
+            
+            // Limpiar asignaciones si estaba en la pizarra
+            Object.keys(state.assignments).forEach(slotId => {
+              if (state.assignments[slotId] === player.id) {
+                delete state.assignments[slotId];
+              }
+            });
+
+            saveState();
+            renderPlantillaList();
+            renderPitch();
+          }
+        });
+
+        playersList.appendChild(card);
+      });
+    }
+
+
+    /* ==========================================================================
+       6. INICIALIZACIÓN Y SERVICE WORKER PWA
+       ========================================================================== */
+
+    loadState();
+    updateQuickStatus();
+    renderPitch();
+
+    // Registro de PWA
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log('Service Worker Registrado'))
-        .catch(err => console.error('Error al registrar SW:', err));
+        .then(() => console.log('PWA Service Worker Activo'))
+        .catch(err => console.error('Error PWA SW:', err));
     }
   </script>
 </body>
