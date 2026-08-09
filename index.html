@@ -2060,9 +2060,9 @@
         const assignedRivalPlayer = rival.squad.find(p => p.id === token.rivalPlayerId);
 
         const tokenEl = document.createElement('div');
-        tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-[3px] border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-        tokenEl.style.width = '63px'; // Fichas x1.5 más grandes
-        tokenEl.style.height = '63px';
+        tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-[1px] border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
+        tokenEl.style.width = window.matchMedia('(max-width: 640px)').matches ? '21px' : '63px';
+        tokenEl.style.height = window.matchMedia('(max-width: 640px)').matches ? '21px' : '63px';
         tokenEl.style.backgroundColor = rivalBgColor;
         tokenEl.style.color = getContrastTextColor(rivalBgColor);
         tokenEl.style.left = `${posX}%`;
@@ -2073,8 +2073,8 @@
         const displayName = assignedRivalPlayer ? assignedRivalPlayer.name : token.role;
 
         tokenEl.innerHTML = `
-          <span class="text-[18px] leading-none">${displayNum}</span>
-          <span class="text-[11px] leading-tight opacity-90 truncate max-w-[54px]">${displayName}</span>
+          <span class="text-[7px] sm:text-[18px] leading-none">${displayNum}</span>
+          <span class="text-[5px] sm:text-[11px] leading-tight opacity-90 truncate max-w-[19px] sm:max-w-[54px]">${displayName}</span>
         `;
 
         const tokenData = { x: posX, y: posY };
@@ -2090,16 +2090,16 @@
 
     function createMatchupToken(data, container) {
       const tokenEl = document.createElement('div');
-      tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-[3px] shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-      tokenEl.style.width = '63px'; // Fichas x1.5 más grandes
-      tokenEl.style.height = '63px';
+      tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-[1px] shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+      tokenEl.style.width = window.matchMedia('(max-width: 640px)').matches ? '21px' : '63px';
+      tokenEl.style.height = window.matchMedia('(max-width: 640px)').matches ? '21px' : '63px';
       tokenEl.style.left = `${data.x}%`;
       tokenEl.style.top = `${data.y}%`;
       tokenEl.style.transform = 'translate(-50%, -50%)';
 
       tokenEl.innerHTML = `
-        <span class="text-[18px] leading-none">${data.num}</span>
-        <span class="text-[11px] leading-tight opacity-90 truncate max-w-[54px]">${data.name}</span>
+        <span class="text-[13px] sm:text-[18px] leading-none">${data.num}</span>
+        <span class="text-[8px] sm:text-[11px] leading-tight opacity-90 truncate max-w-[36px] sm:max-w-[54px]">${data.name}</span>
       `;
 
       makeDraggable(tokenEl, data, container);
