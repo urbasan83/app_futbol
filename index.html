@@ -357,45 +357,61 @@
     </section>
 
     <!-- SECCIÓN 5: PLANTILLA MI EQUIPO -->
-    <section id="sec-plantilla" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
-      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
-        <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Jugador a Mi Equipo</h3>
-        <form id="form-add-player" class="space-y-3">
-          <input type="hidden" id="edit-player-id" value="">
-          <div class="flex gap-2">
-            <input type="number" id="player-num" min="1" max="99" placeholder="Nº" required class="w-20 bg-slate-900 border border-slate-600 rounded-lg p-2 text-center text-white text-sm focus:border-emerald-500 focus:outline-none">
-            <input type="text" id="player-name" placeholder="Nombre del Jugador" required class="flex-1 bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-          </div>
-          
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Posiciones habituales:</label>
-            <div class="grid grid-cols-3 gap-1.5 text-xs">
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="POR" class="accent-emerald-500"> Portero</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DFC" class="accent-emerald-500"> Def. Central</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LD" class="accent-emerald-500"> Lat. Derecho</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LI" class="accent-emerald-500"> Lat. Izquierdo</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MCD" class="accent-emerald-500"> Mediocentro</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MC" class="accent-emerald-500"> Interior</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="ED" class="accent-emerald-500"> Ext. Derecho</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="EI" class="accent-emerald-500"> Ext. Izquierdo</label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DC" class="accent-emerald-500"> Delantero</label>
-            </div>
+    <section id="sec-plantilla" class="flex-1 hidden h-full overflow-y-auto p-2 sm:p-3 w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(320px,430px)_1fr] gap-3 h-full min-h-0">
+
+        <!-- COLUMNA IZQUIERDA: AÑADIR JUGADOR + PLANTILLA -->
+        <div class="min-w-0 flex flex-col gap-3">
+          <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg flex-shrink-0">
+            <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Jugador a Mi Equipo</h3>
+            <form id="form-add-player" class="space-y-3">
+              <input type="hidden" id="edit-player-id" value="">
+              <div class="flex gap-2">
+                <input type="number" id="player-num" min="1" max="99" placeholder="Nº" required class="w-20 bg-slate-900 border border-slate-600 rounded-lg p-2 text-center text-white text-sm focus:border-emerald-500 focus:outline-none">
+                <input type="text" id="player-name" placeholder="Nombre del Jugador" required class="flex-1 bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Posiciones habituales:</label>
+                <div class="grid grid-cols-3 gap-1.5 text-xs">
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="POR" class="accent-emerald-500"> Portero</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DFC" class="accent-emerald-500"> Def. Central</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LD" class="accent-emerald-500"> Lat. Derecho</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LI" class="accent-emerald-500"> Lat. Izquierdo</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MCD" class="accent-emerald-500"> Mediocentro</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MC" class="accent-emerald-500"> Interior</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="ED" class="accent-emerald-500"> Ext. Derecho</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="EI" class="accent-emerald-500"> Ext. Izquierdo</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DC" class="accent-emerald-500"> Delantero</label>
+                </div>
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button type="submit" id="btn-save-player" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
+                  Guardar Jugador
+                </button>
+                <button type="button" id="btn-cancel-edit" class="hidden bg-slate-600 hover:bg-slate-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
 
-          <div class="flex gap-2 pt-1">
-            <button type="submit" id="btn-save-player" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
-              Guardar Jugador
-            </button>
-            <button type="button" id="btn-cancel-edit" class="hidden bg-slate-600 hover:bg-slate-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">
-              Cancelar
-            </button>
+          <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg flex-1 min-h-0 overflow-y-auto">
+            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Plantilla del Equipo</h3>
+            <div id="squad-list" class="space-y-2 pb-4"></div>
           </div>
-        </form>
-      </div>
+        </div>
 
-      <div class="space-y-2">
-        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Plantilla del Equipo</h3>
-        <div id="squad-list" class="space-y-2 pb-12"></div>
+        <!-- COLUMNA DERECHA: JUGADORES AGRUPADOS POR POSICIÓN -->
+        <div class="min-w-0 bg-slate-800 p-3 sm:p-4 rounded-xl border border-slate-700 shadow-lg overflow-y-auto">
+          <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+            <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Jugadores por Posición</h3>
+            <span class="text-[10px] text-slate-500">Un jugador puede aparecer en varias posiciones</span>
+          </div>
+          <div id="players-by-position" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+        </div>
+
       </div>
     </section>
 
@@ -2379,35 +2395,77 @@
     const btnSavePlayer = document.getElementById('btn-save-player');
     const btnCancelEdit = document.getElementById('btn-cancel-edit');
 
+    const squadPositions = [
+      { key: 'POR', name: 'Portero' },
+      { key: 'DFC', name: 'Def. Central' },
+      { key: 'LD',  name: 'Lat. Derecho' },
+      { key: 'LI',  name: 'Lat. Izquierdo' },
+      { key: 'MCD', name: 'Mediocentro' },
+      { key: 'MC',  name: 'Interior' },
+      { key: 'ED',  name: 'Ext. Derecho' },
+      { key: 'EI',  name: 'Ext. Izquierdo' },
+      { key: 'DC',  name: 'Delantero' }
+    ];
+
     function renderSquadList() {
       squadList.innerHTML = '';
       sortSquad();
 
       if (squad.length === 0) {
         squadList.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No hay jugadores en la plantilla.</p>`;
-        return;
-      }
-
-      squad.forEach(player => {
-        const item = document.createElement('div');
-        item.className = "bg-slate-800 p-3 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm";
-        item.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="bg-emerald-600/30 text-emerald-400 border border-emerald-500/50 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">${player.num}</span>
-            <div>
-              <h4 class="font-bold text-sm text-white">${player.name}</h4>
-              <div class="flex flex-wrap gap-1 mt-1">
-                ${player.roles.map(r => `<span class="bg-slate-900 border border-slate-700 text-[9px] text-slate-300 px-1.5 py-0.5 rounded">${r}</span>`).join('')}
+      } else {
+        squad.forEach(player => {
+          const item = document.createElement('div');
+          item.className = "bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm";
+          item.innerHTML = `
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="bg-emerald-600/30 text-emerald-400 border border-emerald-500/50 w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm">${player.num}</span>
+              <div class="min-w-0">
+                <h4 class="font-bold text-sm text-white truncate">${player.name}</h4>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${player.roles.map(r => `<span class="bg-slate-800 border border-slate-700 text-[9px] text-slate-300 px-1.5 py-0.5 rounded">${r}</span>`).join('')}
+                </div>
               </div>
             </div>
-          </div>
-          <div class="flex items-center gap-1">
-            <button onclick="editPlayer(${player.id})" class="text-slate-400 hover:text-emerald-400 p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs transition">✏️ Editar</button>
-            <button onclick="deletePlayer(${player.id})" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs transition">🗑️</button>
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button onclick="editPlayer(${player.id})" class="text-slate-400 hover:text-emerald-400 p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs transition">✏️ Editar</button>
+              <button onclick="deletePlayer(${player.id})" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs transition">🗑️</button>
+            </div>
+          `;
+          squadList.appendChild(item);
+        });
+      }
+
+      renderPlayersByPosition();
+    }
+
+    function renderPlayersByPosition() {
+      const container = document.getElementById('players-by-position');
+      if (!container) return;
+
+      container.innerHTML = squadPositions.map(position => {
+        const players = squad.filter(player => player.roles.includes(position.key));
+
+        return `
+          <div class="bg-slate-900/80 rounded-xl border border-slate-700 p-3 min-h-[120px]">
+            <div class="flex justify-between items-center gap-2 mb-2 pb-2 border-b border-slate-700">
+              <h4 class="font-bold text-sm text-white">${position.name}</h4>
+              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">${players.length}</span>
+            </div>
+            <div class="space-y-1.5">
+              ${players.length
+                ? players.map(player => `
+                    <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5">
+                      <span class="text-[10px] font-bold text-emerald-400 w-5">${player.num}</span>
+                      <span class="text-xs text-slate-200 truncate">${player.name}</span>
+                    </div>
+                  `).join('')
+                : `<p class="text-[10px] text-slate-600 text-center py-3">Sin jugadores</p>`
+              }
+            </div>
           </div>
         `;
-        squadList.appendChild(item);
-      });
+      }).join('');
     }
 
     formAddPlayer.addEventListener('submit', (e) => {
