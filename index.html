@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pizarra Táctica F11</title>
+  
+  <!-- Configuración PWA y Móvil -->
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    /* Deshabilita gestos del navegador (scroll/zoom) al arrastrar fichas */
+    body, html {
+      touch-action: none;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none">
+
+  <!-- Cabecera -->
+  <header class="p-3 bg-slate-800 border-b border-slate-700 flex justify-between items-center z-10 shadow-md">
+    <h1 class="text-base font-bold text-emerald-400 flex items-center gap-2">
+      ⚽ Táctica F11
+    </h1>
+    <div class="flex gap-2">
+      <button id="reset-btn" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded-lg font-semibold transition active:scale-95 border border-slate-600">
+        Resetear
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenedor del Campo de Fútbol -->
+  <main class="flex-1 relative flex items-center justify-center p-3 overflow-hidden">
+    <div id="pitch" class="relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
+      
+      <!-- Marcado del campo en SVG -->
+      <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
+        <!-- Línea Central y Círculo -->
+        <line x1="0" y1="50%" x2="100%" y2="50%" />
+        <circle cx="50%" cy="50%" r="15%" />
+        <circle cx="50%" cy="50%" r="2" fill="white" />
+        
+        <!-- Área Grande y Chica Superior -->
+        <rect x="20%" y="0" width="60%" height="16%" />
+        <rect x="35%" y="0" width="30%" height="6%" />
+        <circle cx="50%" cy="11%" r="2" fill="white" />
+
+        <!-- Área Grande y Chica Inferior -->
+        <rect x="20%" y="84%" width="60%" height="16%" />
+        <rect x="35%" y="94%" width="30%" height="6%" />
+        <circle cx="50%" cy="89%" r="2" fill="white" />
+      </svg>
+
+      <!-- Las fichas de los jugadores se inyectan aquí -->
+    </div>
+  </main>
+
+  <script>
+    // Posiciones iniciales (Formación 1-4-3-3) en porcentajes (%) respecto al campo
+    const initialPositions = [
+      { id: 1,  num: '1',  role: 'POR', x: 50, y: 92, bg: 'bg-amber-500' },
+      { id: 2,  num: '2',  role: 'LD',  x: 85, y: 76, bg: 'bg-blue-600' },
+      { id: 3,  num: '4',  role: 'DFC', x: 63, y: 82, bg: 'bg-blue-600' },
+      { id: 4,  num: '5',  role: 'DFC', x: 37, y: 82, bg: 'bg-blue-600' },
+      { id: 5,  num: '3',  role: 'LI',  x: 15, y: 76, bg: 'bg-blue-600' },
+      { id: 6,  num: '6',  role: 'MCD', x: 50, y: 66, bg: 'bg-blue-600' },
+      { id: 7,  num: '8',  role: 'MC',  x: 70, y: 54, bg: 'bg-blue-600' },
+      { id: 8,  num: '10', role: 'MC',  x: 30, y: 54, bg: 'bg-blue-600' },
+      { id: 9,  num: '7',  role: 'ED',  x: 82, y: 34, bg: 'bg-blue-600' },
+      { id: 10, num: '9',  role: 'DC',  x: 50, y: 26, bg: 'bg-blue-600' },
+      { id: 11, num: '11', role: 'EI',  x: 18, y: 34, bg: 'bg-blue-600' },
+    ];
+
+    const pitch = document.getElementById('pitch');
+    const resetBtn = document.getElementById('reset-btn');
+
+    function renderPlayers() {
+      // Limpiar fichas existentes
+      document.querySelectorAll('.player-token').forEach(el => el.remove());
+
+      initialPositions.forEach(player => {
+        const token = document.createElement('div');
+        token.className = `player-token absolute rounded-full ${player.bg} text-white font-black text-xs flex flex-col items-center justify-center border-2 border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+        token.style.width = '38px';
+        token.style.height = '38px';
+        token.style.left = `${player.x}%`;
+        token.style.top = `${player.y}%`;
+        token.style.transform = 'translate(-50%, -50%)';
+        
+        token.innerHTML = `
+          <span>${player.num}</span>
+          <span class="text-[8px] leading-none opacity-80">${player.role}</span>
+        `;
+
+        makeDraggable(token);
+        pitch.appendChild(token);
+      });
+    }
+
+    function makeDraggable(element) {
+      let isDragging = false;
+
+      element.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        element.setPointerCapture(e.pointerId);
+        element.classList.add('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
+      });
+
+      element.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+
+        const rect = pitch.getBoundingClientRect();
+        // Cálculo relativo en porcentaje para mantener responsividad
+        let x = ((e.clientX - rect.left) / rect.width) * 100;
+        let y = ((e.clientY - rect.top) / rect.height) * 100;
+
+        // Limites para no sacar la ficha del campo
+        x = Math.max(4, Math.min(96, x));
+        y = Math.max(4, Math.min(96, y));
+
+        element.style.left = `${x}%`;
+        element.style.top = `${y}%`;
+      });
+
+      const stopDrag = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        element.releasePointerCapture(e.pointerId);
+        element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
+      };
+
+      element.addEventListener('pointerup', stopDrag);
+      element.addEventListener('pointercancel', stopDrag);
+    }
+
+    resetBtn.addEventListener('click', renderPlayers);
+    renderPlayers();
+
+    // Registro de Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('Service Worker Registrado'))
+        .catch(err => console.error('Error al registrar SW:', err));
+    }
+  </script>
+</body>
+</html>
