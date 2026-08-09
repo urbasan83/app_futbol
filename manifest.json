@@ -1,16 +1,20 @@
 {
   "name": "Pizarra Táctica F11",
-  "short_name": "Táctica F11",
+  "short_name": "PizarraF11",
+  "description": "Aplicación de pizarra táctica de fútbol 11",
+  "id": "./",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "portrait",
+  "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
