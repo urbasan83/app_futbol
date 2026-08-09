@@ -262,7 +262,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 4: EQUIPOS RIVALES -->
+    <!-- SECCIÓN 4: EQUIPOS RIVALES (NUEVO) -->
     <section id="sec-rivales" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
         <h3 id="rival-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Crear Nuevo Equipo Rival</h3>
@@ -845,11 +845,11 @@
       });
     }
 
-    window.removeBenchPlayer = function(index) {
+    function removeBenchPlayer(index) {
       activeBench.splice(index, 1);
       savePitchState();
       renderBench();
-    };
+    }
 
     function makeDraggable(element, dataObj, container) {
       let isDragging = false;
@@ -912,6 +912,7 @@
 
       // Sincronización exacta con los 11 jugadores de Pizarra Táctica
       currentTacticsTokens = activeTokens.map(t => {
+        // Mapear posición Y de campo completo a medio campo (0% a 90%)
         const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
         return {
           slot: t.slot,
@@ -1006,7 +1007,7 @@
       tacticsCanvas.onpointercancel = stopDraw;
     }
 
-    window.setActiveTool = function(tool) {
+    function setActiveTool(tool) {
       activeTool = tool;
       const panelDraw = document.getElementById('panel-draw-options');
       const panelErase = document.getElementById('panel-erase-options');
@@ -1018,25 +1019,25 @@
         panelDraw.classList.add('hidden');
         panelErase.classList.remove('hidden');
       }
-    };
+    }
 
-    window.setDrawColor = function(color) {
+    function setDrawColor(color) {
       currentDrawColor = color;
       setActiveTool('draw');
       document.getElementById('custom-color-picker').value = color;
-    };
+    }
 
-    window.setEraserSize = function(size) {
+    function setEraserSize(size) {
       eraserSize = size;
-    };
+    }
 
-    window.clearTacticsCanvas = function() {
+    function clearTacticsCanvas() {
       if (tacticsCtx) {
         tacticsCtx.clearRect(0, 0, tacticsCanvas.width, tacticsCanvas.height);
       }
-    };
+    }
 
-    window.spawnProp = function(type, customX = 50, customY = 50) {
+    function spawnProp(type, customX = 50, customY = 50) {
       const container = document.getElementById('tactics-pitch');
       const propEl = document.createElement('div');
       propEl.className = 'tactics-prop absolute z-20 cursor-grab active:cursor-grabbing text-xl touch-none select-none';
@@ -1054,7 +1055,7 @@
       propEl.ondblclick = () => propEl.remove();
 
       container.appendChild(propEl);
-    };
+    }
 
     // --- GUARDAR Y CARGAR TÁCTICAS ---
     document.getElementById('btn-save-tactic-modal').addEventListener('click', () => {
@@ -1072,6 +1073,7 @@
       const date = document.getElementById('tactic-date').value;
       const desc = document.getElementById('tactic-desc').value.trim();
 
+      // Guardar Objetos/Props en el campo
       const propsList = [];
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
         propsList.push({
@@ -1144,9 +1146,11 @@
       const tac = savedTactics.find(t => t.id === id);
       if (!tac) return;
 
+      // Limpiar canvas y props
       clearTacticsCanvas();
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
 
+      // Restaurar Canvas Dibujado
       if (tac.canvasData) {
         const img = new Image();
         img.onload = () => {
@@ -1155,10 +1159,12 @@
         img.src = tac.canvasData;
       }
 
+      // Restaurar Objetos
       if (tac.props) {
         tac.props.forEach(p => spawnProp(p.type, p.x, p.y));
       }
 
+      // Restaurar Posiciones de fichas
       if (tac.tokens) {
         const container = document.getElementById('tactics-pitch');
         document.querySelectorAll('#tactics-pitch .tactics-token').forEach(e => e.remove());
@@ -1244,13 +1250,16 @@
 
       document.getElementById('select-rival-kit').value = selectedRivalKit;
 
+      // Determinar lado del usuario según su equipación
       const isMyTeamLeft = currentKit === 'local';
       document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? "(Lado Izquierdo - Local)" : "(Lado Derecho - Visitante)";
 
+      // Renderizar Mi Equipo
       activeTokens.forEach(token => {
         const assignedPlayer = squad.find(p => p.id === token.playerId);
         let posX, posY;
 
+        // Transformación de coordenadas verticales a horizontales según el lado
         if (isMyTeamLeft) {
           posX = 6 + (92 - token.y) * 0.42;
           posY = token.x;
@@ -1278,6 +1287,7 @@
         }, container);
       });
 
+      // Renderizar Equipo Rival
       renderRivalInMatchup();
     }
 
@@ -1288,9 +1298,10 @@
       const rival = rivalTeams.find(r => r.id === parseInt(selectedRivalId));
       if (!rival) return;
 
-      const isRivalRight = currentKit === 'local';
+      const isRivalRight = currentKit === 'local'; // Lado contrario a mi equipo
       const rivalForm = formations[rival.formation] || formations['4-3-3'];
 
+      // Sincronizar fichas del rival si no están inicializadas
       if (!activeRivalTokens || activeRivalTokens.length !== rivalForm.length) {
         activeRivalTokens = rivalForm.map((f, idx) => ({
           slot: f.slot,
@@ -1319,7 +1330,7 @@
 
         const tokenEl = document.createElement('div');
         tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-2 border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-        tokenEl.style.width = '42px';
+        tokenEl.style.width = '42px'; // Fichas más grandes
         tokenEl.style.height = '42px';
         tokenEl.style.backgroundColor = rivalBgColor;
         tokenEl.style.color = getContrastTextColor(rivalBgColor);
@@ -1338,6 +1349,7 @@
         const tokenData = { x: posX, y: posY };
         makeDraggable(tokenEl, tokenData, container);
 
+        // Click para cambiar jugador del rival
         tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
         tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
 
@@ -1348,7 +1360,7 @@
     function createMatchupToken(data, container) {
       const tokenEl = document.createElement('div');
       tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-      tokenEl.style.width = '42px';
+      tokenEl.style.width = '42px'; // Fichas más grandes
       tokenEl.style.height = '42px';
       tokenEl.style.left = `${data.x}%`;
       tokenEl.style.top = `${data.y}%`;
@@ -1374,7 +1386,7 @@
 
     document.getElementById('select-rival-team').addEventListener('change', (e) => {
       selectedRivalId = e.target.value;
-      activeRivalTokens = [];
+      activeRivalTokens = []; // Reset para regenerar
       savePitchState();
       renderRivalInMatchup();
     });
@@ -1425,7 +1437,7 @@
       modalSelectPlayer.classList.add('hidden');
     }
 
-    // --- SECCIÓN EQUIPOS RIVALES ---
+    // --- SECCIÓN EQUIPOS RIVALES (NUEVO MENÚ HAMBURGUESA) ---
     const formAddRival = document.getElementById('form-add-rival');
     const editRivalIdInput = document.getElementById('edit-rival-id');
     const btnSaveRival = document.getElementById('btn-save-rival');
@@ -1537,14 +1549,14 @@
     };
 
     // Modal Plantilla Rival
-    window.openRivalSquadModal = function(rivalId) {
+    function openRivalSquadModal(rivalId) {
       currentEditingRivalForSquad = rivalTeams.find(r => r.id === rivalId);
       if (!currentEditingRivalForSquad) return;
 
       document.getElementById('modal-rival-title').innerText = `Plantilla de ${currentEditingRivalForSquad.name}`;
       renderRivalSquadList();
       document.getElementById('modal-rival-squad').classList.remove('hidden');
-    };
+    }
 
     document.getElementById('btn-close-rival-squad').onclick = () => {
       document.getElementById('modal-rival-squad').classList.add('hidden');
