@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pizarra-f11-v4';
+const CACHE_NAME = 'pizarra-f11-v5';
 
 // Archivos esenciales para guardar en la instalación
 const ASSETS_TO_CACHE = [
@@ -19,55 +19,51 @@ self.addEventListener('install', (event) => {
           console.warn('No se pudo cachear:', asset, err);
         }
       }
+
+      // Activa inmediatamente el nuevo Service Worker
+      await self.skipWaiting();
     })
   );
-  self.skipWaiting();
 });
 
-// 2. ACTIVACIÓN: Elimina cachés obsoletas de versiones anteriores
+// 2. ACTIVACIÓN: Elimina las cachés antiguas
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        cacheNames
+          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .map((cacheName) => caches.delete(cacheName))
       );
+    }).then(() => {
+      // Toma el control inmediatamente de las páginas abiertas
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// 3. RESPUESTA OFFLINE ROBUSTA: Busca en memoria primero, si no, va a la red
+// 3. PETICIONES: Primero intenta utilizar la red.
+// Si no hay conexión, utiliza la versión guardada en caché.
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-
   event.respondWith(
-    (async () => {
-      // Intenta devolver el archivo guardado en el teléfono
-      const cachedResponse = await caches.match(event.request, { ignoreSearch: true });
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+    fetch(event.request)
+      .then((response) => {
+        // Guardamos una copia actualizada de las respuestas válidas
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
 
-      // Si no está guardado, intenta descargarlo de internet
-      try {
-        const networkResponse = await fetch(event.request);
-        if (networkResponse && networkResponse.status === 200) {
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(event.request, networkResponse.clone());
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        return networkResponse;
-      } catch (error) {
-        // Si no hay internet y es una navegación, entrega la pantalla principal
-        if (event.request.mode === 'navigate') {
-          const mainPage = (await caches.match('./index.html')) || (await caches.match('./'));
-          if (mainPage) return mainPage;
-        }
-        throw error;
-      }
-    })()
+
+        return response;
+      })
+      .catch(() => {
+        // Si no hay conexión, buscar en caché
+        return caches.match(event.request).then((cachedResponse) => {
+          return cachedResponse || Response.error();
+        });
+      })
   );
 });
