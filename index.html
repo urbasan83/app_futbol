@@ -72,9 +72,9 @@
   <main class="flex-1 relative overflow-hidden flex flex-col">
 
     <!-- SECCIÓN 1: PIZARRA TÁCTICA -->
-    <section id="sec-pizarra" class="flex-1 flex flex-col h-full overflow-hidden p-2">
+    <section id="sec-pizarra" class="flex-1 flex flex-col h-full overflow-y-auto p-2">
       <!-- Selector de Formación y Equipación -->
-      <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700">
+      <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0">
         <div class="flex items-center gap-1">
           <label class="text-xs text-slate-400 font-medium">Sistema:</label>
           <select id="select-formation" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Campo de Fútbol -->
-      <div class="flex-1 relative flex items-center justify-center overflow-hidden">
+      <div class="flex-1 min-h-[360px] relative flex items-center justify-center overflow-hidden">
         <div id="pitch" class="touch-none-pitch relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
           <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
             <line x1="0" y1="50%" x2="100%" y2="50%" />
@@ -108,6 +108,21 @@
             <rect x="35%" y="94%" width="30%" height="6%" />
             <circle cx="50%" cy="89%" r="2" fill="white" />
           </svg>
+        </div>
+      </div>
+
+      <!-- Banquillo / Suplentes -->
+      <div class="mt-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700 flex-shrink-0">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            🪑 Banquillo (<span id="bench-count" class="text-emerald-400">0</span>)
+          </h3>
+          <button id="btn-add-bench-player" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg transition active:scale-95 flex items-center gap-1">
+            <span>+</span> Añadir Suplente
+          </button>
+        </div>
+        <div id="bench-list" class="flex gap-2 overflow-x-auto pb-1 min-h-[46px] items-center">
+          <!-- Renderizado dinámico de suplentes -->
         </div>
       </div>
     </section>
@@ -199,7 +214,7 @@
         <h3 class="font-bold text-emerald-400 text-sm" id="modal-title">Seleccionar Jugador</h3>
         <button id="btn-close-modal" class="text-slate-400 hover:text-white">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-2">Mostrando sugeridos para la posición actual:</p>
+      <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando sugeridos para la posición actual:</p>
       <div id="modal-player-list" class="flex-1 overflow-y-auto space-y-2 my-2">
         <!-- Opciones de jugadores -->
       </div>
@@ -274,7 +289,10 @@
       { id: 8, num: 10, name: "Iniesta", roles: ["MC", "EI"] },
       { id: 9, num: 7, name: "Villa", roles: ["ED", "DC"] },
       { id: 10, num: 9, name: "Torres", roles: ["DC"] },
-      { id: 11, num: 11, name: "Pedro", roles: ["EI", "ED"] }
+      { id: 11, num: 11, name: "Pedro", roles: ["EI", "ED"] },
+      { id: 12, num: 13, name: "Valdés", roles: ["POR"] },
+      { id: 13, num: 14, name: "Xabi Alonso", roles: ["MC", "MCD"] },
+      { id: 14, num: 15, name: "Cesc", roles: ["MC", "DC"] }
     ];
 
     let savedMatches = JSON.parse(localStorage.getItem('f11_matches')) || [];
@@ -311,7 +329,9 @@
     let currentFormationKey = localStorage.getItem('f11_formation') || '4-3-3';
     let currentKit = localStorage.getItem('f11_kit') || 'local';
     let activeTokens = JSON.parse(localStorage.getItem('f11_active_tokens')) || null;
+    let activeBench = JSON.parse(localStorage.getItem('f11_active_bench')) || [];
     let selectedSlotId = null;
+    let selectedBenchIndex = null;
 
     // Elementos DOM
     const pitch = document.getElementById('pitch');
@@ -320,6 +340,9 @@
     const resetBtn = document.getElementById('reset-btn');
     const squadList = document.getElementById('squad-list');
     const matchesList = document.getElementById('matches-list');
+    const benchList = document.getElementById('bench-list');
+    const benchCount = document.getElementById('bench-count');
+    const btnAddBenchPlayer = document.getElementById('btn-add-bench-player');
 
     // Menú Lateral
     const btnHamburger = document.getElementById('btn-hamburger');
@@ -346,7 +369,7 @@
       squad.sort((a, b) => parseInt(a.num) - parseInt(b.num));
     }
 
-    // --- SINCRO Y PRESERVACIÓN DE JUGADORES EN FICHAS ---
+    // --- SINCRO Y PRESERVACIÓN DE ESTADO ---
     function syncTokensWithFormation(keepPlayers = true) {
       const formConfig = formations[currentFormationKey];
 
@@ -377,6 +400,7 @@
       localStorage.setItem('f11_formation', currentFormationKey);
       localStorage.setItem('f11_kit', currentKit);
       localStorage.setItem('f11_active_tokens', JSON.stringify(activeTokens));
+      localStorage.setItem('f11_active_bench', JSON.stringify(activeBench));
     }
 
     // --- GESTIÓN DE NAVEGACIÓN ---
@@ -428,7 +452,7 @@
     navPlantilla.addEventListener('click', () => switchView('plantilla'));
     navPartidos.addEventListener('click', () => switchView('partidos'));
 
-    // --- LÓGICA DE RENDERING DE FICHAS ---
+    // --- LÓGICA DE RENDERING DE FICHAS Y BANQUILLO ---
     function renderPitch() {
       document.querySelectorAll('.player-token').forEach(el => el.remove());
 
@@ -475,6 +499,43 @@
 
         pitch.appendChild(tokenEl);
       });
+
+      renderBench();
+    }
+
+    function renderBench() {
+      benchList.innerHTML = '';
+      benchCount.innerText = activeBench.length;
+
+      if (activeBench.length === 0) {
+        benchList.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Sin suplentes asignados al banquillo</span>`;
+        return;
+      }
+
+      activeBench.forEach((playerId, index) => {
+        const player = squad.find(p => p.id === playerId);
+        if (!player) return;
+
+        const badge = document.createElement('div');
+        badge.className = "bg-slate-900 border border-slate-700 hover:border-emerald-500/50 rounded-lg p-1.5 flex items-center gap-2 flex-shrink-0 cursor-pointer shadow-sm transition";
+        badge.innerHTML = `
+          <span class="bg-slate-800 text-emerald-400 font-bold border border-slate-600 rounded-full w-6 h-6 flex items-center justify-center text-xs">${player.num}</span>
+          <span class="text-xs font-semibold text-slate-200 truncate max-w-[90px]">${player.name}</span>
+          <button onclick="removeBenchPlayer(${index})" class="text-slate-500 hover:text-red-400 text-xs px-1">✕</button>
+        `;
+        badge.onclick = (e) => {
+          if (e.target.tagName !== 'BUTTON') {
+            openAssignBenchModal(index);
+          }
+        };
+        benchList.appendChild(badge);
+      });
+    }
+
+    function removeBenchPlayer(index) {
+      activeBench.splice(index, 1);
+      savePitchState();
+      renderBench();
     }
 
     function makeDraggable(element, tokenData) {
@@ -522,11 +583,13 @@
       element.addEventListener('pointercancel', stopDrag);
     }
 
-    // --- MODAL SELECCIONAR JUGADOR ---
+    // --- MODALES DE SELECCIÓN DE JUGADORES ---
     function openAssignPlayerModal(slotId, role) {
       selectedSlotId = slotId;
+      selectedBenchIndex = null;
       const modalList = document.getElementById('modal-player-list');
       document.getElementById('modal-title').innerText = `Asignar Posición ${role} (#${slotId})`;
+      document.getElementById('modal-subtitle').innerText = "Mostrando jugadores de la plantilla:";
       modalList.innerHTML = '';
 
       const clearBtn = document.createElement('button');
@@ -560,16 +623,72 @@
       modalSelectPlayer.classList.remove('hidden');
     }
 
+    function openAssignBenchModal(benchIndex = null) {
+      selectedBenchIndex = benchIndex;
+      selectedSlotId = null;
+
+      const modalList = document.getElementById('modal-player-list');
+      document.getElementById('modal-title').innerText = benchIndex !== null ? "Cambiar Suplente" : "Añadir al Banquillo";
+      document.getElementById('modal-subtitle').innerText = "Selecciona un jugador disponible:";
+      modalList.innerHTML = '';
+
+      // Obtener jugadores en campo o banquillo para filtrar
+      const pitchPlayerIds = activeTokens.map(t => t.playerId).filter(id => id !== null);
+      
+      sortSquad();
+      squad.forEach(player => {
+        const onPitch = pitchPlayerIds.includes(player.id);
+        const onBench = activeBench.includes(player.id) && (benchIndex === null || activeBench[benchIndex] !== player.id);
+
+        if (onPitch || onBench) return; // Oculta si ya está usado
+
+        const item = document.createElement('button');
+        item.className = "w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500";
+        
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>
+            <span>${player.name}</span>
+          </div>
+          <span class="text-[10px] text-slate-400">${player.roles.join(', ')}</span>
+        `;
+        item.onclick = () => assignPlayerToBench(player.id);
+        modalList.appendChild(item);
+      });
+
+      if (modalList.children.length === 0) {
+        modalList.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay jugadores disponibles en la plantilla.</p>`;
+      }
+
+      modalSelectPlayer.classList.remove('hidden');
+    }
+
     function assignPlayerToSlot(playerId) {
       const token = activeTokens.find(t => t.slot === selectedSlotId);
       if (token) {
         token.playerId = playerId;
+        // Si el jugador estaba en el banquillo, se quita del banquillo
+        if (playerId && activeBench.includes(playerId)) {
+          activeBench = activeBench.filter(id => id !== playerId);
+        }
         savePitchState();
         renderPitch();
       }
       modalSelectPlayer.classList.add('hidden');
     }
 
+    function assignPlayerToBench(playerId) {
+      if (selectedBenchIndex !== null) {
+        activeBench[selectedBenchIndex] = playerId;
+      } else {
+        activeBench.push(playerId);
+      }
+      savePitchState();
+      renderPitch();
+      modalSelectPlayer.classList.add('hidden');
+    }
+
+    btnAddBenchPlayer.addEventListener('click', () => openAssignBenchModal(null));
     document.getElementById('btn-close-modal').onclick = () => modalSelectPlayer.classList.add('hidden');
 
     // --- CONTROLES PIZARRA ---
@@ -578,18 +697,18 @@
 
     selectFormation.addEventListener('change', (e) => {
       currentFormationKey = e.target.value;
-      syncTokensWithFormation(true); // Mantiene jugadores asignados
+      syncTokensWithFormation(true);
       renderPitch();
     });
 
     selectKit.addEventListener('change', (e) => {
       currentKit = e.target.value;
-      savePitchState(); // Solo guarda el cambio de equipación
+      savePitchState();
       renderPitch();
     });
 
     resetBtn.addEventListener('click', () => {
-      syncTokensWithFormation(true); // Restablece posiciones en el campo conservando jugadores
+      syncTokensWithFormation(true);
       renderPitch();
     });
 
@@ -696,6 +815,7 @@
     window.deletePlayer = function(id) {
       if (confirm("¿Seguro que deseas eliminar este jugador de la plantilla?")) {
         squad = squad.filter(p => p.id !== id);
+        activeBench = activeBench.filter(bId => bId !== id);
         sortSquad();
         localStorage.setItem('f11_squad', JSON.stringify(squad));
         renderSquadList();
@@ -724,7 +844,8 @@
         rival: matchRival,
         formation: currentFormationKey,
         kit: currentKit,
-        tokens: JSON.parse(JSON.stringify(activeTokens))
+        tokens: JSON.parse(JSON.stringify(activeTokens)),
+        bench: JSON.parse(JSON.stringify(activeBench))
       };
 
       savedMatches.unshift(newMatch);
@@ -732,7 +853,7 @@
 
       modalSaveLineup.classList.add('hidden');
       document.getElementById('form-save-match').reset();
-      alert("¡Alineación guardada correctamente en Partidos!");
+      alert("¡Alineación y Banquillo guardados correctamente!");
     });
 
     function renderMatchesList() {
@@ -747,6 +868,8 @@
         const card = document.createElement('div');
         card.className = "bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 shadow-md";
         
+        const benchSize = match.bench ? match.bench.length : 0;
+
         card.innerHTML = `
           <div class="flex justify-between items-start border-b border-slate-700/60 pb-2">
             <div>
@@ -756,9 +879,10 @@
             <span class="bg-slate-900 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono">${match.date}</span>
           </div>
 
-          <div class="flex gap-2 text-[10px]">
+          <div class="flex flex-wrap gap-2 text-[10px]">
             <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Sistema: <b>${match.formation}</b></span>
             <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Equipación: <b>${match.kit === 'local' ? 'Local' : 'Visitante'}</b></span>
+            <span class="bg-slate-900 border border-slate-700 text-emerald-400 px-2 py-1 rounded">Suplentes: <b>${benchSize}</b></span>
           </div>
 
           <div class="flex gap-2 pt-1 border-t border-slate-700/40">
@@ -784,6 +908,7 @@
       currentFormationKey = match.formation;
       currentKit = match.kit;
       activeTokens = JSON.parse(JSON.stringify(match.tokens));
+      activeBench = match.bench ? JSON.parse(JSON.stringify(match.bench)) : [];
 
       selectFormation.value = currentFormationKey;
       selectKit.value = currentKit;
