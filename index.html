@@ -87,7 +87,7 @@
           <label class="text-xs text-slate-400 font-medium">Equipación:</label>
           <select id="select-kit" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
             <option value="local">🔵 Local</option>
-            <option value="visitante">🩷 Visitante</option>
+            <option value="visitante">💗 Visitante</option>
           </select>
         </div>
       </div>
@@ -346,6 +346,39 @@
       squad.sort((a, b) => parseInt(a.num) - parseInt(b.num));
     }
 
+    // --- SINCRO Y PRESERVACIÓN DE JUGADORES EN FICHAS ---
+    function syncTokensWithFormation(keepPlayers = true) {
+      const formConfig = formations[currentFormationKey];
+
+      if (!activeTokens || activeTokens.length !== formConfig.length) {
+        activeTokens = formConfig.map(item => ({
+          slot: item.slot,
+          role: item.role,
+          x: item.x,
+          y: item.y,
+          playerId: null
+        }));
+      } else {
+        activeTokens = formConfig.map((item, idx) => {
+          const prevToken = activeTokens[idx];
+          return {
+            slot: item.slot,
+            role: item.role,
+            x: item.x,
+            y: item.y,
+            playerId: keepPlayers && prevToken ? prevToken.playerId : null
+          };
+        });
+      }
+      savePitchState();
+    }
+
+    function savePitchState() {
+      localStorage.setItem('f11_formation', currentFormationKey);
+      localStorage.setItem('f11_kit', currentKit);
+      localStorage.setItem('f11_active_tokens', JSON.stringify(activeTokens));
+    }
+
     // --- GESTIÓN DE NAVEGACIÓN ---
     function toggleSidebar(open) {
       if (open) {
@@ -395,25 +428,7 @@
     navPlantilla.addEventListener('click', () => switchView('plantilla'));
     navPartidos.addEventListener('click', () => switchView('partidos'));
 
-    // --- LÓGICA DE LA PIZARRA Y FICHAS ---
-    function initTokens() {
-      const formConfig = formations[currentFormationKey];
-      activeTokens = formConfig.map(item => ({
-        slot: item.slot,
-        role: item.role,
-        x: item.x,
-        y: item.y,
-        playerId: null
-      }));
-      savePitchState();
-    }
-
-    function savePitchState() {
-      localStorage.setItem('f11_formation', currentFormationKey);
-      localStorage.setItem('f11_kit', currentKit);
-      localStorage.setItem('f11_active_tokens', JSON.stringify(activeTokens));
-    }
-
+    // --- LÓGICA DE RENDERING DE FICHAS ---
     function renderPitch() {
       document.querySelectorAll('.player-token').forEach(el => el.remove());
 
@@ -448,7 +463,7 @@
         tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
         
         let tapTimer = null;
-        tokenEl.addEventListener('touchend', (e) => {
+        tokenEl.addEventListener('touchend', () => {
           if (!tapTimer) {
             tapTimer = setTimeout(() => { tapTimer = null; }, 300);
           } else {
@@ -563,22 +578,22 @@
 
     selectFormation.addEventListener('change', (e) => {
       currentFormationKey = e.target.value;
-      initTokens();
+      syncTokensWithFormation(true); // Mantiene jugadores asignados
       renderPitch();
     });
 
     selectKit.addEventListener('change', (e) => {
       currentKit = e.target.value;
-      savePitchState();
+      savePitchState(); // Solo guarda el cambio de equipación
       renderPitch();
     });
 
     resetBtn.addEventListener('click', () => {
-      initTokens();
+      syncTokensWithFormation(true); // Restablece posiciones en el campo conservando jugadores
       renderPitch();
     });
 
-    // --- SECCIÓN PLANTILLA: CREAR / EDITAR / ELIMINAR / ORDENAR ---
+    // --- SECCIÓN PLANTILLA: CREAR / EDITAR / ELIMINAR ---
     const formAddPlayer = document.getElementById('form-add-player');
     const editPlayerIdInput = document.getElementById('edit-player-id');
     const formTitle = document.getElementById('player-form-title');
@@ -587,7 +602,7 @@
 
     function renderSquadList() {
       squadList.innerHTML = '';
-      sortSquad(); // Ordenamiento numérico garantizado
+      sortSquad();
 
       if (squad.length === 0) {
         squadList.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No hay jugadores en la plantilla.</p>`;
@@ -629,13 +644,11 @@
       }
 
       if (editId) {
-        // Modo Edición
         const index = squad.findIndex(p => p.id === parseInt(editId));
         if (index !== -1) {
           squad[index] = { id: parseInt(editId), num, name, roles: selectedRoles };
         }
       } else {
-        // Modo Creación
         const newPlayer = {
           id: Date.now(),
           num,
@@ -690,7 +703,7 @@
       }
     };
 
-    // --- SECCIÓN GUARDAR / EDITAR / ELIMINAR PARTIDOS ---
+    // --- SECCIÓN PARTIDOS ---
     btnSaveLineupModal.addEventListener('click', () => {
       document.getElementById('match-date').value = new Date().toISOString().split('T')[0];
       modalSaveLineup.classList.remove('hidden');
@@ -819,9 +832,7 @@
     };
 
     // INICIALIZACIÓN
-    if (!activeTokens) {
-      initTokens();
-    }
+    syncTokensWithFormation(true);
     renderPitch();
 
     if ('serviceWorker' in navigator) {
