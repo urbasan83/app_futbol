@@ -72,7 +72,7 @@
   <main class="flex-1 relative overflow-hidden flex flex-col">
 
     <!-- SECCIÓN 1: PIZARRA TÁCTICA -->
-    <section id="sec-pizarra" class="flex-1 flex flex-col h-full overflow-y-auto p-2">
+    <section id="sec-pizarra" class="flex-1 flex flex-col h-full overflow-hidden p-2">
       <!-- Selector de Formación y Equipación -->
       <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0">
         <div class="flex items-center gap-1">
@@ -92,44 +92,48 @@
         </div>
       </div>
 
-      <!-- Campo de Fútbol -->
-      <div class="flex-1 min-h-[360px] relative flex items-center justify-center overflow-hidden">
-        <div id="pitch" class="touch-none-pitch relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
-          <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
-            <line x1="0" y1="50%" x2="100%" y2="50%" />
-            <circle cx="50%" cy="50%" r="15%" />
-            <circle cx="50%" cy="50%" r="2" fill="white" />
-            
-            <rect x="20%" y="0" width="60%" height="16%" />
-            <rect x="35%" y="0" width="30%" height="6%" />
-            <circle cx="50%" cy="11%" r="2" fill="white" />
+      <!-- Área Principal: Campo a la izquierda, Suplentes a la derecha -->
+      <div class="flex-1 flex gap-2 overflow-hidden min-h-0">
+        <!-- Campo de Fútbol -->
+        <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
+          <div id="pitch" class="touch-none-pitch relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
+            <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
+              <line x1="0" y1="50%" x2="100%" y2="50%" />
+              <circle cx="50%" cy="50%" r="15%" />
+              <circle cx="50%" cy="50%" r="2" fill="white" />
+              
+              <rect x="20%" y="0" width="60%" height="16%" />
+              <rect x="35%" y="0" width="30%" height="6%" />
+              <circle cx="50%" cy="11%" r="2" fill="white" />
 
-            <rect x="20%" y="84%" width="60%" height="16%" />
-            <rect x="35%" y="94%" width="30%" height="6%" />
-            <circle cx="50%" cy="89%" r="2" fill="white" />
-          </svg>
+              <rect x="20%" y="84%" width="60%" height="16%" />
+              <rect x="35%" y="94%" width="30%" height="6%" />
+              <circle cx="50%" cy="89%" r="2" fill="white" />
+            </svg>
+          </div>
         </div>
-      </div>
 
-      <!-- Banquillo / Suplentes -->
-      <div class="mt-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700 flex-shrink-0">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            🪑 Banquillo (<span id="bench-count" class="text-emerald-400">0</span>)
-          </h3>
-          <button id="btn-add-bench-player" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg transition active:scale-95 flex items-center gap-1">
-            <span>+</span> Añadir Suplente
-          </button>
-        </div>
-        <div id="bench-list" class="flex gap-2 overflow-x-auto pb-1 min-h-[46px] items-center">
-          <!-- Renderizado dinámico de suplentes -->
+        <!-- Panel de Suplentes a la Derecha -->
+        <div class="w-36 sm:w-48 bg-slate-800 p-2.5 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full overflow-hidden shadow-md">
+          <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-700">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider truncate">
+              🪑 Suplentes (<span id="bench-count" class="text-emerald-400">0</span>)
+            </h3>
+            <button id="btn-add-bench-player" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold px-2 py-1 rounded-lg transition active:scale-95 flex items-center gap-0.5">
+              <span>+</span>
+            </button>
+          </div>
+          
+          <!-- Lista Vertical de Suplentes -->
+          <div id="bench-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pr-0.5">
+            <!-- Renderizado dinámico de suplentes -->
+          </div>
         </div>
       </div>
     </section>
 
     <!-- SECCIÓN 2: PLANTILLA -->
     <section id="sec-plantilla" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
-      <!-- Formulario Crear/Editar Jugador -->
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
         <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Nuevo Jugador</h3>
         <form id="form-add-player" class="space-y-3">
@@ -183,7 +187,6 @@
         </form>
       </div>
 
-      <!-- Lista de Jugadores (Ordenados por Número) -->
       <div class="space-y-2">
         <div class="flex justify-between items-center mb-2">
           <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Jugadores en Plantilla</h3>
@@ -207,14 +210,14 @@
 
   </main>
 
-  <!-- MODAL: ASIGNAR JUGADOR A FICHA -->
+  <!-- MODAL: ASIGNAR JUGADOR A FICHA / SUPLENTE -->
   <div id="modal-select-player" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl flex flex-col max-h-[80vh]">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
         <h3 class="font-bold text-emerald-400 text-sm" id="modal-title">Seleccionar Jugador</h3>
         <button id="btn-close-modal" class="text-slate-400 hover:text-white">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando sugeridos para la posición actual:</p>
+      <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando jugadores de la plantilla:</p>
       <div id="modal-player-list" class="flex-1 overflow-y-auto space-y-2 my-2">
         <!-- Opciones de jugadores -->
       </div>
@@ -452,7 +455,7 @@
     navPlantilla.addEventListener('click', () => switchView('plantilla'));
     navPartidos.addEventListener('click', () => switchView('partidos'));
 
-    // --- LÓGICA DE RENDERING DE FICHAS Y BANQUILLO ---
+    // --- RENDERING DE FICHAS Y SUPLENTES ---
     function renderPitch() {
       document.querySelectorAll('.player-token').forEach(el => el.remove());
 
@@ -508,7 +511,7 @@
       benchCount.innerText = activeBench.length;
 
       if (activeBench.length === 0) {
-        benchList.innerHTML = `<span class="text-xs text-slate-500 italic py-1">Sin suplentes asignados al banquillo</span>`;
+        benchList.innerHTML = `<span class="text-xs text-slate-500 italic py-3 text-center">Sin suplentes</span>`;
         return;
       }
 
@@ -516,19 +519,21 @@
         const player = squad.find(p => p.id === playerId);
         if (!player) return;
 
-        const badge = document.createElement('div');
-        badge.className = "bg-slate-900 border border-slate-700 hover:border-emerald-500/50 rounded-lg p-1.5 flex items-center gap-2 flex-shrink-0 cursor-pointer shadow-sm transition";
-        badge.innerHTML = `
-          <span class="bg-slate-800 text-emerald-400 font-bold border border-slate-600 rounded-full w-6 h-6 flex items-center justify-center text-xs">${player.num}</span>
-          <span class="text-xs font-semibold text-slate-200 truncate max-w-[90px]">${player.name}</span>
-          <button onclick="removeBenchPlayer(${index})" class="text-slate-500 hover:text-red-400 text-xs px-1">✕</button>
+        const item = document.createElement('div');
+        item.className = "bg-slate-900 border border-slate-700 hover:border-emerald-500/50 rounded-lg p-2 flex items-center justify-between gap-1 flex-shrink-0 cursor-pointer shadow-sm transition";
+        item.innerHTML = `
+          <div class="flex items-center gap-1.5 min-w-0 flex-1">
+            <span class="bg-slate-800 text-emerald-400 font-bold border border-slate-600 rounded-full w-5 h-5 flex items-center justify-center text-[11px] flex-shrink-0">${player.num}</span>
+            <span class="text-xs font-semibold text-slate-200 truncate">${player.name}</span>
+          </div>
+          <button onclick="removeBenchPlayer(${index})" class="text-slate-500 hover:text-red-400 text-xs px-1 flex-shrink-0">✕</button>
         `;
-        badge.onclick = (e) => {
+        item.onclick = (e) => {
           if (e.target.tagName !== 'BUTTON') {
             openAssignBenchModal(index);
           }
         };
-        benchList.appendChild(badge);
+        benchList.appendChild(item);
       });
     }
 
@@ -628,11 +633,10 @@
       selectedSlotId = null;
 
       const modalList = document.getElementById('modal-player-list');
-      document.getElementById('modal-title').innerText = benchIndex !== null ? "Cambiar Suplente" : "Añadir al Banquillo";
+      document.getElementById('modal-title').innerText = benchIndex !== null ? "Cambiar Suplente" : "Añadir a Suplentes";
       document.getElementById('modal-subtitle').innerText = "Selecciona un jugador disponible:";
       modalList.innerHTML = '';
 
-      // Obtener jugadores en campo o banquillo para filtrar
       const pitchPlayerIds = activeTokens.map(t => t.playerId).filter(id => id !== null);
       
       sortSquad();
@@ -640,7 +644,7 @@
         const onPitch = pitchPlayerIds.includes(player.id);
         const onBench = activeBench.includes(player.id) && (benchIndex === null || activeBench[benchIndex] !== player.id);
 
-        if (onPitch || onBench) return; // Oculta si ya está usado
+        if (onPitch || onBench) return;
 
         const item = document.createElement('button');
         item.className = "w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500";
@@ -667,7 +671,6 @@
       const token = activeTokens.find(t => t.slot === selectedSlotId);
       if (token) {
         token.playerId = playerId;
-        // Si el jugador estaba en el banquillo, se quita del banquillo
         if (playerId && activeBench.includes(playerId)) {
           activeBench = activeBench.filter(id => id !== playerId);
         }
@@ -853,7 +856,7 @@
 
       modalSaveLineup.classList.add('hidden');
       document.getElementById('form-save-match').reset();
-      alert("¡Alineación y Banquillo guardados correctamente!");
+      alert("¡Alineación y Suplentes guardados correctamente!");
     });
 
     function renderMatchesList() {
