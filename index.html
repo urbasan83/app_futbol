@@ -215,10 +215,45 @@
                 <button onclick="spawnProp('ball')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Balón">⚽</button>
               </div>
             </div>
+
+            <!-- ANIMACIÓN / VÍDEO DE MOVIMIENTOS -->
+            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700 space-y-2">
+              <div class="font-bold text-xs flex items-center justify-between text-slate-200">
+                <span class="flex items-center gap-2">🎬 <span class="hidden sm:inline">Animación</span></span>
+                <span class="text-[10px] text-emerald-400 font-mono">(<span id="anim-frame-count">0</span>)</span>
+              </div>
+              <p class="text-[9px] text-slate-400 hidden sm:block leading-tight">Captura la posición, mueve las fichas y vuelve a capturar. Con 2 o más capturas puedes generar el vídeo.</p>
+
+              <button id="btn-capture-frame" class="w-full bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow active:scale-95">
+                📸 <span class="hidden sm:inline">Capturar Posición</span>
+              </button>
+
+              <div id="anim-frames-list" class="flex gap-1 overflow-x-auto pb-0.5"></div>
+
+              <div class="flex items-center gap-1">
+                <label class="text-[10px] text-slate-400 hidden sm:inline">Velocidad:</label>
+                <select id="anim-speed" class="flex-1 bg-slate-800 border border-slate-600 text-white text-[10px] rounded-lg p-1">
+                  <option value="lenta">Lenta</option>
+                  <option value="media" selected>Media</option>
+                  <option value="rapida">Rápida</option>
+                </select>
+              </div>
+
+              <button id="btn-generate-video" disabled class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow active:scale-95">
+                🎥 <span class="hidden sm:inline">Generar Vídeo</span>
+              </button>
+
+              <button id="btn-clear-frames" class="w-full bg-slate-700 hover:bg-red-900/50 text-slate-300 hover:text-red-300 text-[10px] font-semibold py-1 px-2 rounded-lg transition border border-slate-600">
+                🗑️ Reiniciar Capturas
+              </button>
+
+              <p id="anim-status" class="text-[10px] text-emerald-400 text-center min-h-[14px]"></p>
+            </div>
           </div>
         </div>
       </div>
     </section>
+
 
     <!-- SECCIÓN 3: ENFRENTAMIENTO (11 vs 11 HORIZONTAL) -->
     <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
@@ -455,6 +490,20 @@
         <button id="btn-close-load-tactics" class="text-slate-400 hover:text-white">✕</button>
       </div>
       <div id="tactics-saved-list" class="flex-1 overflow-y-auto space-y-3 my-2 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: VÍDEO DE ANIMACIÓN GENERADO -->
+  <div id="modal-video-result" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">🎬 Vídeo de la Animación</h3>
+        <button id="btn-close-video-result" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <video id="video-result-preview" controls playsinline class="w-full rounded-lg bg-black mb-3"></video>
+      <a id="video-result-download" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1" download>
+        ⬇️ Descargar Vídeo
+      </a>
     </div>
   </div>
 
@@ -1018,6 +1067,7 @@
     let currentDrawColor = '#ef4444';
     let eraserSize = 25;
     let currentTacticsTokens = [];
+    let animFrames = [];
 
     function initTacticsView() {
       const container = document.getElementById('tactics-pitch');
@@ -1074,6 +1124,9 @@
       });
 
       setupDrawingEvents();
+
+      animFrames = [];
+      updateAnimUI();
     }
 
     function setupDrawingEvents() {
@@ -1177,6 +1230,320 @@
 
       container.appendChild(propEl);
     }
+
+    // --- ANIMACIÓN: CAPTURAR POSICIONES Y GENERAR VÍDEO ---
+    function readCurrentPropsFromDom() {
+      const propsSnapshot = [];
+      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
+        propsSnapshot.push({
+          type: el.dataset.type,
+          x: parseFloat(el.style.left),
+          y: parseFloat(el.style.top)
+        });
+      });
+      return propsSnapshot;
+    }
+
+    function captureAnimFrame() {
+      if (!tacticsCanvas) return;
+      const frame = {
+        tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
+        props: readCurrentPropsFromDom(),
+        drawing: tacticsCanvas.toDataURL()
+      };
+      animFrames.push(frame);
+      updateAnimUI();
+    }
+
+    window.deleteAnimFrame = function(idx) {
+      animFrames.splice(idx, 1);
+      updateAnimUI();
+    };
+
+    function updateAnimUI() {
+      const countEl = document.getElementById('anim-frame-count');
+      if (countEl) countEl.innerText = animFrames.length;
+
+      const btnGen = document.getElementById('btn-generate-video');
+      if (btnGen) btnGen.disabled = animFrames.length < 2;
+
+      const listEl = document.getElementById('anim-frames-list');
+      if (listEl) {
+        listEl.innerHTML = '';
+        animFrames.forEach((f, idx) => {
+          const chip = document.createElement('div');
+          chip.className = "flex items-center gap-1 bg-slate-800 border border-slate-600 rounded-lg px-1.5 py-1 text-[10px] text-slate-300 flex-shrink-0";
+          chip.innerHTML = `<span>#${idx + 1}</span> <button class="text-slate-500 hover:text-red-400" onclick="deleteAnimFrame(${idx})">✕</button>`;
+          listEl.appendChild(chip);
+        });
+      }
+    }
+
+    document.getElementById('btn-capture-frame').addEventListener('click', captureAnimFrame);
+
+    document.getElementById('btn-clear-frames').addEventListener('click', () => {
+      if (animFrames.length === 0) return;
+      if (confirm('¿Borrar todas las posiciones capturadas?')) {
+        animFrames = [];
+        updateAnimUI();
+      }
+    });
+
+    function loadImageSafe(dataUrl) {
+      return new Promise((resolve) => {
+        if (!dataUrl) { resolve(null); return; }
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = dataUrl;
+      });
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+    function drawPitchBackground(ctx, w, h) {
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+      ctx.fillStyle = '#ffffff';
+      ctx.lineWidth = Math.max(2, w * 0.006);
+
+      const px = (v) => (v / 100) * w;
+      const py = (v) => (v / 100) * h;
+
+      ctx.strokeRect(1, 1, w - 2, h - 2);
+
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      ctx.lineTo(w, h);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(px(50), h, px(15), Math.PI, 2 * Math.PI);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(px(50), h, Math.max(2, w * 0.007), 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.strokeRect(px(18), 0, px(64), py(32));
+      ctx.strokeRect(px(33), 0, px(34), py(12));
+
+      ctx.beginPath();
+      ctx.arc(px(50), py(22), Math.max(2, w * 0.006), 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(px(50), py(22), px(15), 0.30 * Math.PI, 0.70 * Math.PI);
+      ctx.stroke();
+    }
+
+    function renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImg) {
+      drawPitchBackground(ctx, w, h);
+
+      if (drawingImg) {
+        ctx.drawImage(drawingImg, 0, 0, w, h);
+      }
+
+      const px = (v) => (v / 100) * w;
+      const py = (v) => (v / 100) * h;
+
+      propsList.forEach(p => {
+        let icon = '⚪';
+        if (p.type === 'cone') icon = '🟠';
+        else if (p.type === 'wall') icon = '🧱';
+        else if (p.type === 'ball') icon = '⚽';
+        ctx.font = `${Math.round(w * 0.05)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(icon, px(p.x), py(p.y));
+      });
+
+      const radius = w * 0.045;
+      tokensList.forEach(tok => {
+        const assignedPlayer = squad.find(p => p.id === tok.playerId);
+        let bg = '#1e3a8a', fg = '#ffffff';
+        if (currentKit === 'local') {
+          if (tok.role === 'POR') { bg = '#fbbf24'; fg = '#0f172a'; }
+          else { bg = '#1e3a8a'; fg = '#ffffff'; }
+        } else {
+          if (tok.role === 'POR') { bg = '#22d3ee'; fg = '#0f172a'; }
+          else { bg = '#db2777'; fg = '#ffffff'; }
+        }
+
+        const cx = px(tok.x), cy = py(tok.y);
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = bg;
+        ctx.fill();
+        ctx.lineWidth = Math.max(2, w * 0.006);
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        const displayNum = assignedPlayer ? assignedPlayer.num : tok.slot;
+        const displayName = assignedPlayer ? assignedPlayer.name : tok.role;
+
+        ctx.fillStyle = fg;
+        ctx.font = `bold ${Math.round(radius * 0.75)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(displayNum, cx, cy - radius * 0.28);
+
+        let name = String(displayName);
+        if (name.length > 10) name = name.slice(0, 9) + '…';
+        ctx.font = `${Math.round(radius * 0.34)}px sans-serif`;
+        ctx.fillText(name, cx, cy + radius * 0.42);
+      });
+    }
+
+    function drawInterpolatedFrame(ctx, w, h, frameA, frameB, t, drawingImgA) {
+      const tokensList = frameA.tokens.map(tokA => {
+        const tokB = frameB.tokens.find(tb => tb.slot === tokA.slot) || tokA;
+        return {
+          slot: tokA.slot,
+          role: tokA.role,
+          playerId: t < 0.5 ? tokA.playerId : tokB.playerId,
+          x: lerp(tokA.x, tokB.x, t),
+          y: lerp(tokA.y, tokB.y, t)
+        };
+      });
+
+      let propsList;
+      if (frameA.props.length === frameB.props.length) {
+        propsList = frameA.props.map((pA, idx) => {
+          const pB = frameB.props[idx];
+          return { type: pA.type, x: lerp(pA.x, pB.x, t), y: lerp(pA.y, pB.y, t) };
+        });
+      } else {
+        propsList = t < 0.5 ? frameA.props : frameB.props;
+      }
+
+      renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImgA);
+    }
+
+    function animateSegment(ctx, w, h, frameA, frameB, drawingImgA, durationMs) {
+      return new Promise(resolve => {
+        const start = performance.now();
+        function step(now) {
+          const elapsed = now - start;
+          const t = Math.min(1, elapsed / durationMs);
+          const et = easeInOutQuad(t);
+          drawInterpolatedFrame(ctx, w, h, frameA, frameB, et, drawingImgA);
+          if (t < 1) {
+            requestAnimationFrame(step);
+          } else {
+            resolve();
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    function pickSupportedMimeType() {
+      const candidates = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4'
+      ];
+      if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+      for (const m of candidates) {
+        if (MediaRecorder.isTypeSupported(m)) return m;
+      }
+      return '';
+    }
+
+    async function generateTacticsVideo() {
+      if (animFrames.length < 2) {
+        alert('Necesitas al menos 2 posiciones capturadas para generar el vídeo.');
+        return;
+      }
+
+      const mimeType = pickSupportedMimeType();
+      if (!mimeType) {
+        alert('Tu navegador no permite grabar vídeo directamente (prueba en Chrome/Android o en un ordenador).');
+        return;
+      }
+
+      const speedMap = { lenta: 1800, media: 1100, rapida: 650 };
+      const speedKey = document.getElementById('anim-speed').value;
+      const transitionMs = speedMap[speedKey] || 1100;
+
+      const pitchEl = document.getElementById('tactics-pitch');
+      const rect = pitchEl.getBoundingClientRect();
+      const scale = 2;
+      const outW = Math.round(rect.width * scale);
+      const outH = Math.round(rect.height * scale);
+
+      const renderCanvas = document.createElement('canvas');
+      renderCanvas.width = outW;
+      renderCanvas.height = outH;
+      const ctx = renderCanvas.getContext('2d');
+
+      const btnGen = document.getElementById('btn-generate-video');
+      const statusEl = document.getElementById('anim-status');
+      btnGen.disabled = true;
+      const originalLabel = btnGen.innerHTML;
+      btnGen.innerHTML = '⏳ Generando...';
+
+      try {
+        const drawingImages = await Promise.all(animFrames.map(f => loadImageSafe(f.drawing)));
+
+        // Fotograma inicial estático antes de empezar a grabar
+        drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0]);
+
+        const stream = renderCanvas.captureStream(30);
+        const recorder = new MediaRecorder(stream, { mimeType });
+        const chunks = [];
+        recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+        const finished = new Promise(resolve => { recorder.onstop = resolve; });
+        recorder.start();
+
+        const totalSegments = animFrames.length - 1;
+        for (let i = 0; i < totalSegments; i++) {
+          statusEl.innerText = `Grabando movimiento ${i + 1}/${totalSegments}...`;
+          await animateSegment(ctx, outW, outH, animFrames[i], animFrames[i + 1], drawingImages[i], transitionMs);
+        }
+
+        drawInterpolatedFrame(ctx, outW, outH, animFrames[animFrames.length - 1], animFrames[animFrames.length - 1], 0, drawingImages[drawingImages.length - 1]);
+        await sleep(700);
+
+        recorder.stop();
+        await finished;
+
+        const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
+        const url = URL.createObjectURL(blob);
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+
+        const videoPreview = document.getElementById('video-result-preview');
+        videoPreview.src = url;
+        const downloadLink = document.getElementById('video-result-download');
+        downloadLink.href = url;
+        downloadLink.download = `tactica-animacion.${ext}`;
+
+        document.getElementById('modal-video-result').classList.remove('hidden');
+        statusEl.innerText = '';
+      } catch (err) {
+        console.error(err);
+        alert('Ocurrió un error generando el vídeo. Inténtalo de nuevo.');
+        statusEl.innerText = '';
+      } finally {
+        btnGen.disabled = animFrames.length < 2;
+        btnGen.innerHTML = originalLabel;
+      }
+    }
+
+    document.getElementById('btn-generate-video').addEventListener('click', generateTacticsVideo);
+
+    document.getElementById('btn-close-video-result').onclick = () => {
+      const videoPreview = document.getElementById('video-result-preview');
+      videoPreview.pause();
+      document.getElementById('modal-video-result').classList.add('hidden');
+    };
 
     // --- GUARDAR Y CARGAR TÁCTICAS ---
     document.getElementById('btn-save-tactic-modal').addEventListener('click', () => {
