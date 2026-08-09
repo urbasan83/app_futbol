@@ -27,7 +27,84 @@
     .touch-none-pitch {
       touch-action: none;
     }
-  </style>
+  
+    /* Ajustes responsive para móviles: una sola página desplazable, sin paneles internos que bloqueen el scroll. */
+    @media (max-width: 1023px) {
+      html, body {
+        height: 100%;
+        min-height: 100%;
+        overflow: hidden;
+      }
+
+      #sec-plantilla {
+        min-height: 0;
+        height: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      }
+
+      #sec-plantilla > div {
+        height: auto;
+        min-height: max-content;
+      }
+
+      #sec-plantilla input,
+      #sec-plantilla select,
+      #sec-plantilla button {
+        font-size: 14px;
+      }
+
+      #sec-plantilla label {
+        min-height: 42px;
+        line-height: 1.2;
+      }
+
+      #sec-plantilla #squad-list,
+      #sec-plantilla #players-by-position {
+        overflow: visible;
+      }
+    }
+
+    @media (max-width: 479px) {
+      #sec-plantilla {
+        padding: 8px;
+      }
+
+      #sec-plantilla > div {
+        gap: 10px;
+      }
+
+      #sec-plantilla .bg-slate-800 {
+        padding: 12px;
+      }
+
+      #sec-plantilla form .flex.gap-2 {
+        flex-direction: column;
+      }
+
+      #sec-plantilla #player-num,
+      #sec-plantilla #player-name {
+        width: 100%;
+        min-width: 0;
+      }
+
+      #sec-plantilla .grid.grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #sec-plantilla .flex.justify-between.items-center.mb-3 {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      #sec-plantilla .flex.justify-between.items-center.mb-3 span {
+        white-space: normal;
+      }
+    }
+</style>
 </head>
 <body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
 
@@ -363,8 +440,8 @@
     </section>
 
     <!-- SECCIÓN 5: PLANTILLA MI EQUIPO -->
-    <section id="sec-plantilla" class="flex-1 hidden h-full overflow-y-auto p-2 sm:p-3 w-full">
-      <div class="grid grid-cols-1 lg:grid-cols-[minmax(320px,430px)_1fr] gap-3 h-full min-h-0">
+    <section id="sec-plantilla" class="flex-1 hidden min-h-0 overflow-y-auto overscroll-contain p-2 sm:p-3 w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(320px,430px)_1fr] gap-3 lg:h-full lg:min-h-0">
 
         <!-- COLUMNA IZQUIERDA: AÑADIR JUGADOR + PLANTILLA -->
         <div class="min-w-0 flex flex-col gap-3">
@@ -403,19 +480,19 @@
             </form>
           </div>
 
-          <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg flex-1 min-h-0 overflow-y-auto">
+          <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
             <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Plantilla del Equipo</h3>
             <div id="squad-list" class="space-y-2 pb-4"></div>
           </div>
         </div>
 
         <!-- COLUMNA DERECHA: JUGADORES AGRUPADOS POR POSICIÓN -->
-        <div class="min-w-0 bg-slate-800 p-3 sm:p-4 rounded-xl border border-slate-700 shadow-lg overflow-y-auto">
+        <div class="min-w-0 bg-slate-800 p-3 sm:p-4 rounded-xl border border-slate-700 shadow-lg lg:overflow-y-auto">
           <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
             <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Jugadores por Posición</h3>
             <span class="text-[10px] text-slate-500">Un jugador puede aparecer en varias posiciones</span>
           </div>
-          <div id="players-by-position" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+          <div id="players-by-position" class="grid grid-cols-1 min-[480px]:grid-cols-2 xl:grid-cols-3 gap-3"></div>
         </div>
 
       </div>
