@@ -55,9 +55,15 @@
       <h2 class="font-bold text-lg text-emerald-400">Gestor F11</h2>
       <button id="btn-close-sidebar" class="text-slate-400 hover:text-white">✕</button>
     </div>
-    <nav class="flex-1 p-3 space-y-2">
+    <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
       <button id="nav-pizarra" class="w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition">
         📋 Pizarra Táctica
+      </button>
+      <button id="nav-tacticas" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        📐 Tácticas (Balón Parado)
+      </button>
+      <button id="nav-enfrentamiento" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        ⚔️ Enfrentamiento (11 vs 11)
       </button>
       <button id="nav-plantilla" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
         👥 Plantilla del Equipo
@@ -71,9 +77,8 @@
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-1 relative overflow-hidden flex flex-col">
 
-    <!-- SECCIÓN 1: PIZARRA TÁCTICA -->
+    <!-- SECCIÓN 1: PIZARRA TÁCTICA PRINCIPAL -->
     <section id="sec-pizarra" class="flex-1 flex flex-col h-full overflow-hidden p-2">
-      <!-- Selector de Formación y Equipación -->
       <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0">
         <div class="flex items-center gap-1">
           <label class="text-xs text-slate-400 font-medium">Sistema:</label>
@@ -92,9 +97,7 @@
         </div>
       </div>
 
-      <!-- Área Principal: Campo a la izquierda, Suplentes a la derecha -->
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0">
-        <!-- Campo de Fútbol -->
         <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
           <div id="pitch" class="touch-none-pitch relative w-full h-full max-w-md bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
             <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
@@ -113,7 +116,6 @@
           </div>
         </div>
 
-        <!-- Panel de Suplentes a la Derecha -->
         <div class="w-36 sm:w-48 bg-slate-800 p-2.5 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full overflow-hidden shadow-md">
           <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-700">
             <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider truncate">
@@ -124,15 +126,134 @@
             </button>
           </div>
           
-          <!-- Lista Vertical de Suplentes -->
-          <div id="bench-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pr-0.5">
-            <!-- Renderizado dinámico de suplentes -->
+          <div id="bench-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pr-0.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS DIBUJO) -->
+    <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
+      <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
+        <!-- Media Cancha -->
+        <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
+          <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
+            <!-- Canvas de dibujo -->
+            <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
+            
+            <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
+              <!-- Línea de medio campo (abajo) -->
+              <line x1="0" y1="100%" x2="100%" y2="100%" />
+              <!-- Círculo central -->
+              <path d="M 35% 100% A 15% 15% 0 0 1 65% 100%" />
+              <circle cx="50%" cy="100%" r="3" fill="white" />
+              <!-- Área Grande -->
+              <rect x="18%" y="0" width="64%" height="32%" />
+              <!-- Área Pequeña -->
+              <rect x="33%" y="0" width="34%" height="12%" />
+              <!-- Punto de Penalti -->
+              <circle cx="50%" cy="22%" r="2.5" fill="white" />
+              <!-- Arco de Penalti -->
+              <path d="M 38% 32% A 15% 15% 0 0 0 62% 32%" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Panel Lateral Desplegable de Herramientas -->
+        <div class="w-14 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
+          <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 hidden sm:block border-b border-slate-700 pb-2">
+            🛠️ Herramientas
+          </div>
+
+          <!-- Pestañas / Menú Herramientas -->
+          <div class="space-y-3">
+            <!-- DIBUJAR -->
+            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+              <button id="btn-tool-draw" onclick="setActiveTool('draw')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
+                <span class="flex items-center gap-2">✏️ <span class="hidden sm:inline">Dibujar</span></span>
+                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">Pincel</span>
+              </button>
+              
+              <div id="panel-draw-options" class="mt-2 space-y-2">
+                <p class="text-[10px] text-slate-400 hidden sm:block">Colores predeterminados:</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  <button onclick="setDrawColor('#ef4444')" class="w-full h-7 rounded-lg bg-red-500 border-2 border-white/20 hover:scale-105 transition" title="Rojo"></button>
+                  <button onclick="setDrawColor('#0284c7')" class="w-full h-7 rounded-lg bg-sky-600 border-2 border-white/20 hover:scale-105 transition" title="Azul Mar"></button>
+                  <button onclick="setDrawColor('#eab308')" class="w-full h-7 rounded-lg bg-yellow-500 border-2 border-white/20 hover:scale-105 transition" title="Amarillo"></button>
+                  <button onclick="setDrawColor('#15803d')" class="w-full h-7 rounded-lg bg-green-700 border-2 border-white/20 hover:scale-105 transition" title="Verde Oscuro"></button>
+                </div>
+                <div class="flex items-center gap-2 mt-1">
+                  <label class="text-[10px] text-slate-400 hidden sm:inline">Paleta personalizada:</label>
+                  <input type="color" id="custom-color-picker" value="#ef4444" onchange="setDrawColor(this.value)" class="w-full h-7 rounded cursor-pointer bg-transparent border-0">
+                </div>
+              </div>
+            </div>
+
+            <!-- BORRAR -->
+            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+              <button id="btn-tool-erase" onclick="setActiveTool('erase')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
+                <span class="flex items-center gap-2">🧹 <span class="hidden sm:inline">Borrar</span></span>
+                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">Goma</span>
+              </button>
+
+              <div id="panel-erase-options" class="mt-2 space-y-2 hidden">
+                <label class="text-[10px] text-slate-400 hidden sm:block">Grosor de la goma:</label>
+                <input type="range" id="eraser-size-slider" min="10" max="60" value="25" oninput="setEraserSize(this.value)" class="w-full accent-emerald-500">
+                <button onclick="clearTacticsCanvas()" class="w-full bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 text-red-300 text-[10px] py-1 rounded-lg transition font-semibold">
+                  🗑️ Clear Todo
+                </button>
+              </div>
+            </div>
+
+            <!-- ICONOS / OBJETOS -->
+            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+              <div class="font-bold text-xs flex items-center justify-between text-slate-200 mb-2">
+                <span class="flex items-center gap-2">🎯 <span class="hidden sm:inline">Objetos</span></span>
+              </div>
+              <div class="flex flex-col sm:grid sm:grid-cols-3 gap-1.5">
+                <button onclick="spawnProp('cone')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Cono Naranja">
+                  🟠
+                </button>
+                <button onclick="spawnProp('wall')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Barrera Amarilla">
+                  🧱
+                </button>
+                <button onclick="spawnProp('ball')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Balón">
+                  ⚽
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SECCIÓN 2: PLANTILLA -->
+    <!-- SECCIÓN 3: ENFRENTAMIENTO (CAMPO COMPLETO HORIZONTAL 11 vs 11) -->
+    <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
+      <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
+        <div id="matchup-pitch" class="touch-none-pitch relative w-full h-full max-h-[90vh] bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden flex items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
+            <!-- Línea central vertical -->
+            <line x1="50%" y1="0" x2="50%" y2="100%" />
+            <!-- Círculo central -->
+            <circle cx="50%" cy="50%" r="12%" />
+            <circle cx="50%" cy="50%" r="2.5" fill="white" />
+
+            <!-- Izquierda (Equipo A) -->
+            <rect x="0" y="20%" width="16%" height="60%" />
+            <rect x="0" y="35%" width="6%" height="30%" />
+            <circle cx="11%" cy="50%" r="2" fill="white" />
+            <path d="M 16% 38% A 12% 12% 0 0 1 16% 62%" />
+
+            <!-- Derecha (Equipo B) -->
+            <rect x="84%" y="20%" width="16%" height="60%" />
+            <rect x="94%" y="35%" width="6%" height="30%" />
+            <circle cx="89%" cy="50%" r="2" fill="white" />
+            <path d="M 84% 38% A 12% 12% 0 0 0 84% 62%" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 4: PLANTILLA -->
     <section id="sec-plantilla" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
         <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Nuevo Jugador</h3>
@@ -192,20 +313,16 @@
           <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Jugadores en Plantilla</h3>
           <span class="text-xs text-slate-400">Ordenados por Dorsal</span>
         </div>
-        <div id="squad-list" class="space-y-2 pb-12">
-          <!-- Renderizado dinámico -->
-        </div>
+        <div id="squad-list" class="space-y-2 pb-12"></div>
       </div>
     </section>
 
-    <!-- SECCIÓN 3: PARTIDOS GUARDADOS -->
+    <!-- SECCIÓN 5: PARTIDOS GUARDADOS -->
     <section id="sec-partidos" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Alineaciones Guardadas</h3>
       </div>
-      <div id="matches-list" class="space-y-3 pb-12">
-        <!-- Renderizado dinámico -->
-      </div>
+      <div id="matches-list" class="space-y-3 pb-12"></div>
     </section>
 
   </main>
@@ -218,9 +335,7 @@
         <button id="btn-close-modal" class="text-slate-400 hover:text-white">✕</button>
       </div>
       <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando jugadores de la plantilla:</p>
-      <div id="modal-player-list" class="flex-1 overflow-y-auto space-y-2 my-2">
-        <!-- Opciones de jugadores -->
-      </div>
+      <div id="modal-player-list" class="flex-1 overflow-y-auto space-y-2 my-2"></div>
     </div>
   </div>
 
@@ -336,7 +451,7 @@
     let selectedSlotId = null;
     let selectedBenchIndex = null;
 
-    // Elementos DOM
+    // DOM Elements
     const pitch = document.getElementById('pitch');
     const selectFormation = document.getElementById('select-formation');
     const selectKit = document.getElementById('select-kit');
@@ -347,35 +462,38 @@
     const benchCount = document.getElementById('bench-count');
     const btnAddBenchPlayer = document.getElementById('btn-add-bench-player');
 
-    // Menú Lateral
+    // Navigation DOM
     const btnHamburger = document.getElementById('btn-hamburger');
     const btnCloseSidebar = document.getElementById('btn-close-sidebar');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const navPizarra = document.getElementById('nav-pizarra');
+    const navTacticas = document.getElementById('nav-tacticas');
+    const navEnfrentamiento = document.getElementById('nav-enfrentamiento');
     const navPlantilla = document.getElementById('nav-plantilla');
     const navPartidos = document.getElementById('nav-partidos');
+
     const secPizarra = document.getElementById('sec-pizarra');
+    const secTacticas = document.getElementById('sec-tacticas');
+    const secEnfrentamiento = document.getElementById('sec-enfrentamiento');
     const secPlantilla = document.getElementById('sec-plantilla');
     const secPartidos = document.getElementById('sec-partidos');
     const headerTitle = document.getElementById('header-title');
     const headerActions = document.getElementById('header-actions');
 
-    // Modales
     const modalSelectPlayer = document.getElementById('modal-select-player');
     const modalSaveLineup = document.getElementById('modal-save-lineup');
     const modalEditMatch = document.getElementById('modal-edit-match');
     const btnSaveLineupModal = document.getElementById('btn-save-lineup-modal');
 
-    // --- ORDENAR PLANTILLA POR NÚMERO ---
+    // --- ORDENAR PLANTILLA ---
     function sortSquad() {
       squad.sort((a, b) => parseInt(a.num) - parseInt(b.num));
     }
 
-    // --- SINCRO Y PRESERVACIÓN DE ESTADO ---
+    // --- SINCRO Y ESTADO ---
     function syncTokensWithFormation(keepPlayers = true) {
       const formConfig = formations[currentFormationKey];
-
       if (!activeTokens || activeTokens.length !== formConfig.length) {
         activeTokens = formConfig.map(item => ({
           slot: item.slot,
@@ -419,18 +537,31 @@
 
     function switchView(view) {
       secPizarra.classList.add('hidden');
+      secTacticas.classList.add('hidden');
+      secEnfrentamiento.classList.add('hidden');
       secPlantilla.classList.add('hidden');
       secPartidos.classList.add('hidden');
 
-      navPizarra.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition";
-      navPlantilla.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition";
-      navPartidos.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition";
+      const allNavs = [navPizarra, navTacticas, navEnfrentamiento, navPlantilla, navPartidos];
+      allNavs.forEach(n => n.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition");
 
       if (view === 'pizarra') {
         secPizarra.classList.remove('hidden');
         navPizarra.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
         headerTitle.innerHTML = '⚽ Pizarra Táctica';
         headerActions.classList.remove('hidden');
+      } else if (view === 'tacticas') {
+        secTacticas.classList.remove('hidden');
+        navTacticas.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
+        headerTitle.innerHTML = '📐 Tácticas (Balón Parado)';
+        headerActions.classList.add('hidden');
+        initTacticsView();
+      } else if (view === 'enfrentamiento') {
+        secEnfrentamiento.classList.remove('hidden');
+        navEnfrentamiento.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
+        headerTitle.innerHTML = '⚔️ Enfrentamiento (11 vs 11)';
+        headerActions.classList.add('hidden');
+        initMatchupView();
       } else if (view === 'plantilla') {
         secPlantilla.classList.remove('hidden');
         navPlantilla.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
@@ -452,12 +583,14 @@
     sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
 
     navPizarra.addEventListener('click', () => switchView('pizarra'));
+    navTacticas.addEventListener('click', () => switchView('tacticas'));
+    navEnfrentamiento.addEventListener('click', () => switchView('enfrentamiento'));
     navPlantilla.addEventListener('click', () => switchView('plantilla'));
     navPartidos.addEventListener('click', () => switchView('partidos'));
 
-    // --- RENDERING DE FICHAS Y SUPLENTES ---
+    // --- RENDERING PIZARRA PRINCIPAL ---
     function renderPitch() {
-      document.querySelectorAll('.player-token').forEach(el => el.remove());
+      document.querySelectorAll('#pitch .player-token').forEach(el => el.remove());
 
       activeTokens.forEach(token => {
         const assignedPlayer = squad.find(p => p.id === token.playerId);
@@ -485,8 +618,7 @@
           <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
         `;
 
-        makeDraggable(tokenEl, token);
-
+        makeDraggable(tokenEl, token, pitch);
         tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
         
         let tapTimer = null;
@@ -543,7 +675,7 @@
       renderBench();
     }
 
-    function makeDraggable(element, tokenData) {
+    function makeDraggable(element, dataObj, container) {
       let isDragging = false;
       let startX, startY;
 
@@ -557,18 +689,20 @@
 
       element.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
-        const rect = pitch.getBoundingClientRect();
+        const rect = container.getBoundingClientRect();
         let x = ((e.clientX - rect.left) / rect.width) * 100;
         let y = ((e.clientY - rect.top) / rect.height) * 100;
 
-        x = Math.max(5, Math.min(95, x));
-        y = Math.max(5, Math.min(95, y));
+        x = Math.max(3, Math.min(97, x));
+        y = Math.max(3, Math.min(97, y));
 
         element.style.left = `${x}%`;
         element.style.top = `${y}%`;
-        
-        tokenData.x = x;
-        tokenData.y = y;
+
+        if (dataObj) {
+          dataObj.x = x;
+          dataObj.y = y;
+        }
       });
 
       const stopDrag = (e) => {
@@ -576,16 +710,234 @@
         isDragging = false;
         element.releasePointerCapture(e.pointerId);
         element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-        savePitchState();
-
-        const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
-        if (dist < 5) {
-          openAssignPlayerModal(tokenData.slot, tokenData.role);
-        }
+        if (container === pitch) savePitchState();
       };
 
       element.addEventListener('pointerup', stopDrag);
       element.addEventListener('pointercancel', stopDrag);
+    }
+
+    // --- SECCIÓN TÁCTICAS (MEDIO CAMPO + CANVAS DIBUJO) ---
+    let tacticsCanvas, tacticsCtx;
+    let isDrawing = false;
+    let activeTool = 'draw'; // 'draw' or 'erase'
+    let currentDrawColor = '#ef4444';
+    let eraserSize = 25;
+    let tacticsTokens = [];
+
+    function initTacticsView() {
+      const container = document.getElementById('tactics-pitch');
+      tacticsCanvas = document.getElementById('tactics-canvas');
+      tacticsCtx = tacticsCanvas.getContext('2d');
+
+      // Ajustar tamaño del canvas
+      setTimeout(() => {
+        tacticsCanvas.width = container.clientWidth;
+        tacticsCanvas.height = container.clientHeight;
+      }, 50);
+
+      // Limpiar fichas existentes en tactics-pitch
+      document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
+
+      // Crear 11 fichas
+      tacticsTokens = [
+        { num: 1, name: 'POR', x: 50, y: 10 },
+        { num: 2, name: 'LD',  x: 80, y: 30 },
+        { num: 3, name: 'DFC', x: 62, y: 22 },
+        { num: 4, name: 'DFC', x: 38, y: 22 },
+        { num: 5, name: 'LI',  x: 20, y: 30 },
+        { num: 6, name: 'MCD', x: 50, y: 45 },
+        { num: 7, name: 'MC',  x: 70, y: 55 },
+        { num: 8, name: 'MC',  x: 30, y: 55 },
+        { num: 9, name: 'ED',  x: 80, y: 80 },
+        { num: 10, name: 'DC', x: 50, y: 85 },
+        { num: 11, name: 'EI', x: 20, y: 80 }
+      ];
+
+      tacticsTokens.forEach((tok) => {
+        const tokenEl = document.createElement('div');
+        tokenEl.className = `tactics-token absolute rounded-full bg-blue-900 border-2 border-white text-white font-black flex flex-col items-center justify-center shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+        tokenEl.style.width = '38px';
+        tokenEl.style.height = '38px';
+        tokenEl.style.left = `${tok.x}%`;
+        tokenEl.style.top = `${tok.y}%`;
+        tokenEl.style.transform = 'translate(-50%, -50%)';
+
+        tokenEl.innerHTML = `
+          <span class="text-xs leading-none">${tok.num}</span>
+          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[32px]">${tok.name}</span>
+        `;
+
+        makeDraggable(tokenEl, tok, container);
+        container.appendChild(tokenEl);
+      });
+
+      setupDrawingEvents();
+    }
+
+    function setupDrawingEvents() {
+      let lastX = 0, lastY = 0;
+
+      const getPos = (e) => {
+        const rect = tacticsCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * (tacticsCanvas.width / rect.width),
+          y: (clientY - rect.top) * (tacticsCanvas.height / rect.height)
+        };
+      };
+
+      const startDraw = (e) => {
+        isDrawing = true;
+        const pos = getPos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+      };
+
+      const moveDraw = (e) => {
+        if (!isDrawing) return;
+        const pos = getPos(e);
+
+        tacticsCtx.beginPath();
+        tacticsCtx.moveTo(lastX, lastY);
+        tacticsCtx.lineTo(pos.x, pos.y);
+        tacticsCtx.lineCap = 'round';
+        tacticsCtx.lineJoin = 'round';
+
+        if (activeTool === 'draw') {
+          tacticsCtx.globalCompositeOperation = 'source-over';
+          tacticsCtx.strokeStyle = currentDrawColor;
+          tacticsCtx.lineWidth = 4;
+        } else {
+          tacticsCtx.globalCompositeOperation = 'destination-out';
+          tacticsCtx.lineWidth = eraserSize;
+        }
+
+        tacticsCtx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+      };
+
+      const stopDraw = () => { isDrawing = false; };
+
+      tacticsCanvas.onpointerdown = startDraw;
+      tacticsCanvas.onpointermove = moveDraw;
+      tacticsCanvas.onpointerup = stopDraw;
+      tacticsCanvas.onpointercancel = stopDraw;
+    }
+
+    function setActiveTool(tool) {
+      activeTool = tool;
+      const panelDraw = document.getElementById('panel-draw-options');
+      const panelErase = document.getElementById('panel-erase-options');
+
+      if (tool === 'draw') {
+        panelDraw.classList.remove('hidden');
+        panelErase.classList.add('hidden');
+      } else {
+        panelDraw.classList.add('hidden');
+        panelErase.classList.remove('hidden');
+      }
+    }
+
+    function setDrawColor(color) {
+      currentDrawColor = color;
+      setActiveTool('draw');
+      document.getElementById('custom-color-picker').value = color;
+    }
+
+    function setEraserSize(size) {
+      eraserSize = size;
+    }
+
+    function clearTacticsCanvas() {
+      if (tacticsCtx) {
+        tacticsCtx.clearRect(0, 0, tacticsCanvas.width, tacticsCanvas.height);
+      }
+    }
+
+    function spawnProp(type) {
+      const container = document.getElementById('tactics-pitch');
+      const propEl = document.createElement('div');
+      propEl.className = 'tactics-prop absolute z-20 cursor-grab active:cursor-grabbing text-xl touch-none select-none';
+      propEl.style.left = '50%';
+      propEl.style.top = '50%';
+      propEl.style.transform = 'translate(-50%, -50%)';
+
+      if (type === 'cone') propEl.innerText = '🟠';
+      else if (type === 'wall') propEl.innerText = '🧱';
+      else if (type === 'ball') propEl.innerText = '⚽';
+
+      const propData = { x: 50, y: 50 };
+      makeDraggable(propEl, propData, container);
+
+      // Doble tap o doble click para eliminar objeto
+      propEl.ondblclick = () => propEl.remove();
+
+      container.appendChild(propEl);
+    }
+
+    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 HORIZONTAL) ---
+    function initMatchupView() {
+      const container = document.getElementById('matchup-pitch');
+      document.querySelectorAll('#matchup-pitch .matchup-token').forEach(e => e.remove());
+
+      // Equipo A (Local - Azul)
+      const teamA = [
+        { num: 1,  x: 5,  y: 50, gk: true },
+        { num: 2,  x: 18, y: 18 },
+        { num: 3,  x: 15, y: 38 },
+        { num: 4,  x: 15, y: 62 },
+        { num: 5,  x: 18, y: 82 },
+        { num: 6,  x: 28, y: 50 },
+        { num: 7,  x: 35, y: 30 },
+        { num: 8,  x: 35, y: 70 },
+        { num: 9,  x: 44, y: 20 },
+        { num: 10, x: 46, y: 50 },
+        { num: 11, x: 44, y: 80 }
+      ];
+
+      // Equipo B (Rival - Rojo)
+      const teamB = [
+        { num: 1,  x: 95, y: 50, gk: true },
+        { num: 2,  x: 82, y: 82 },
+        { num: 3,  x: 85, y: 62 },
+        { num: 4,  x: 85, y: 38 },
+        { num: 5,  x: 82, y: 18 },
+        { num: 6,  x: 72, y: 50 },
+        { num: 7,  x: 65, y: 70 },
+        { num: 8,  x: 65, y: 30 },
+        { num: 9,  x: 56, y: 80 },
+        { num: 10, x: 54, y: 50 },
+        { num: 11, x: 56, y: 20 }
+      ];
+
+      // Crear Equipo A
+      teamA.forEach(player => {
+        const bgClass = player.gk ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
+        createMatchupToken(player, bgClass, container);
+      });
+
+      // Crear Equipo B
+      teamB.forEach(player => {
+        const bgClass = player.gk ? 'bg-cyan-400 text-slate-900 border-white' : 'bg-red-600 text-white border-white';
+        createMatchupToken(player, bgClass, container);
+      });
+    }
+
+    function createMatchupToken(playerData, bgClass, container) {
+      const tokenEl = document.createElement('div');
+      tokenEl.className = `matchup-token absolute rounded-full ${bgClass} font-black flex items-center justify-center border-2 shadow-lg touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
+      tokenEl.style.width = '32px';
+      tokenEl.style.height = '32px';
+      tokenEl.style.left = `${playerData.x}%`;
+      tokenEl.style.top = `${playerData.y}%`;
+      tokenEl.style.transform = 'translate(-50%, -50%)';
+      tokenEl.innerText = playerData.num;
+
+      makeDraggable(tokenEl, playerData, container);
+      container.appendChild(tokenEl);
     }
 
     // --- MODALES DE SELECCIÓN DE JUGADORES ---
@@ -694,7 +1046,7 @@
     btnAddBenchPlayer.addEventListener('click', () => openAssignBenchModal(null));
     document.getElementById('btn-close-modal').onclick = () => modalSelectPlayer.classList.add('hidden');
 
-    // --- CONTROLES PIZARRA ---
+    // --- CONTROLES PIZARRA PRINCIPAL ---
     selectFormation.value = currentFormationKey;
     selectKit.value = currentKit;
 
@@ -870,7 +1222,6 @@
       savedMatches.forEach(match => {
         const card = document.createElement('div');
         card.className = "bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 shadow-md";
-        
         const benchSize = match.bench ? match.bench.length : 0;
 
         card.innerHTML = `
