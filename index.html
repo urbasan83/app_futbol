@@ -9,7 +9,6 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -65,8 +64,11 @@
       <button id="nav-enfrentamiento" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
         ⚔️ Enfrentamiento (11 vs 11)
       </button>
+      <button id="nav-rivales" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        🛡️ Equipos Rivales
+      </button>
       <button id="nav-plantilla" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
-        👥 Plantilla del Equipo
+        👥 Plantilla Mi Equipo
       </button>
       <button id="nav-partidos" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
         📅 Partidos Guardados
@@ -85,6 +87,8 @@
           <select id="select-formation" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
             <option value="4-3-3">4-3-3</option>
             <option value="4-4-2">4-4-2</option>
+            <option value="3-5-2">3-5-2</option>
+            <option value="4-2-3-1">4-2-3-1</option>
           </select>
         </div>
 
@@ -104,11 +108,9 @@
               <line x1="0" y1="50%" x2="100%" y2="50%" />
               <circle cx="50%" cy="50%" r="15%" />
               <circle cx="50%" cy="50%" r="2" fill="white" />
-              
               <rect x="20%" y="0" width="60%" height="16%" />
               <rect x="35%" y="0" width="30%" height="6%" />
               <circle cx="50%" cy="11%" r="2" fill="white" />
-
               <rect x="20%" y="84%" width="60%" height="16%" />
               <rect x="35%" y="94%" width="30%" height="6%" />
               <circle cx="50%" cy="89%" r="2" fill="white" />
@@ -125,65 +127,64 @@
               <span>+</span>
             </button>
           </div>
-          
           <div id="bench-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pr-0.5"></div>
         </div>
       </div>
     </section>
 
-    <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS DIBUJO) -->
+    <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS Y GUARDADO) -->
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
         <!-- Media Cancha -->
         <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
           <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
-            <!-- Canvas de dibujo -->
             <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
-            
             <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
-              <!-- Línea de medio campo (abajo) -->
               <line x1="0" y1="100%" x2="100%" y2="100%" />
-              <!-- Círculo central -->
               <path d="M 35% 100% A 15% 15% 0 0 1 65% 100%" />
               <circle cx="50%" cy="100%" r="3" fill="white" />
-              <!-- Área Grande -->
               <rect x="18%" y="0" width="64%" height="32%" />
-              <!-- Área Pequeña -->
               <rect x="33%" y="0" width="34%" height="12%" />
-              <!-- Punto de Penalti -->
               <circle cx="50%" cy="22%" r="2.5" fill="white" />
-              <!-- Arco de Penalti -->
               <path d="M 38% 32% A 15% 15% 0 0 0 62% 32%" />
             </svg>
           </div>
         </div>
 
-        <!-- Panel Lateral Desplegable de Herramientas -->
-        <div class="w-14 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
+        <!-- Panel Lateral Desplegable de Herramientas + Guardado -->
+        <div class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
           <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 hidden sm:block border-b border-slate-700 pb-2">
             🛠️ Herramientas
           </div>
 
-          <!-- Pestañas / Menú Herramientas -->
           <div class="space-y-3">
+            <!-- BOTONES GUARDAR / CARGAR TÁCTICA -->
+            <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-700 space-y-1.5">
+              <button id="btn-save-tactic-modal" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow">
+                💾 <span class="hidden sm:inline">Guardar Táctica</span>
+              </button>
+              <button id="btn-load-tactics-modal" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 border border-slate-600">
+                📂 <span class="hidden sm:inline">Mis Tácticas</span>
+              </button>
+            </div>
+
             <!-- DIBUJAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-draw" onclick="setActiveTool('draw')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">✏️ <span class="hidden sm:inline">Dibujar</span></span>
-                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">Pincel</span>
               </button>
               
               <div id="panel-draw-options" class="mt-2 space-y-2">
                 <p class="text-[10px] text-slate-400 hidden sm:block">Colores predeterminados:</p>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                  <button onclick="setDrawColor('#ef4444')" class="w-full h-7 rounded-lg bg-red-500 border-2 border-white/20 hover:scale-105 transition" title="Rojo"></button>
-                  <button onclick="setDrawColor('#0284c7')" class="w-full h-7 rounded-lg bg-sky-600 border-2 border-white/20 hover:scale-105 transition" title="Azul Mar"></button>
-                  <button onclick="setDrawColor('#eab308')" class="w-full h-7 rounded-lg bg-yellow-500 border-2 border-white/20 hover:scale-105 transition" title="Amarillo"></button>
-                  <button onclick="setDrawColor('#15803d')" class="w-full h-7 rounded-lg bg-green-700 border-2 border-white/20 hover:scale-105 transition" title="Verde Oscuro"></button>
+                  <button onclick="setDrawColor('#ef4444')" class="w-full h-6 rounded bg-red-500 border border-white/20 hover:scale-105 transition" title="Rojo"></button>
+                  <button onclick="setDrawColor('#0284c7')" class="w-full h-6 rounded bg-sky-600 border border-white/20 hover:scale-105 transition" title="Azul Mar"></button>
+                  <button onclick="setDrawColor('#eab308')" class="w-full h-6 rounded bg-yellow-500 border border-white/20 hover:scale-105 transition" title="Amarillo"></button>
+                  <button onclick="setDrawColor('#15803d')" class="w-full h-6 rounded bg-green-700 border border-white/20 hover:scale-105 transition" title="Verde Oscuro"></button>
                 </div>
-                <div class="flex items-center gap-2 mt-1">
-                  <label class="text-[10px] text-slate-400 hidden sm:inline">Paleta personalizada:</label>
-                  <input type="color" id="custom-color-picker" value="#ef4444" onchange="setDrawColor(this.value)" class="w-full h-7 rounded cursor-pointer bg-transparent border-0">
+                <div class="flex items-center gap-1 mt-1">
+                  <label class="text-[10px] text-slate-400 hidden sm:inline">Paleta:</label>
+                  <input type="color" id="custom-color-picker" value="#ef4444" onchange="setDrawColor(this.value)" class="w-full h-6 rounded cursor-pointer bg-transparent border-0">
                 </div>
               </div>
             </div>
@@ -192,14 +193,13 @@
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-erase" onclick="setActiveTool('erase')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">🧹 <span class="hidden sm:inline">Borrar</span></span>
-                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">Goma</span>
               </button>
 
               <div id="panel-erase-options" class="mt-2 space-y-2 hidden">
-                <label class="text-[10px] text-slate-400 hidden sm:block">Grosor de la goma:</label>
+                <label class="text-[10px] text-slate-400 hidden sm:block">Grosor de borrar:</label>
                 <input type="range" id="eraser-size-slider" min="10" max="60" value="25" oninput="setEraserSize(this.value)" class="w-full accent-emerald-500">
                 <button onclick="clearTacticsCanvas()" class="w-full bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 text-red-300 text-[10px] py-1 rounded-lg transition font-semibold">
-                  🗑️ Clear Todo
+                  🗑️ Limpiar Dibujo
                 </button>
               </div>
             </div>
@@ -210,15 +210,9 @@
                 <span class="flex items-center gap-2">🎯 <span class="hidden sm:inline">Objetos</span></span>
               </div>
               <div class="flex flex-col sm:grid sm:grid-cols-3 gap-1.5">
-                <button onclick="spawnProp('cone')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Cono Naranja">
-                  🟠
-                </button>
-                <button onclick="spawnProp('wall')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Barrera Amarilla">
-                  🧱
-                </button>
-                <button onclick="spawnProp('ball')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Balón">
-                  ⚽
-                </button>
+                <button onclick="spawnProp('cone')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Cono Naranja">🟠</button>
+                <button onclick="spawnProp('wall')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Barrera Amarilla">🧱</button>
+                <button onclick="spawnProp('ball')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Balón">⚽</button>
               </div>
             </div>
           </div>
@@ -226,24 +220,39 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 3: ENFRENTAMIENTO (CAMPO COMPLETO HORIZONTAL 11 vs 11) -->
+    <!-- SECCIÓN 3: ENFRENTAMIENTO (11 vs 11 HORIZONTAL) -->
     <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
+      <!-- Selector de Rival Superior / Overlay -->
+      <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20">
+        <div class="text-xs font-semibold text-emerald-400">
+          Mi Equipo: <span id="matchup-my-side-label" class="text-white font-normal">(Izquierda)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-slate-300 font-medium">Rival:</label>
+          <select id="select-rival-team" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
+            <option value="">-- Seleccionar Rival --</option>
+          </select>
+          <select id="select-rival-kit" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
+            <option value="local">🔴 Kit Local</option>
+            <option value="visitante">⚪ Kit Visitante</option>
+          </select>
+        </div>
+      </div>
+
       <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
-        <div id="matchup-pitch" class="touch-none-pitch relative w-full h-full max-h-[90vh] bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden flex items-center justify-center">
+        <div id="matchup-pitch" class="touch-none-pitch relative w-full h-full max-h-[85vh] bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden flex items-center justify-center">
           <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
-            <!-- Línea central vertical -->
             <line x1="50%" y1="0" x2="50%" y2="100%" />
-            <!-- Círculo central -->
             <circle cx="50%" cy="50%" r="12%" />
             <circle cx="50%" cy="50%" r="2.5" fill="white" />
 
-            <!-- Izquierda (Equipo A) -->
+            <!-- Izquierda -->
             <rect x="0" y="20%" width="16%" height="60%" />
             <rect x="0" y="35%" width="6%" height="30%" />
             <circle cx="11%" cy="50%" r="2" fill="white" />
             <path d="M 16% 38% A 12% 12% 0 0 1 16% 62%" />
 
-            <!-- Derecha (Equipo B) -->
+            <!-- Derecha -->
             <rect x="84%" y="20%" width="16%" height="60%" />
             <rect x="94%" y="35%" width="6%" height="30%" />
             <circle cx="89%" cy="50%" r="2" fill="white" />
@@ -253,10 +262,59 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 4: PLANTILLA -->
+    <!-- SECCIÓN 4: EQUIPOS RIVALES (NUEVO) -->
+    <section id="sec-rivales" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
+        <h3 id="rival-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Crear Nuevo Equipo Rival</h3>
+        <form id="form-add-rival" class="space-y-3">
+          <input type="hidden" id="edit-rival-id" value="">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Equipo</label>
+            <input type="text" id="rival-name" placeholder="Ej: Real Madrid" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Color Local</label>
+              <input type="color" id="rival-color-local" value="#dc2626" class="w-full h-9 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Color Visitante</label>
+              <input type="color" id="rival-color-away" value="#ffffff" class="w-full h-9 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Formación Predeterminada</label>
+            <select id="rival-formation" class="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg p-2 focus:border-emerald-500">
+              <option value="4-3-3">4-3-3</option>
+              <option value="4-4-2">4-4-2</option>
+              <option value="3-5-2">3-5-2</option>
+              <option value="4-2-3-1">4-2-3-1</option>
+            </select>
+          </div>
+
+          <div class="flex gap-2 pt-1">
+            <button type="submit" id="btn-save-rival" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
+              Guardar Equipo Rival
+            </button>
+            <button type="button" id="btn-cancel-rival" class="hidden bg-slate-600 hover:bg-slate-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Equipos Rivales Creados</h3>
+        <div id="rivals-list" class="space-y-3 pb-12"></div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 5: PLANTILLA MI EQUIPO -->
     <section id="sec-plantilla" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
-        <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Nuevo Jugador</h3>
+        <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Jugador a Mi Equipo</h3>
         <form id="form-add-player" class="space-y-3">
           <input type="hidden" id="edit-player-id" value="">
           <div class="flex gap-2">
@@ -265,35 +323,17 @@
           </div>
           
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Posiciones habituales (Marca todas las que apliquen):</label>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Posiciones habituales:</label>
             <div class="grid grid-cols-3 gap-1.5 text-xs">
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="POR" class="accent-emerald-500"> Portero
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="DFC" class="accent-emerald-500"> Def. Central
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="LD" class="accent-emerald-500"> Lat. Derecho
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="LI" class="accent-emerald-500"> Lat. Izquierdo
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="MCD" class="accent-emerald-500"> Mediocentro
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="MC" class="accent-emerald-500"> Interior
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="ED" class="accent-emerald-500"> Ext. Derecho
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="EI" class="accent-emerald-500"> Ext. Izquierdo
-              </label>
-              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer">
-                <input type="checkbox" name="pos" value="DC" class="accent-emerald-500"> Delantero
-              </label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="POR" class="accent-emerald-500"> Portero</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DFC" class="accent-emerald-500"> Def. Central</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LD" class="accent-emerald-500"> Lat. Derecho</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LI" class="accent-emerald-500"> Lat. Izquierdo</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MCD" class="accent-emerald-500"> Mediocentro</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MC" class="accent-emerald-500"> Interior</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="ED" class="accent-emerald-500"> Ext. Derecho</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="EI" class="accent-emerald-500"> Ext. Izquierdo</label>
+              <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DC" class="accent-emerald-500"> Delantero</label>
             </div>
           </div>
 
@@ -309,15 +349,12 @@
       </div>
 
       <div class="space-y-2">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Jugadores en Plantilla</h3>
-          <span class="text-xs text-slate-400">Ordenados por Dorsal</span>
-        </div>
+        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-2">Plantilla del Equipo</h3>
         <div id="squad-list" class="space-y-2 pb-12"></div>
       </div>
     </section>
 
-    <!-- SECCIÓN 5: PARTIDOS GUARDADOS -->
+    <!-- SECCIÓN 6: PARTIDOS GUARDADOS -->
     <section id="sec-partidos" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Alineaciones Guardadas</h3>
@@ -327,19 +364,119 @@
 
   </main>
 
-  <!-- MODAL: ASIGNAR JUGADOR A FICHA / SUPLENTE -->
+  <!-- MODAL: GESTIONAR JUGADORES DE UN EQUIPO RIVAL -->
+  <div id="modal-rival-squad" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm" id="modal-rival-title">Plantilla del Rival</h3>
+        <button id="btn-close-rival-squad" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      
+      <form id="form-rival-player" class="bg-slate-900 p-3 rounded-xl border border-slate-700 mb-3 space-y-2">
+        <input type="hidden" id="edit-rival-player-id" value="">
+        <div class="flex gap-2">
+          <input type="number" id="rival-player-num" min="1" max="99" placeholder="Nº" required class="w-16 bg-slate-800 border border-slate-600 rounded-lg p-1.5 text-center text-white text-xs">
+          <input type="text" id="rival-player-name" placeholder="Nombre jugador rival" required class="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-1.5 text-white text-xs">
+        </div>
+        <div class="flex justify-between items-center gap-2">
+          <select id="rival-player-pos" class="bg-slate-800 border border-slate-600 text-slate-200 text-xs rounded-lg p-1.5">
+            <option value="POR">Portero (POR)</option>
+            <option value="DFC">Central (DFC)</option>
+            <option value="LD">Lat. Derecho (LD)</option>
+            <option value="LI">Lat. Izquierdo (LI)</option>
+            <option value="MCD">Mediocentro (MCD)</option>
+            <option value="MC">Interior (MC)</option>
+            <option value="ED">Ext. Derecho (ED)</option>
+            <option value="EI">Ext. Izquierdo (EI)</option>
+            <option value="DC">Delantero (DC)</option>
+          </select>
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Añadir/Guardar</button>
+        </div>
+      </form>
+
+      <div id="rival-players-list" class="flex-1 overflow-y-auto space-y-2 my-1 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: SELECCIONAR JUGADOR PARA CASILLA -->
   <div id="modal-select-player" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl flex flex-col max-h-[80vh]">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
         <h3 class="font-bold text-emerald-400 text-sm" id="modal-title">Seleccionar Jugador</h3>
         <button id="btn-close-modal" class="text-slate-400 hover:text-white">✕</button>
       </div>
-      <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando jugadores de la plantilla:</p>
+      <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando jugadores:</p>
       <div id="modal-player-list" class="flex-1 overflow-y-auto space-y-2 my-2"></div>
     </div>
   </div>
 
-  <!-- MODAL: GUARDAR ALINEACIÓN -->
+  <!-- MODAL: GUARDAR TÁCTICA (CON NOMBRE, FECHA Y DESCRIPCIÓN) -->
+  <div id="modal-save-tactic" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Guardar Táctica a Balón Parado</h3>
+        <button id="btn-close-save-tactic" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-save-tactic" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de la Táctica</label>
+          <input type="text" id="tactic-name" placeholder="Ej: Córner en corto en A" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="tactic-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción / Instrucciones</label>
+          <textarea id="tactic-desc" rows="3" placeholder="Ej: Dos bloqueos en primer palo y remate al segundo..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs focus:border-emerald-500 focus:outline-none"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
+          Guardar Táctica
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CARGAR Y EDITAR MIS TÁCTICAS -->
+  <div id="modal-load-tactics" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Tácticas Guardadas</h3>
+        <button id="btn-close-load-tactics" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div id="tactics-saved-list" class="flex-1 overflow-y-auto space-y-3 my-2 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR INFORMACIÓN DE TÁCTICA -->
+  <div id="modal-edit-tactic-info" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">Editar Táctica</h3>
+        <button id="btn-close-edit-tactic-info" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-edit-tactic-info" class="space-y-3">
+        <input type="hidden" id="edit-tactic-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre</label>
+          <input type="text" id="edit-tactic-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="edit-tactic-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción</label>
+          <textarea id="edit-tactic-desc" rows="3" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
+          Actualizar Táctica
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GUARDAR ALINEACIÓN PRINCIPAL -->
   <div id="modal-save-lineup" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -348,47 +485,19 @@
       </div>
       <form id="form-save-match" class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de la Alineación</label>
-          <input type="text" id="match-name" placeholder="Ej: Jornada 1 - Alineación Titular" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Alineación</label>
+          <input type="text" id="match-name" placeholder="Ej: Jornada 1" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha del Partido</label>
-          <input type="date" id="match-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo Rival</label>
-          <input type="text" id="match-rival" placeholder="Ej: Rayo Vallecano" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
-          Guardar en Partidos
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: EDITAR DATOS DE PARTIDO -->
-  <div id="modal-edit-match" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm">Editar Información del Partido</h3>
-        <button id="btn-close-edit-match-modal" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <form id="form-edit-match" class="space-y-3">
-        <input type="hidden" id="edit-match-id">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de la Alineación</label>
-          <input type="text" id="edit-match-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha del Partido</label>
-          <input type="date" id="edit-match-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
+          <input type="date" id="match-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo Rival</label>
-          <input type="text" id="edit-match-rival" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
+          <input type="text" id="match-rival" placeholder="Ej: Rayo" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
         </div>
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
-          Actualizar Partido
+          Guardar Partido
         </button>
       </form>
     </div>
@@ -409,11 +518,34 @@
       { id: 10, num: 9, name: "Torres", roles: ["DC"] },
       { id: 11, num: 11, name: "Pedro", roles: ["EI", "ED"] },
       { id: 12, num: 13, name: "Valdés", roles: ["POR"] },
-      { id: 13, num: 14, name: "Xabi Alonso", roles: ["MC", "MCD"] },
-      { id: 14, num: 15, name: "Cesc", roles: ["MC", "DC"] }
+      { id: 13, num: 14, name: "Xabi Alonso", roles: ["MC", "MCD"] }
+    ];
+
+    let rivalTeams = JSON.parse(localStorage.getItem('f11_rivals')) || [
+      {
+        id: 101,
+        name: "Real Madrid",
+        homeColor: "#ffffff",
+        awayColor: "#1e1b4b",
+        formation: "4-3-3",
+        squad: [
+          { id: 201, num: 1, name: "Courtois", role: "POR" },
+          { id: 202, num: 2, name: "Carvajal", role: "LD" },
+          { id: 203, num: 3, name: "Militao", role: "DFC" },
+          { id: 204, num: 22, name: "Rüdiger", role: "DFC" },
+          { id: 205, num: 23, name: "Mendy", role: "LI" },
+          { id: 206, num: 14, name: "Tchouaméni", role: "MCD" },
+          { id: 207, num: 15, name: "Valverde", role: "MC" },
+          { id: 208, num: 5, name: "Bellingham", role: "MC" },
+          { id: 209, num: 11, name: "Rodrygo", role: "ED" },
+          { id: 210, num: 7, name: "Vinicius Jr", role: "EI" },
+          { id: 211, num: 9, name: "Mbappé", role: "DC" }
+        ]
+      }
     ];
 
     let savedMatches = JSON.parse(localStorage.getItem('f11_matches')) || [];
+    let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
 
     const formations = {
       '4-3-3': [
@@ -441,6 +573,32 @@
         { slot: 9,  role: 'EI',  x: 15, y: 45 },
         { slot: 10, role: 'DC',  x: 62, y: 26 },
         { slot: 11, role: 'DC',  x: 38, y: 26 }
+      ],
+      '3-5-2': [
+        { slot: 1,  role: 'POR', x: 50, y: 92 },
+        { slot: 2,  role: 'DFC', x: 75, y: 80 },
+        { slot: 3,  role: 'DFC', x: 50, y: 82 },
+        { slot: 4,  role: 'DFC', x: 25, y: 80 },
+        { slot: 5,  role: 'MCD', x: 50, y: 66 },
+        { slot: 6,  role: 'MC',  x: 68, y: 52 },
+        { slot: 7,  role: 'MC',  x: 32, y: 52 },
+        { slot: 8,  role: 'ED',  x: 88, y: 48 },
+        { slot: 9,  role: 'EI',  x: 12, y: 48 },
+        { slot: 10, role: 'DC',  x: 60, y: 26 },
+        { slot: 11, role: 'DC',  x: 40, y: 26 }
+      ],
+      '4-2-3-1': [
+        { slot: 1,  role: 'POR', x: 50, y: 92 },
+        { slot: 2,  role: 'LD',  x: 85, y: 78 },
+        { slot: 3,  role: 'DFC', x: 63, y: 82 },
+        { slot: 4,  role: 'DFC', x: 37, y: 82 },
+        { slot: 5,  role: 'LI',  x: 15, y: 78 },
+        { slot: 6,  role: 'MCD', x: 62, y: 66 },
+        { slot: 7,  role: 'MCD', x: 38, y: 66 },
+        { slot: 8,  role: 'MC',  x: 50, y: 46 },
+        { slot: 9,  role: 'ED',  x: 82, y: 42 },
+        { slot: 10, role: 'EI',  x: 18, y: 42 },
+        { slot: 11, role: 'DC',  x: 50, y: 26 }
       ]
     };
 
@@ -448,10 +606,17 @@
     let currentKit = localStorage.getItem('f11_kit') || 'local';
     let activeTokens = JSON.parse(localStorage.getItem('f11_active_tokens')) || null;
     let activeBench = JSON.parse(localStorage.getItem('f11_active_bench')) || [];
+
+    // Estado para Enfrentamiento
+    let selectedRivalId = localStorage.getItem('f11_selected_rival_id') || "";
+    let selectedRivalKit = localStorage.getItem('f11_selected_rival_kit') || "local";
+    let activeRivalTokens = JSON.parse(localStorage.getItem('f11_active_rival_tokens')) || [];
+
     let selectedSlotId = null;
     let selectedBenchIndex = null;
+    let selectedRivalSlotId = null;
 
-    // DOM Elements
+    // Elementos DOM
     const pitch = document.getElementById('pitch');
     const selectFormation = document.getElementById('select-formation');
     const selectKit = document.getElementById('select-kit');
@@ -462,7 +627,7 @@
     const benchCount = document.getElementById('bench-count');
     const btnAddBenchPlayer = document.getElementById('btn-add-bench-player');
 
-    // Navigation DOM
+    // Navegación
     const btnHamburger = document.getElementById('btn-hamburger');
     const btnCloseSidebar = document.getElementById('btn-close-sidebar');
     const sidebar = document.getElementById('sidebar');
@@ -470,28 +635,29 @@
     const navPizarra = document.getElementById('nav-pizarra');
     const navTacticas = document.getElementById('nav-tacticas');
     const navEnfrentamiento = document.getElementById('nav-enfrentamiento');
+    const navRivales = document.getElementById('nav-rivales');
     const navPlantilla = document.getElementById('nav-plantilla');
     const navPartidos = document.getElementById('nav-partidos');
 
     const secPizarra = document.getElementById('sec-pizarra');
     const secTacticas = document.getElementById('sec-tacticas');
     const secEnfrentamiento = document.getElementById('sec-enfrentamiento');
+    const secRivales = document.getElementById('sec-rivales');
     const secPlantilla = document.getElementById('sec-plantilla');
     const secPartidos = document.getElementById('sec-partidos');
+
     const headerTitle = document.getElementById('header-title');
     const headerActions = document.getElementById('header-actions');
 
     const modalSelectPlayer = document.getElementById('modal-select-player');
     const modalSaveLineup = document.getElementById('modal-save-lineup');
-    const modalEditMatch = document.getElementById('modal-edit-match');
     const btnSaveLineupModal = document.getElementById('btn-save-lineup-modal');
 
-    // --- ORDENAR PLANTILLA ---
+    // --- FUNCIONES AUXILIARES Y SINCRO ---
     function sortSquad() {
       squad.sort((a, b) => parseInt(a.num) - parseInt(b.num));
     }
 
-    // --- SINCRO Y ESTADO ---
     function syncTokensWithFormation(keepPlayers = true) {
       const formConfig = formations[currentFormationKey];
       if (!activeTokens || activeTokens.length !== formConfig.length) {
@@ -522,9 +688,12 @@
       localStorage.setItem('f11_kit', currentKit);
       localStorage.setItem('f11_active_tokens', JSON.stringify(activeTokens));
       localStorage.setItem('f11_active_bench', JSON.stringify(activeBench));
+      localStorage.setItem('f11_selected_rival_id', selectedRivalId);
+      localStorage.setItem('f11_selected_rival_kit', selectedRivalKit);
+      localStorage.setItem('f11_active_rival_tokens', JSON.stringify(activeRivalTokens));
     }
 
-    // --- GESTIÓN DE NAVEGACIÓN ---
+    // --- NAVEGACIÓN VISTAS ---
     function toggleSidebar(open) {
       if (open) {
         sidebar.classList.remove('-translate-x-full');
@@ -539,10 +708,11 @@
       secPizarra.classList.add('hidden');
       secTacticas.classList.add('hidden');
       secEnfrentamiento.classList.add('hidden');
+      secRivales.classList.add('hidden');
       secPlantilla.classList.add('hidden');
       secPartidos.classList.add('hidden');
 
-      const allNavs = [navPizarra, navTacticas, navEnfrentamiento, navPlantilla, navPartidos];
+      const allNavs = [navPizarra, navTacticas, navEnfrentamiento, navRivales, navPlantilla, navPartidos];
       allNavs.forEach(n => n.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition");
 
       if (view === 'pizarra') {
@@ -562,10 +732,16 @@
         headerTitle.innerHTML = '⚔️ Enfrentamiento (11 vs 11)';
         headerActions.classList.add('hidden');
         initMatchupView();
+      } else if (view === 'rivales') {
+        secRivales.classList.remove('hidden');
+        navRivales.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
+        headerTitle.innerHTML = '🛡️ Equipos Rivales';
+        headerActions.classList.add('hidden');
+        renderRivalsList();
       } else if (view === 'plantilla') {
         secPlantilla.classList.remove('hidden');
         navPlantilla.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
-        headerTitle.innerHTML = '👥 Plantilla del Equipo';
+        headerTitle.innerHTML = '👥 Plantilla Mi Equipo';
         headerActions.classList.add('hidden');
         renderSquadList();
       } else if (view === 'partidos') {
@@ -585,25 +761,25 @@
     navPizarra.addEventListener('click', () => switchView('pizarra'));
     navTacticas.addEventListener('click', () => switchView('tacticas'));
     navEnfrentamiento.addEventListener('click', () => switchView('enfrentamiento'));
+    navRivales.addEventListener('click', () => switchView('rivales'));
     navPlantilla.addEventListener('click', () => switchView('plantilla'));
     navPartidos.addEventListener('click', () => switchView('partidos'));
 
-    // --- RENDERING PIZARRA PRINCIPAL ---
+    // --- PIZARRA PRINCIPAL ---
     function renderPitch() {
       document.querySelectorAll('#pitch .player-token').forEach(el => el.remove());
 
       activeTokens.forEach(token => {
         const assignedPlayer = squad.find(p => p.id === token.playerId);
-        
-        let kitBg = 'bg-blue-900 border-white text-white';
+        let kitStyle = '';
         if (currentKit === 'local') {
-          kitBg = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
+          kitStyle = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
         } else {
-          kitBg = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
+          kitStyle = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
         }
 
         const tokenEl = document.createElement('div');
-        tokenEl.className = `player-token absolute rounded-full ${kitBg} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+        tokenEl.className = `player-token absolute rounded-full ${kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
         tokenEl.style.width = '42px';
         tokenEl.style.height = '42px';
         tokenEl.style.left = `${token.x}%`;
@@ -677,12 +853,9 @@
 
     function makeDraggable(element, dataObj, container) {
       let isDragging = false;
-      let startX, startY;
 
       element.addEventListener('pointerdown', (e) => {
         isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
         element.setPointerCapture(e.pointerId);
         element.classList.add('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
       });
@@ -717,58 +890,65 @@
       element.addEventListener('pointercancel', stopDrag);
     }
 
-    // --- SECCIÓN TÁCTICAS (MEDIO CAMPO + CANVAS DIBUJO) ---
+    // --- SECCIÓN TÁCTICAS (SINCRONIZADO CON PIZARRA + DIBUJO Y GUARDADO) ---
     let tacticsCanvas, tacticsCtx;
     let isDrawing = false;
-    let activeTool = 'draw'; // 'draw' or 'erase'
+    let activeTool = 'draw';
     let currentDrawColor = '#ef4444';
     let eraserSize = 25;
-    let tacticsTokens = [];
+    let currentTacticsTokens = [];
 
     function initTacticsView() {
       const container = document.getElementById('tactics-pitch');
       tacticsCanvas = document.getElementById('tactics-canvas');
       tacticsCtx = tacticsCanvas.getContext('2d');
 
-      // Ajustar tamaño del canvas
       setTimeout(() => {
         tacticsCanvas.width = container.clientWidth;
         tacticsCanvas.height = container.clientHeight;
       }, 50);
 
-      // Limpiar fichas existentes en tactics-pitch
       document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
 
-      // Crear 11 fichas
-      tacticsTokens = [
-        { num: 1, name: 'POR', x: 50, y: 10 },
-        { num: 2, name: 'LD',  x: 80, y: 30 },
-        { num: 3, name: 'DFC', x: 62, y: 22 },
-        { num: 4, name: 'DFC', x: 38, y: 22 },
-        { num: 5, name: 'LI',  x: 20, y: 30 },
-        { num: 6, name: 'MCD', x: 50, y: 45 },
-        { num: 7, name: 'MC',  x: 70, y: 55 },
-        { num: 8, name: 'MC',  x: 30, y: 55 },
-        { num: 9, name: 'ED',  x: 80, y: 80 },
-        { num: 10, name: 'DC', x: 50, y: 85 },
-        { num: 11, name: 'EI', x: 20, y: 80 }
-      ];
+      // Sincronización exacta con los 11 jugadores de Pizarra Táctica
+      currentTacticsTokens = activeTokens.map(t => {
+        // Mapear posición Y de campo completo a medio campo (0% a 90%)
+        const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
+        return {
+          slot: t.slot,
+          role: t.role,
+          x: t.x,
+          y: halfY,
+          playerId: t.playerId
+        };
+      });
 
-      tacticsTokens.forEach((tok) => {
+      currentTacticsTokens.forEach(token => {
+        const assignedPlayer = squad.find(p => p.id === token.playerId);
+        let kitStyle = '';
+        if (currentKit === 'local') {
+          kitStyle = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
+        } else {
+          kitStyle = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
+        }
+
         const tokenEl = document.createElement('div');
-        tokenEl.className = `tactics-token absolute rounded-full bg-blue-900 border-2 border-white text-white font-black flex flex-col items-center justify-center shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-        tokenEl.style.width = '38px';
-        tokenEl.style.height = '38px';
-        tokenEl.style.left = `${tok.x}%`;
-        tokenEl.style.top = `${tok.y}%`;
+        tokenEl.className = `tactics-token absolute rounded-full ${kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+        tokenEl.style.width = '42px';
+        tokenEl.style.height = '42px';
+        tokenEl.style.left = `${token.x}%`;
+        tokenEl.style.top = `${token.y}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
 
+        const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
+        const displayName = assignedPlayer ? assignedPlayer.name : token.role;
+
         tokenEl.innerHTML = `
-          <span class="text-xs leading-none">${tok.num}</span>
-          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[32px]">${tok.name}</span>
+          <span class="text-xs leading-none">${displayNum}</span>
+          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
         `;
 
-        makeDraggable(tokenEl, tok, container);
+        makeDraggable(tokenEl, token, container);
         container.appendChild(tokenEl);
       });
 
@@ -857,90 +1037,585 @@
       }
     }
 
-    function spawnProp(type) {
+    function spawnProp(type, customX = 50, customY = 50) {
       const container = document.getElementById('tactics-pitch');
       const propEl = document.createElement('div');
       propEl.className = 'tactics-prop absolute z-20 cursor-grab active:cursor-grabbing text-xl touch-none select-none';
-      propEl.style.left = '50%';
-      propEl.style.top = '50%';
+      propEl.dataset.type = type;
+      propEl.style.left = `${customX}%`;
+      propEl.style.top = `${customY}%`;
       propEl.style.transform = 'translate(-50%, -50%)';
 
       if (type === 'cone') propEl.innerText = '🟠';
       else if (type === 'wall') propEl.innerText = '🧱';
       else if (type === 'ball') propEl.innerText = '⚽';
 
-      const propData = { x: 50, y: 50 };
+      const propData = { x: customX, y: customY };
       makeDraggable(propEl, propData, container);
-
-      // Doble tap o doble click para eliminar objeto
       propEl.ondblclick = () => propEl.remove();
 
       container.appendChild(propEl);
     }
 
-    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 HORIZONTAL) ---
+    // --- GUARDAR Y CARGAR TÁCTICAS ---
+    document.getElementById('btn-save-tactic-modal').addEventListener('click', () => {
+      document.getElementById('tactic-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-save-tactic').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-save-tactic').onclick = () => {
+      document.getElementById('modal-save-tactic').classList.add('hidden');
+    };
+
+    document.getElementById('form-save-tactic').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('tactic-name').value.trim();
+      const date = document.getElementById('tactic-date').value;
+      const desc = document.getElementById('tactic-desc').value.trim();
+
+      // Guardar Objetos/Props en el campo
+      const propsList = [];
+      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
+        propsList.push({
+          type: el.dataset.type,
+          x: parseFloat(el.style.left),
+          y: parseFloat(el.style.top)
+        });
+      });
+
+      const newTactic = {
+        id: Date.now(),
+        name,
+        date,
+        desc,
+        tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
+        props: propsList,
+        canvasData: tacticsCanvas.toDataURL()
+      };
+
+      savedTactics.unshift(newTactic);
+      localStorage.setItem('f11_tactics', JSON.stringify(savedTactics));
+
+      document.getElementById('modal-save-tactic').classList.add('hidden');
+      document.getElementById('form-save-tactic').reset();
+      alert("¡Táctica guardada con éxito!");
+    });
+
+    document.getElementById('btn-load-tactics-modal').addEventListener('click', () => {
+      renderSavedTacticsList();
+      document.getElementById('modal-load-tactics').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-load-tactics').onclick = () => {
+      document.getElementById('modal-load-tactics').classList.add('hidden');
+    };
+
+    function renderSavedTacticsList() {
+      const container = document.getElementById('tactics-saved-list');
+      container.innerHTML = '';
+
+      if (savedTactics.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No tienes tácticas guardadas.</p>`;
+        return;
+      }
+
+      savedTactics.forEach(tac => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-bold text-emerald-400 text-xs">${tac.name}</h4>
+              <span class="text-[10px] text-slate-400">${tac.date}</span>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="openEditTacticModal(${tac.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">✏️</button>
+              <button onclick="deleteTactic(${tac.id})" class="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">🗑️</button>
+            </div>
+          </div>
+          ${tac.desc ? `<p class="text-[11px] text-slate-300 italic bg-slate-800/60 p-2 rounded">${tac.desc}</p>` : ''}
+          <button onclick="loadTacticToBoard(${tac.id})" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 text-xs font-bold py-1.5 rounded-lg transition">
+            👁️ Cargar esta Táctica
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.loadTacticToBoard = function(id) {
+      const tac = savedTactics.find(t => t.id === id);
+      if (!tac) return;
+
+      // Limpiar canvas y props
+      clearTacticsCanvas();
+      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
+
+      // Restaurar Canvas Dibujado
+      if (tac.canvasData) {
+        const img = new Image();
+        img.onload = () => {
+          tacticsCtx.drawImage(img, 0, 0);
+        };
+        img.src = tac.canvasData;
+      }
+
+      // Restaurar Objetos
+      if (tac.props) {
+        tac.props.forEach(p => spawnProp(p.type, p.x, p.y));
+      }
+
+      // Restaurar Posiciones de fichas
+      if (tac.tokens) {
+        const container = document.getElementById('tactics-pitch');
+        document.querySelectorAll('#tactics-pitch .tactics-token').forEach(e => e.remove());
+        
+        currentTacticsTokens = JSON.parse(JSON.stringify(tac.tokens));
+        currentTacticsTokens.forEach(token => {
+          const assignedPlayer = squad.find(p => p.id === token.playerId);
+          let kitStyle = currentKit === 'local' ? (token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white') : (token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white');
+
+          const tokenEl = document.createElement('div');
+          tokenEl.className = `tactics-token absolute rounded-full ${kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+          tokenEl.style.width = '42px';
+          tokenEl.style.height = '42px';
+          tokenEl.style.left = `${token.x}%`;
+          tokenEl.style.top = `${token.y}%`;
+          tokenEl.style.transform = 'translate(-50%, -50%)';
+
+          const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
+          const displayName = assignedPlayer ? assignedPlayer.name : token.role;
+
+          tokenEl.innerHTML = `
+            <span class="text-xs leading-none">${displayNum}</span>
+            <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
+          `;
+
+          makeDraggable(tokenEl, token, container);
+          container.appendChild(tokenEl);
+        });
+      }
+
+      document.getElementById('modal-load-tactics').classList.add('hidden');
+    };
+
+    window.openEditTacticModal = function(id) {
+      const tac = savedTactics.find(t => t.id === id);
+      if (!tac) return;
+
+      document.getElementById('edit-tactic-id').value = tac.id;
+      document.getElementById('edit-tactic-name').value = tac.name;
+      document.getElementById('edit-tactic-date').value = tac.date;
+      document.getElementById('edit-tactic-desc').value = tac.desc || '';
+
+      document.getElementById('modal-edit-tactic-info').classList.remove('hidden');
+    };
+
+    document.getElementById('btn-close-edit-tactic-info').onclick = () => {
+      document.getElementById('modal-edit-tactic-info').classList.add('hidden');
+    };
+
+    document.getElementById('form-edit-tactic-info').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-tactic-id').value);
+      const tac = savedTactics.find(t => t.id === id);
+      if (tac) {
+        tac.name = document.getElementById('edit-tactic-name').value.trim();
+        tac.date = document.getElementById('edit-tactic-date').value;
+        tac.desc = document.getElementById('edit-tactic-desc').value.trim();
+
+        localStorage.setItem('f11_tactics', JSON.stringify(savedTactics));
+        renderSavedTacticsList();
+        document.getElementById('modal-edit-tactic-info').classList.add('hidden');
+      }
+    });
+
+    window.deleteTactic = function(id) {
+      if (confirm("¿Deseas eliminar esta táctica?")) {
+        savedTactics = savedTactics.filter(t => t.id !== id);
+        localStorage.setItem('f11_tactics', JSON.stringify(savedTactics));
+        renderSavedTacticsList();
+      }
+    };
+
+    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 GRANDES + SELECCIÓN DE RIVAL) ---
     function initMatchupView() {
       const container = document.getElementById('matchup-pitch');
       document.querySelectorAll('#matchup-pitch .matchup-token').forEach(e => e.remove());
 
-      // Equipo A (Local - Azul)
-      const teamA = [
-        { num: 1,  x: 5,  y: 50, gk: true },
-        { num: 2,  x: 18, y: 18 },
-        { num: 3,  x: 15, y: 38 },
-        { num: 4,  x: 15, y: 62 },
-        { num: 5,  x: 18, y: 82 },
-        { num: 6,  x: 28, y: 50 },
-        { num: 7,  x: 35, y: 30 },
-        { num: 8,  x: 35, y: 70 },
-        { num: 9,  x: 44, y: 20 },
-        { num: 10, x: 46, y: 50 },
-        { num: 11, x: 44, y: 80 }
-      ];
-
-      // Equipo B (Rival - Rojo)
-      const teamB = [
-        { num: 1,  x: 95, y: 50, gk: true },
-        { num: 2,  x: 82, y: 82 },
-        { num: 3,  x: 85, y: 62 },
-        { num: 4,  x: 85, y: 38 },
-        { num: 5,  x: 82, y: 18 },
-        { num: 6,  x: 72, y: 50 },
-        { num: 7,  x: 65, y: 70 },
-        { num: 8,  x: 65, y: 30 },
-        { num: 9,  x: 56, y: 80 },
-        { num: 10, x: 54, y: 50 },
-        { num: 11, x: 56, y: 20 }
-      ];
-
-      // Crear Equipo A
-      teamA.forEach(player => {
-        const bgClass = player.gk ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
-        createMatchupToken(player, bgClass, container);
+      const selectRivalEl = document.getElementById('select-rival-team');
+      selectRivalEl.innerHTML = `<option value="">-- Seleccionar Rival --</option>`;
+      rivalTeams.forEach(r => {
+        selectRivalEl.innerHTML += `<option value="${r.id}" ${parseInt(selectedRivalId) === r.id ? 'selected' : ''}>${r.name}</option>`;
       });
 
-      // Crear Equipo B
-      teamB.forEach(player => {
-        const bgClass = player.gk ? 'bg-cyan-400 text-slate-900 border-white' : 'bg-red-600 text-white border-white';
-        createMatchupToken(player, bgClass, container);
+      document.getElementById('select-rival-kit').value = selectedRivalKit;
+
+      // Determinar lado del usuario según su equipación
+      const isMyTeamLeft = currentKit === 'local';
+      document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? "(Lado Izquierdo - Local)" : "(Lado Derecho - Visitante)";
+
+      // Renderizar Mi Equipo
+      activeTokens.forEach(token => {
+        const assignedPlayer = squad.find(p => p.id === token.playerId);
+        let posX, posY;
+
+        // Transformación de coordenadas verticales a horizontales según el lado
+        if (isMyTeamLeft) {
+          posX = 6 + (92 - token.y) * 0.42;
+          posY = token.x;
+        } else {
+          posX = 94 - (92 - token.y) * 0.42;
+          posY = token.x;
+        }
+
+        let kitStyle = '';
+        if (currentKit === 'local') {
+          kitStyle = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
+        } else {
+          kitStyle = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
+        }
+
+        const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
+        const displayName = assignedPlayer ? assignedPlayer.name : token.role;
+
+        createMatchupToken({
+          num: displayNum,
+          name: displayName,
+          x: posX,
+          y: posY,
+          kitStyle
+        }, container);
+      });
+
+      // Renderizar Equipo Rival
+      renderRivalInMatchup();
+    }
+
+    function renderRivalInMatchup() {
+      const container = document.getElementById('matchup-pitch');
+      document.querySelectorAll('#matchup-pitch .matchup-rival-token').forEach(e => e.remove());
+
+      const rival = rivalTeams.find(r => r.id === parseInt(selectedRivalId));
+      if (!rival) return;
+
+      const isRivalRight = currentKit === 'local'; // Lado contrario a mi equipo
+      const rivalForm = formations[rival.formation] || formations['4-3-3'];
+
+      // Sincronizar fichas del rival si no están inicializadas
+      if (!activeRivalTokens || activeRivalTokens.length !== rivalForm.length) {
+        activeRivalTokens = rivalForm.map((f, idx) => ({
+          slot: f.slot,
+          role: f.role,
+          x: f.x,
+          y: f.y,
+          rivalPlayerId: rival.squad[idx] ? rival.squad[idx].id : null
+        }));
+      }
+
+      const rivalBgColor = selectedRivalKit === 'local' ? rival.homeColor : rival.awayColor;
+
+      activeRivalTokens.forEach((token, idx) => {
+        const formPos = rivalForm[idx] || { x: 50, y: 50, role: 'MC' };
+        let posX, posY;
+
+        if (isRivalRight) {
+          posX = 94 - (92 - formPos.y) * 0.42;
+          posY = formPos.x;
+        } else {
+          posX = 6 + (92 - formPos.y) * 0.42;
+          posY = formPos.x;
+        }
+
+        const assignedRivalPlayer = rival.squad.find(p => p.id === token.rivalPlayerId);
+
+        const tokenEl = document.createElement('div');
+        tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-2 border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
+        tokenEl.style.width = '42px'; // Fichas más grandes
+        tokenEl.style.height = '42px';
+        tokenEl.style.backgroundColor = rivalBgColor;
+        tokenEl.style.color = getContrastTextColor(rivalBgColor);
+        tokenEl.style.left = `${posX}%`;
+        tokenEl.style.top = `${posY}%`;
+        tokenEl.style.transform = 'translate(-50%, -50%)';
+
+        const displayNum = assignedRivalPlayer ? assignedRivalPlayer.num : token.slot;
+        const displayName = assignedRivalPlayer ? assignedRivalPlayer.name : token.role;
+
+        tokenEl.innerHTML = `
+          <span class="text-xs leading-none">${displayNum}</span>
+          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
+        `;
+
+        const tokenData = { x: posX, y: posY };
+        makeDraggable(tokenEl, tokenData, container);
+
+        // Click para cambiar jugador del rival
+        tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
+        tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
+
+        container.appendChild(tokenEl);
       });
     }
 
-    function createMatchupToken(playerData, bgClass, container) {
+    function createMatchupToken(data, container) {
       const tokenEl = document.createElement('div');
-      tokenEl.className = `matchup-token absolute rounded-full ${bgClass} font-black flex items-center justify-center border-2 shadow-lg touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-      tokenEl.style.width = '32px';
-      tokenEl.style.height = '32px';
-      tokenEl.style.left = `${playerData.x}%`;
-      tokenEl.style.top = `${playerData.y}%`;
+      tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
+      tokenEl.style.width = '42px'; // Fichas más grandes
+      tokenEl.style.height = '42px';
+      tokenEl.style.left = `${data.x}%`;
+      tokenEl.style.top = `${data.y}%`;
       tokenEl.style.transform = 'translate(-50%, -50%)';
-      tokenEl.innerText = playerData.num;
 
-      makeDraggable(tokenEl, playerData, container);
+      tokenEl.innerHTML = `
+        <span class="text-xs leading-none">${data.num}</span>
+        <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${data.name}</span>
+      `;
+
+      makeDraggable(tokenEl, data, container);
       container.appendChild(tokenEl);
     }
 
-    // --- MODALES DE SELECCIÓN DE JUGADORES ---
+    function getContrastTextColor(hex) {
+      if (!hex || hex.length < 6) return '#ffffff';
+      const r = parseInt(hex.substr(1, 2), 16);
+      const g = parseInt(hex.substr(3, 2), 16);
+      const b = parseInt(hex.substr(5, 2), 16);
+      const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+      return (yiq >= 128) ? '#000000' : '#ffffff';
+    }
+
+    document.getElementById('select-rival-team').addEventListener('change', (e) => {
+      selectedRivalId = e.target.value;
+      activeRivalTokens = []; // Reset para regenerar
+      savePitchState();
+      renderRivalInMatchup();
+    });
+
+    document.getElementById('select-rival-kit').addEventListener('change', (e) => {
+      selectedRivalKit = e.target.value;
+      savePitchState();
+      renderRivalInMatchup();
+    });
+
+    function openAssignRivalPlayerModal(slotId, rival) {
+      selectedRivalSlotId = slotId;
+      const modalList = document.getElementById('modal-player-list');
+      document.getElementById('modal-title').innerText = `Asignar Posición Rival #${slotId}`;
+      document.getElementById('modal-subtitle').innerText = `Mostrando plantilla de ${rival.name}:`;
+      modalList.innerHTML = '';
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = "w-full p-2.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold text-left mb-2 border border-slate-600";
+      clearBtn.innerHTML = `<span>⚪ Dejar posición sin jugador</span>`;
+      clearBtn.onclick = () => assignRivalPlayerToSlot(null);
+      modalList.appendChild(clearBtn);
+
+      rival.squad.forEach(player => {
+        const item = document.createElement('button');
+        item.className = "w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500";
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>
+            <span>${player.name}</span>
+          </div>
+          <span class="text-[10px] text-slate-400">${player.role}</span>
+        `;
+        item.onclick = () => assignRivalPlayerToSlot(player.id);
+        modalList.appendChild(item);
+      });
+
+      modalSelectPlayer.classList.remove('hidden');
+    }
+
+    function assignRivalPlayerToSlot(rivalPlayerId) {
+      const token = activeRivalTokens.find(t => t.slot === selectedRivalSlotId);
+      if (token) {
+        token.rivalPlayerId = rivalPlayerId;
+        savePitchState();
+        renderRivalInMatchup();
+      }
+      modalSelectPlayer.classList.add('hidden');
+    }
+
+    // --- SECCIÓN EQUIPOS RIVALES (NUEVO MENÚ HAMBURGUESA) ---
+    const formAddRival = document.getElementById('form-add-rival');
+    const editRivalIdInput = document.getElementById('edit-rival-id');
+    const btnSaveRival = document.getElementById('btn-save-rival');
+    const btnCancelRival = document.getElementById('btn-cancel-rival');
+    const rivalsList = document.getElementById('rivals-list');
+
+    let currentEditingRivalForSquad = null;
+
+    function renderRivalsList() {
+      rivalsList.innerHTML = '';
+
+      if (rivalTeams.length === 0) {
+        rivalsList.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No hay equipos rivales creados.</p>`;
+        return;
+      }
+
+      rivalTeams.forEach(rival => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800 p-3.5 rounded-xl border border-slate-700 space-y-3 shadow-md";
+        card.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full border border-white" style="background-color: ${rival.homeColor}" title="Local"></span>
+              <span class="w-4 h-4 rounded-full border border-white" style="background-color: ${rival.awayColor}" title="Visitante"></span>
+              <h4 class="font-bold text-white text-sm">${rival.name}</h4>
+            </div>
+            <span class="text-[10px] bg-slate-900 text-emerald-400 border border-slate-700 px-2 py-0.5 rounded font-mono">${rival.formation}</span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-700/60">
+            <span>Jugadores: <b class="text-slate-200">${rival.squad.length}</b></span>
+            <div class="flex gap-1">
+              <button onclick="openRivalSquadModal(${rival.id})" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 px-2 py-1 rounded-lg text-xs font-semibold transition">
+                👥 Plantilla Rival
+              </button>
+              <button onclick="editRivalTeam(${rival.id})" class="text-slate-400 hover:text-white p-1 rounded bg-slate-900 border border-slate-700">✏️</button>
+              <button onclick="deleteRivalTeam(${rival.id})" class="text-slate-400 hover:text-red-400 p-1 rounded bg-slate-900 border border-slate-700">🗑️</button>
+            </div>
+          </div>
+        `;
+        rivalsList.appendChild(card);
+      });
+    }
+
+    formAddRival.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const editId = editRivalIdInput.value;
+      const name = document.getElementById('rival-name').value.trim();
+      const homeColor = document.getElementById('rival-color-local').value;
+      const awayColor = document.getElementById('rival-color-away').value;
+      const formation = document.getElementById('rival-formation').value;
+
+      if (editId) {
+        const rival = rivalTeams.find(r => r.id === parseInt(editId));
+        if (rival) {
+          rival.name = name;
+          rival.homeColor = homeColor;
+          rival.awayColor = awayColor;
+          rival.formation = formation;
+        }
+      } else {
+        const newRival = {
+          id: Date.now(),
+          name,
+          homeColor,
+          awayColor,
+          formation,
+          squad: []
+        };
+        rivalTeams.push(newRival);
+      }
+
+      localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
+      resetRivalForm();
+      renderRivalsList();
+    });
+
+    window.editRivalTeam = function(id) {
+      const rival = rivalTeams.find(r => r.id === id);
+      if (!rival) return;
+
+      editRivalIdInput.value = rival.id;
+      document.getElementById('rival-name').value = rival.name;
+      document.getElementById('rival-color-local').value = rival.homeColor;
+      document.getElementById('rival-color-away').value = rival.awayColor;
+      document.getElementById('rival-formation').value = rival.formation;
+
+      document.getElementById('rival-form-title').innerText = "Editar Equipo Rival";
+      btnSaveRival.innerText = "Actualizar Equipo";
+      btnCancelRival.classList.remove('hidden');
+    };
+
+    function resetRivalForm() {
+      editRivalIdInput.value = '';
+      formAddRival.reset();
+      document.getElementById('rival-form-title').innerText = "Crear Nuevo Equipo Rival";
+      btnSaveRival.innerText = "Guardar Equipo Rival";
+      btnCancelRival.classList.add('hidden');
+    }
+
+    btnCancelRival.addEventListener('click', resetRivalForm);
+
+    window.deleteRivalTeam = function(id) {
+      if (confirm("¿Seguro que deseas eliminar este equipo rival?")) {
+        rivalTeams = rivalTeams.filter(r => r.id !== id);
+        localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
+        renderRivalsList();
+      }
+    };
+
+    // Modal Plantilla Rival
+    function openRivalSquadModal(rivalId) {
+      currentEditingRivalForSquad = rivalTeams.find(r => r.id === rivalId);
+      if (!currentEditingRivalForSquad) return;
+
+      document.getElementById('modal-rival-title').innerText = `Plantilla de ${currentEditingRivalForSquad.name}`;
+      renderRivalSquadList();
+      document.getElementById('modal-rival-squad').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-close-rival-squad').onclick = () => {
+      document.getElementById('modal-rival-squad').classList.add('hidden');
+    };
+
+    function renderRivalSquadList() {
+      const container = document.getElementById('rival-players-list');
+      container.innerHTML = '';
+
+      if (!currentEditingRivalForSquad || currentEditingRivalForSquad.squad.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay jugadores añadidos a este rival.</p>`;
+        return;
+      }
+
+      currentEditingRivalForSquad.squad.forEach(p => {
+        const item = document.createElement('div');
+        item.className = "bg-slate-900 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="bg-slate-800 text-white border border-slate-600 rounded-full w-5 h-5 flex items-center justify-center font-bold">${p.num}</span>
+            <span class="font-medium text-slate-200">${p.name}</span>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">${p.role}</span>
+          </div>
+          <button onclick="deleteRivalPlayer(${p.id})" class="text-slate-500 hover:text-red-400 px-1">✕</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('form-rival-player').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentEditingRivalForSquad) return;
+
+      const num = parseInt(document.getElementById('rival-player-num').value);
+      const name = document.getElementById('rival-player-name').value.trim();
+      const role = document.getElementById('rival-player-pos').value;
+
+      currentEditingRivalForSquad.squad.push({
+        id: Date.now(),
+        num,
+        name,
+        role
+      });
+
+      localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
+      document.getElementById('form-rival-player').reset();
+      renderRivalSquadList();
+      renderRivalsList();
+    });
+
+    window.deleteRivalPlayer = function(playerId) {
+      if (!currentEditingRivalForSquad) return;
+      currentEditingRivalForSquad.squad = currentEditingRivalForSquad.squad.filter(p => p.id !== playerId);
+      localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
+      renderRivalSquadList();
+      renderRivalsList();
+    };
+
+    // --- SECCIÓN PLANTILLA MI EQUIPO ---
     function openAssignPlayerModal(slotId, role) {
       selectedSlotId = slotId;
       selectedBenchIndex = null;
@@ -1000,7 +1675,6 @@
 
         const item = document.createElement('button');
         item.className = "w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500";
-        
         item.innerHTML = `
           <div class="flex items-center gap-2">
             <span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>
@@ -1046,7 +1720,6 @@
     btnAddBenchPlayer.addEventListener('click', () => openAssignBenchModal(null));
     document.getElementById('btn-close-modal').onclick = () => modalSelectPlayer.classList.add('hidden');
 
-    // --- CONTROLES PIZARRA PRINCIPAL ---
     selectFormation.value = currentFormationKey;
     selectKit.value = currentKit;
 
@@ -1067,7 +1740,7 @@
       renderPitch();
     });
 
-    // --- SECCIÓN PLANTILLA: CREAR / EDITAR / ELIMINAR ---
+    // Gestión Plantilla Mi Equipo
     const formAddPlayer = document.getElementById('form-add-player');
     const editPlayerIdInput = document.getElementById('edit-player-id');
     const formTitle = document.getElementById('player-form-title');
@@ -1123,13 +1796,7 @@
           squad[index] = { id: parseInt(editId), num, name, roles: selectedRoles };
         }
       } else {
-        const newPlayer = {
-          id: Date.now(),
-          num,
-          name,
-          roles: selectedRoles
-        };
-        squad.push(newPlayer);
+        squad.push({ id: Date.now(), num, name, roles: selectedRoles });
       }
 
       sortSquad();
@@ -1154,13 +1821,12 @@
       formTitle.innerText = "Editar Jugador";
       btnSavePlayer.innerText = "Actualizar Jugador";
       btnCancelEdit.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     function resetPlayerForm() {
       editPlayerIdInput.value = '';
       formAddPlayer.reset();
-      formTitle.innerText = "Añadir Nuevo Jugador";
+      formTitle.innerText = "Añadir Jugador a Mi Equipo";
       btnSavePlayer.innerText = "Guardar Jugador";
       btnCancelEdit.classList.add('hidden');
     }
@@ -1168,7 +1834,7 @@
     btnCancelEdit.addEventListener('click', resetPlayerForm);
 
     window.deletePlayer = function(id) {
-      if (confirm("¿Seguro que deseas eliminar este jugador de la plantilla?")) {
+      if (confirm("¿Seguro que deseas eliminar este jugador?")) {
         squad = squad.filter(p => p.id !== id);
         activeBench = activeBench.filter(bId => bId !== id);
         sortSquad();
@@ -1178,7 +1844,7 @@
       }
     };
 
-    // --- SECCIÓN PARTIDOS ---
+    // --- SECCIÓN PARTIDOS GUARDADOS ---
     btnSaveLineupModal.addEventListener('click', () => {
       document.getElementById('match-date').value = new Date().toISOString().split('T')[0];
       modalSaveLineup.classList.remove('hidden');
@@ -1208,14 +1874,14 @@
 
       modalSaveLineup.classList.add('hidden');
       document.getElementById('form-save-match').reset();
-      alert("¡Alineación y Suplentes guardados correctamente!");
+      alert("¡Alineación guardada!");
     });
 
     function renderMatchesList() {
       matchesList.innerHTML = '';
 
       if (savedMatches.length === 0) {
-        matchesList.innerHTML = `<p class="text-slate-500 text-xs text-center py-6">No tienes partidos ni alineaciones guardadas.</p>`;
+        matchesList.innerHTML = `<p class="text-slate-500 text-xs text-center py-6">No tienes partidos guardados.</p>`;
         return;
       }
 
@@ -1228,14 +1894,14 @@
           <div class="flex justify-between items-start border-b border-slate-700/60 pb-2">
             <div>
               <h4 class="font-bold text-emerald-400 text-sm">${match.name}</h4>
-              <p class="text-xs text-slate-300 font-medium mt-0.5">VS: <span class="text-white font-semibold">${match.rival}</span></p>
+              <p class="text-xs text-slate-300 font-medium mt-0.5">Rival: <span class="text-white font-semibold">${match.rival}</span></p>
             </div>
             <span class="bg-slate-900 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono">${match.date}</span>
           </div>
 
           <div class="flex flex-wrap gap-2 text-[10px]">
             <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Sistema: <b>${match.formation}</b></span>
-            <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Equipación: <b>${match.kit === 'local' ? 'Local' : 'Visitante'}</b></span>
+            <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Kit: <b>${match.kit === 'local' ? 'Local' : 'Visitante'}</b></span>
             <span class="bg-slate-900 border border-slate-700 text-emerald-400 px-2 py-1 rounded">Suplentes: <b>${benchSize}</b></span>
           </div>
 
@@ -1243,12 +1909,7 @@
             <button onclick="loadMatchToPitch(${match.id})" class="flex-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
               👁️ Cargar en Pizarra
             </button>
-            <button onclick="openEditMatchModal(${match.id})" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">
-              ✏️ Editar Info
-            </button>
-            <button onclick="deleteMatch(${match.id})" class="bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-red-300 px-2.5 py-1.5 rounded-lg text-xs transition">
-              🗑️
-            </button>
+            <button onclick="deleteMatch(${match.id})" class="bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-red-300 px-2.5 py-1.5 rounded-lg text-xs transition">🗑️</button>
           </div>
         `;
         matchesList.appendChild(card);
@@ -1272,38 +1933,8 @@
       switchView('pizarra');
     };
 
-    window.openEditMatchModal = function(matchId) {
-      const match = savedMatches.find(m => m.id === matchId);
-      if (!match) return;
-
-      document.getElementById('edit-match-id').value = match.id;
-      document.getElementById('edit-match-name').value = match.name;
-      document.getElementById('edit-match-date').value = match.date;
-      document.getElementById('edit-match-rival').value = match.rival;
-
-      modalEditMatch.classList.remove('hidden');
-    };
-
-    document.getElementById('btn-close-edit-match-modal').onclick = () => modalEditMatch.classList.add('hidden');
-
-    document.getElementById('form-edit-match').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const matchId = parseInt(document.getElementById('edit-match-id').value);
-      const match = savedMatches.find(m => m.id === matchId);
-
-      if (match) {
-        match.name = document.getElementById('edit-match-name').value.trim();
-        match.date = document.getElementById('edit-match-date').value;
-        match.rival = document.getElementById('edit-match-rival').value.trim();
-
-        localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
-        renderMatchesList();
-        modalEditMatch.classList.add('hidden');
-      }
-    });
-
     window.deleteMatch = function(matchId) {
-      if (confirm("¿Deseas eliminar este partido guardado?")) {
+      if (confirm("¿Deseas eliminar este partido?")) {
         savedMatches = savedMatches.filter(m => m.id !== matchId);
         localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
         renderMatchesList();
@@ -1313,12 +1944,6 @@
     // INICIALIZACIÓN
     syncTokensWithFormation(true);
     renderPitch();
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log('SW OK'))
-        .catch(err => console.error('SW Error:', err));
-    }
   </script>
 </body>
 </html>
