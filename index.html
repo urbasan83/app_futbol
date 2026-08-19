@@ -157,7 +157,7 @@
         📅 Partidos Guardados
       </button>
       <button id="nav-marcador" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
-        🔴 Marcador en Directo
+        🏟️ Marcador en Directo
       </button>
     </nav>
   </aside>
@@ -508,80 +508,43 @@
       </div>
       <div id="matches-list" class="space-y-3 pb-12"></div>
     </section>
-
     <!-- SECCIÓN 7: MARCADOR EN DIRECTO -->
-    <section id="sec-marcador" class="flex-1 hidden h-full overflow-y-auto p-3 max-w-2xl mx-auto w-full">
-      <div class="space-y-3 pb-8">
-
-        <!-- Marcador principal -->
-        <div class="bg-slate-800 rounded-2xl border border-slate-700 p-3 shadow-lg">
-          <div class="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
-            <!-- LOCAL -->
-            <div class="flex flex-col items-center gap-2 min-w-0">
-              <input type="text" id="score-team-local-name" maxlength="20" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-1.5 text-center text-white text-xs font-bold focus:border-emerald-500 focus:outline-none" placeholder="Equipo Local">
-              <div class="flex items-center gap-1.5">
-                <button id="btn-score-local-down" class="w-8 h-8 flex-shrink-0 bg-slate-700 hover:bg-red-900/60 rounded-lg font-bold text-base leading-none transition active:scale-95">▼</button>
-                <span id="score-local-value" class="text-4xl font-black text-emerald-400 w-12 text-center">0</span>
-                <button id="btn-score-local-up" class="w-8 h-8 flex-shrink-0 bg-slate-700 hover:bg-emerald-900/60 rounded-lg font-bold text-base leading-none transition active:scale-95">▲</button>
-              </div>
-            </div>
-
-            <div class="text-slate-500 font-black text-lg">VS</div>
-
-            <!-- VISITANTE -->
-            <div class="flex flex-col items-center gap-2 min-w-0">
-              <input type="text" id="score-team-away-name" maxlength="20" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-1.5 text-center text-white text-xs font-bold focus:border-emerald-500 focus:outline-none" placeholder="Equipo Visitante">
-              <div class="flex items-center gap-1.5">
-                <button id="btn-score-away-down" class="w-8 h-8 flex-shrink-0 bg-slate-700 hover:bg-red-900/60 rounded-lg font-bold text-base leading-none transition active:scale-95">▼</button>
-                <span id="score-away-value" class="text-4xl font-black text-emerald-400 w-12 text-center">0</span>
-                <button id="btn-score-away-up" class="w-8 h-8 flex-shrink-0 bg-slate-700 hover:bg-emerald-900/60 rounded-lg font-bold text-base leading-none transition active:scale-95">▲</button>
-              </div>
-            </div>
+    <section id="sec-marcador" class="flex-1 hidden h-full overflow-y-auto p-2 sm:p-4 w-full">
+      <div class="max-w-5xl mx-auto space-y-3 pb-12">
+        <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
+          <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
+            <div><h2 class="text-base font-bold text-emerald-400">🏟️ Marcador en Directo</h2><p class="text-[11px] text-slate-400">Resultado, reloj y eventos del partido.</p></div>
+            <div class="flex gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button></div>
           </div>
         </div>
-
-        <!-- Cronómetro -->
-        <div class="bg-slate-800 rounded-2xl border border-slate-700 p-3 shadow-lg space-y-2.5">
-          <div class="flex justify-center gap-2">
-            <button id="btn-half-1" class="flex-1 max-w-[150px] bg-slate-700 hover:bg-slate-600 text-xs font-bold py-2 rounded-lg border border-slate-600 transition">1ª Parte</button>
-            <button id="btn-half-2" class="flex-1 max-w-[150px] bg-slate-700 hover:bg-slate-600 text-xs font-bold py-2 rounded-lg border border-slate-600 transition">2ª Parte</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
+            <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[10px] uppercase tracking-wider text-slate-400">Local</span><input id="score-home-name" value="Local" maxlength="40" class="flex-1 max-w-[240px] bg-slate-900 border border-slate-600 rounded-lg px-2 py-1.5 text-white text-sm font-semibold text-right"></div>
+            <div class="flex items-center justify-center gap-3"><div class="flex flex-col gap-2"><button id="score-home-plus" class="w-11 h-11 rounded-xl bg-emerald-600 text-xl font-bold">▲</button><button id="score-home-minus" class="w-11 h-11 rounded-xl bg-slate-700 text-xl font-bold border border-slate-600">▼</button></div><span id="score-home" class="text-6xl sm:text-7xl font-black tabular-nums min-w-[110px] text-center">0</span><div class="w-11"></div></div>
+            <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">⚽ Goles</h4><div id="score-home-goals" class="space-y-1"></div><p id="score-home-goals-empty" class="text-[10px] text-slate-500">Sin goles registrados.</p></div>
+            <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-sky-400 mb-2">🔄 Cambios</h4><div id="score-home-subs" class="space-y-1"></div><p id="score-home-subs-empty" class="text-[10px] text-slate-500">Sin cambios registrados.</p></div>
           </div>
-          <div class="text-center">
-            <span id="match-clock" class="text-5xl font-mono font-black text-white tracking-wider">00:00</span>
-          </div>
-          <div class="flex justify-center gap-2">
-            <button id="btn-timer-toggle" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition active:scale-95 flex items-center gap-1 shadow">▶️ Iniciar</button>
-            <button id="btn-timer-stop" class="bg-slate-700 hover:bg-red-900/60 text-slate-200 text-xs font-bold px-4 py-2.5 rounded-lg transition active:scale-95 border border-slate-600">⏹️ Detener</button>
-          </div>
-        </div>
-
-        <!-- Botones de eventos -->
-        <div class="flex gap-2">
-          <button id="btn-open-goal" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow">⚽ Gol</button>
-          <button id="btn-open-sub" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 border border-slate-600">🔄 Cambio</button>
-        </div>
-
-        <!-- Eventos por equipo -->
-        <div class="grid grid-cols-2 gap-2">
-          <div class="bg-slate-800 rounded-xl border border-slate-700 p-2 min-w-0">
-            <h4 class="text-[10px] font-bold text-emerald-400 uppercase mb-1.5 truncate" id="events-local-title">Local</h4>
-            <div id="events-local" class="space-y-1"></div>
-          </div>
-          <div class="bg-slate-800 rounded-xl border border-slate-700 p-2 min-w-0">
-            <h4 class="text-[10px] font-bold text-emerald-400 uppercase mb-1.5 truncate" id="events-away-title">Visitante</h4>
-            <div id="events-away" class="space-y-1"></div>
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
+            <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[10px] uppercase tracking-wider text-slate-400">Visitante</span><input id="score-away-name" value="Visitante" maxlength="40" class="flex-1 max-w-[240px] bg-slate-900 border border-slate-600 rounded-lg px-2 py-1.5 text-white text-sm font-semibold text-right"></div>
+            <div class="flex items-center justify-center gap-3"><div class="flex flex-col gap-2"><button id="score-away-plus" class="w-11 h-11 rounded-xl bg-emerald-600 text-xl font-bold">▲</button><button id="score-away-minus" class="w-11 h-11 rounded-xl bg-slate-700 text-xl font-bold border border-slate-600">▼</button></div><span id="score-away" class="text-6xl sm:text-7xl font-black tabular-nums min-w-[110px] text-center">0</span><div class="w-11"></div></div>
+            <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">⚽ Goles</h4><div id="score-away-goals" class="space-y-1"></div><p id="score-away-goals-empty" class="text-[10px] text-slate-500">Sin goles registrados.</p></div>
+            <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-sky-400 mb-2">🔄 Cambios</h4><div id="score-away-subs" class="space-y-1"></div><p id="score-away-subs-empty" class="text-[10px] text-slate-500">Sin cambios registrados.</p></div>
           </div>
         </div>
-
-        <!-- Guardar / Cargar marcador -->
-        <div class="flex gap-2">
-          <button id="btn-save-scoreboard-modal" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow">💾 Guardar Marcador</button>
-          <button id="btn-load-scoreboard-modal" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2.5 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 border border-slate-600">📂 Cargar Marcador</button>
+        <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><div class="flex items-center gap-2"><select id="match-half" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="1">Primera parte</option><option value="2">Segunda parte</option></select><input id="match-time-edit" inputmode="numeric" placeholder="00:00" class="w-20 bg-slate-900 border border-slate-600 rounded-lg p-2 text-center font-mono text-sm"></div></div>
+          <div class="flex flex-col items-center gap-3 mt-4"><div id="match-clock" class="text-6xl sm:text-8xl font-black font-mono tabular-nums">00:00</div><div class="flex flex-wrap justify-center gap-2"><button id="btn-clock-pause" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⏸️ Pausar</button><button id="btn-clock-resume" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">▶️ Reanudar</button><button id="btn-clock-stop" class="bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-xs">⏹️ Parar</button><button id="btn-clock-apply" class="bg-slate-700 text-white font-bold px-4 py-2 rounded-lg text-xs border border-slate-600">✏️ Aplicar tiempo</button></div><span id="clock-status" class="text-[10px] text-slate-400">Detenido</span></div>
         </div>
-
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⚽ Registrar gol</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-goal" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⚽ Gol</button></div>
+            <div id="goal-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-goal-id"><input type="hidden" id="goal-minute"><div class="grid grid-cols-2 gap-2"><select id="goal-team" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><input id="goal-number" type="number" min="1" max="99" placeholder="Nº" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"></div><input id="goal-player" placeholder="Nombre del jugador" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="goal-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-goal" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-save-goal" class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar gol</button></div></div></div>
+          </div>
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">🔄 Registrar cambio</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-sub" class="bg-sky-600 text-white font-bold px-4 py-2 rounded-lg text-xs">🔄 Cambio</button></div>
+            <div id="sub-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-sub-id"><input type="hidden" id="sub-minute"><select id="sub-team" class="w-full bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><select id="sub-out" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select><select id="sub-in" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select></div><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="sub-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-sub" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-save-sub" class="bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar cambio</button></div></div></div>
+          </div>
+        </div>
+        <div id="saved-scoreboards-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">Marcadores guardados</h3><div id="saved-scoreboards-list" class="space-y-2"></div></div>
       </div>
-
-      <datalist id="datalist-local-players"></datalist>
     </section>
 
   </main>
@@ -849,114 +812,6 @@
     </div>
   </div>
 
-  <!-- MODAL: REGISTRAR / EDITAR GOL -->
-  <div id="modal-goal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm">⚽ Registrar Gol</h3>
-        <button id="btn-close-goal-modal" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <form id="form-goal" class="space-y-3">
-        <input type="hidden" id="goal-edit-id" value="">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo</label>
-          <select id="goal-team" class="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg p-2 focus:border-emerald-500">
-            <option value="local">Local</option>
-            <option value="away">Visitante</option>
-          </select>
-        </div>
-        <div class="flex gap-2">
-          <div class="flex-1 min-w-0">
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Jugador</label>
-            <input type="text" id="goal-player-name" list="datalist-local-players" placeholder="Nombre del jugador" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-          </div>
-          <div class="w-20 flex-shrink-0">
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Dorsal</label>
-            <input type="number" id="goal-player-number" min="1" max="99" placeholder="Nº" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-center text-white text-sm focus:border-emerald-500 focus:outline-none">
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Minuto</label>
-          <input type="number" id="goal-minute" min="0" max="200" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div class="flex gap-2 pt-1">
-          <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">Guardar Gol</button>
-          <button type="button" id="btn-delete-goal" class="hidden bg-red-900/60 hover:bg-red-800 text-red-200 font-bold px-4 py-2 rounded-lg text-sm transition">Eliminar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: REGISTRAR / EDITAR CAMBIO -->
-  <div id="modal-sub" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm">🔄 Registrar Cambio</h3>
-        <button id="btn-close-sub-modal" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <form id="form-sub" class="space-y-3">
-        <input type="hidden" id="sub-edit-id" value="">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo</label>
-          <select id="sub-team" class="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg p-2 focus:border-emerald-500">
-            <option value="local">Local</option>
-            <option value="away">Visitante</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Jugador que sale</label>
-          <input type="text" id="sub-player-out" list="datalist-local-players" placeholder="Nombre del jugador" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Jugador que entra</label>
-          <input type="text" id="sub-player-in" list="datalist-local-players" placeholder="Nombre del jugador" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Minuto</label>
-          <input type="number" id="sub-minute" min="0" max="200" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div class="flex gap-2 pt-1">
-          <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">Guardar Cambio</button>
-          <button type="button" id="btn-delete-sub" class="hidden bg-red-900/60 hover:bg-red-800 text-red-200 font-bold px-4 py-2 rounded-lg text-sm transition">Eliminar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: GUARDAR MARCADOR -->
-  <div id="modal-save-scoreboard" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm">💾 Guardar Marcador</h3>
-        <button id="btn-close-save-scoreboard" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <form id="form-save-scoreboard" class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Partido</label>
-          <input type="text" id="scoreboard-save-name" placeholder="Ej: Jornada 1 vs Rayo" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
-          <input type="date" id="scoreboard-save-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-emerald-500 focus:outline-none">
-        </div>
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
-          Guardar Marcador
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: CARGAR MARCADOR -->
-  <div id="modal-load-scoreboard" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm">📂 Marcadores Guardados</h3>
-        <button id="btn-close-load-scoreboard" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <div id="scoreboard-saved-list" class="flex-1 overflow-y-auto space-y-3 my-2 pr-1"></div>
-    </div>
-  </div>
-
   <script>
     // --- ESTADO GLOBAL ---
     let squad = JSON.parse(localStorage.getItem('f11_squad')) || [
@@ -1001,23 +856,10 @@
     let savedMatches = JSON.parse(localStorage.getItem('f11_matches')) || [];
     let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
-
-    // Estado del Marcador en Directo
-    let liveScore = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {
-      teamLocalName: 'Local',
-      teamAwayName: 'Visitante',
-      scoreLocal: 0,
-      scoreAway: 0,
-      half: null, // '1' o '2'
-      timer: {
-        running: false,
-        baseSeconds: 0,       // 0 para 1ª parte, 2700 (45') para 2ª parte
-        accumulatedSeconds: 0, // segundos acumulados de tramos ya corridos
-        startTimestamp: null   // Date.now() del último "iniciar/reanudar"
-      },
-      events: [] // { id, type: 'goal'|'sub', team: 'local'|'away', minute, playerName, playerNumber, playerOut, playerIn }
-    };
-    let savedScoreboards = JSON.parse(localStorage.getItem('f11_saved_scoreboards')) || [];
+    let savedScoreboards = JSON.parse(localStorage.getItem('f11_scoreboards')) || [];
+    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[]};
+    scoreboard.goals = Array.isArray(scoreboard.goals) ? scoreboard.goals : [];
+    scoreboard.substitutions = Array.isArray(scoreboard.substitutions) ? scoreboard.substitutions : [];
 
     const formations = {
       '4-3-3': [
@@ -1119,58 +961,6 @@
     const secPlantilla = document.getElementById('sec-plantilla');
     const secPartidos = document.getElementById('sec-partidos');
     const secMarcador = document.getElementById('sec-marcador');
-
-    // Elementos del Marcador en Directo
-    const scoreTeamLocalNameInput = document.getElementById('score-team-local-name');
-    const scoreTeamAwayNameInput = document.getElementById('score-team-away-name');
-    const scoreLocalValueEl = document.getElementById('score-local-value');
-    const scoreAwayValueEl = document.getElementById('score-away-value');
-    const btnScoreLocalUp = document.getElementById('btn-score-local-up');
-    const btnScoreLocalDown = document.getElementById('btn-score-local-down');
-    const btnScoreAwayUp = document.getElementById('btn-score-away-up');
-    const btnScoreAwayDown = document.getElementById('btn-score-away-down');
-
-    const btnHalf1 = document.getElementById('btn-half-1');
-    const btnHalf2 = document.getElementById('btn-half-2');
-    const matchClockEl = document.getElementById('match-clock');
-    const btnTimerToggle = document.getElementById('btn-timer-toggle');
-    const btnTimerStop = document.getElementById('btn-timer-stop');
-
-    const btnOpenGoal = document.getElementById('btn-open-goal');
-    const btnOpenSub = document.getElementById('btn-open-sub');
-
-    const eventsLocalEl = document.getElementById('events-local');
-    const eventsAwayEl = document.getElementById('events-away');
-    const eventsLocalTitle = document.getElementById('events-local-title');
-    const eventsAwayTitle = document.getElementById('events-away-title');
-
-    const modalGoal = document.getElementById('modal-goal');
-    const formGoal = document.getElementById('form-goal');
-    const goalEditIdInput = document.getElementById('goal-edit-id');
-    const goalTeamSelect = document.getElementById('goal-team');
-    const goalPlayerNameInput = document.getElementById('goal-player-name');
-    const goalPlayerNumberInput = document.getElementById('goal-player-number');
-    const goalMinuteInput = document.getElementById('goal-minute');
-    const btnDeleteGoal = document.getElementById('btn-delete-goal');
-
-    const modalSub = document.getElementById('modal-sub');
-    const formSub = document.getElementById('form-sub');
-    const subEditIdInput = document.getElementById('sub-edit-id');
-    const subTeamSelect = document.getElementById('sub-team');
-    const subPlayerOutInput = document.getElementById('sub-player-out');
-    const subPlayerInInput = document.getElementById('sub-player-in');
-    const subMinuteInput = document.getElementById('sub-minute');
-    const btnDeleteSub = document.getElementById('btn-delete-sub');
-
-    const modalSaveScoreboard = document.getElementById('modal-save-scoreboard');
-    const formSaveScoreboard = document.getElementById('form-save-scoreboard');
-    const btnSaveScoreboardModal = document.getElementById('btn-save-scoreboard-modal');
-
-    const modalLoadScoreboard = document.getElementById('modal-load-scoreboard');
-    const btnLoadScoreboardModal = document.getElementById('btn-load-scoreboard-modal');
-    const scoreboardSavedList = document.getElementById('scoreboard-saved-list');
-
-    const datalistLocalPlayers = document.getElementById('datalist-local-players');
 
     const headerTitle = document.getElementById('header-title');
     const headerActions = document.getElementById('header-actions');
@@ -1280,10 +1070,9 @@
       } else if (view === 'marcador') {
         secMarcador.classList.remove('hidden');
         navMarcador.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
-        headerTitle.innerHTML = '🔴 Marcador en Directo';
+        headerTitle.innerHTML = '🏟️ Marcador en Directo';
         headerActions.classList.add('hidden');
-        populateLocalPlayersDatalist();
-        renderScoreboard();
+        initScoreboardView();
       }
       toggleSidebar(false);
     }
@@ -3019,383 +2808,80 @@
       }
     });
 
-// --- SECCIÓN MARCADOR EN DIRECTO ---
-    function saveLiveState() {
-      localStorage.setItem('f11_live_scoreboard', JSON.stringify(liveScore));
-    }
 
-    function populateLocalPlayersDatalist() {
-      datalistLocalPlayers.innerHTML = squad.map(p => `<option value="${p.name}">`).join('');
-    }
-
-    // Devuelve los segundos totales transcurridos del partido en este instante
-    function getLiveTotalSeconds() {
-      const t = liveScore.timer;
-      let sec = t.baseSeconds + t.accumulatedSeconds;
-      if (t.running && t.startTimestamp) {
-        sec += Math.floor((Date.now() - t.startTimestamp) / 1000);
-      }
-      return Math.max(0, sec);
-    }
-
-    function formatClock(totalSeconds) {
-      const m = Math.floor(totalSeconds / 60);
-      const s = totalSeconds % 60;
-      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-
-    function renderScoreboard() {
-      scoreTeamLocalNameInput.value = liveScore.teamLocalName;
-      scoreTeamAwayNameInput.value = liveScore.teamAwayName;
-      scoreLocalValueEl.textContent = liveScore.scoreLocal;
-      scoreAwayValueEl.textContent = liveScore.scoreAway;
-      eventsLocalTitle.textContent = liveScore.teamLocalName || 'Local';
-      eventsAwayTitle.textContent = liveScore.teamAwayName || 'Visitante';
-
-      const activeHalfClass = "flex-1 max-w-[150px] bg-emerald-600 text-white text-xs font-bold py-2 rounded-lg border border-emerald-500 transition";
-      const inactiveHalfClass = "flex-1 max-w-[150px] bg-slate-700 hover:bg-slate-600 text-xs font-bold py-2 rounded-lg border border-slate-600 transition";
-      btnHalf1.className = liveScore.half === '1' ? activeHalfClass : inactiveHalfClass;
-      btnHalf2.className = liveScore.half === '2' ? activeHalfClass : inactiveHalfClass;
-
-      matchClockEl.textContent = formatClock(getLiveTotalSeconds());
-      btnTimerToggle.innerHTML = liveScore.timer.running
-        ? '⏸️ Pausar'
-        : ('▶️ ' + (liveScore.timer.accumulatedSeconds > 0 ? 'Reanudar' : 'Iniciar'));
-
-      renderEventsForTeam('local');
-      renderEventsForTeam('away');
-    }
-
-    // El reloj sigue avanzando aunque se apague la pantalla o se cierre la app:
-    // siempre se recalcula a partir de la marca de tiempo real guardada (startTimestamp),
-    // así que al reabrir la app el tiempo transcurrido real se refleja al instante.
-    setInterval(() => {
-      if (liveScore.timer.running) {
-        matchClockEl.textContent = formatClock(getLiveTotalSeconds());
-      }
-    }, 1000);
-
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) renderScoreboard();
-    });
-
-    // Nombres de los equipos
-    scoreTeamLocalNameInput.addEventListener('input', () => {
-      liveScore.teamLocalName = scoreTeamLocalNameInput.value;
-      eventsLocalTitle.textContent = liveScore.teamLocalName || 'Local';
-      saveLiveState();
-    });
-    scoreTeamAwayNameInput.addEventListener('input', () => {
-      liveScore.teamAwayName = scoreTeamAwayNameInput.value;
-      eventsAwayTitle.textContent = liveScore.teamAwayName || 'Visitante';
-      saveLiveState();
-    });
-
-    // Flechas del marcador (independientes de los eventos de gol)
-    btnScoreLocalUp.addEventListener('click', () => { liveScore.scoreLocal++; saveLiveState(); renderScoreboard(); });
-    btnScoreLocalDown.addEventListener('click', () => { liveScore.scoreLocal = Math.max(0, liveScore.scoreLocal - 1); saveLiveState(); renderScoreboard(); });
-    btnScoreAwayUp.addEventListener('click', () => { liveScore.scoreAway++; saveLiveState(); renderScoreboard(); });
-    btnScoreAwayDown.addEventListener('click', () => { liveScore.scoreAway = Math.max(0, liveScore.scoreAway - 1); saveLiveState(); renderScoreboard(); });
-
-    // Selección de parte del partido
-    function selectHalf(half) {
-      liveScore.half = half;
-      liveScore.timer.baseSeconds = half === '2' ? 45 * 60 : 0;
-      liveScore.timer.accumulatedSeconds = 0;
-      liveScore.timer.running = false;
-      liveScore.timer.startTimestamp = null;
-      saveLiveState();
-      renderScoreboard();
-    }
-    btnHalf1.addEventListener('click', () => {
-      if (liveScore.half === '1') return;
-      if (liveScore.half && (liveScore.timer.running || liveScore.timer.accumulatedSeconds > 0)) {
-        if (!confirm('Cambiar de parte reiniciará el cronómetro a 00:00. ¿Continuar?')) return;
-      }
-      selectHalf('1');
-    });
-    btnHalf2.addEventListener('click', () => {
-      if (liveScore.half === '2') return;
-      if (liveScore.half && (liveScore.timer.running || liveScore.timer.accumulatedSeconds > 0)) {
-        if (!confirm('Cambiar a la 2ª parte reiniciará el cronómetro a 45:00. ¿Continuar?')) return;
-      }
-      selectHalf('2');
-    });
-
-    // Iniciar / Pausar / Reanudar
-    btnTimerToggle.addEventListener('click', () => {
-      if (!liveScore.half) {
-        alert('Selecciona primero la 1ª o la 2ª parte.');
-        return;
-      }
-      const t = liveScore.timer;
-      if (t.running) {
-        t.accumulatedSeconds += Math.floor((Date.now() - t.startTimestamp) / 1000);
-        t.running = false;
-        t.startTimestamp = null;
-      } else {
-        t.running = true;
-        t.startTimestamp = Date.now();
-      }
-      saveLiveState();
-      renderScoreboard();
-    });
-
-    // Detener (reinicia el cronómetro de la parte actual)
-    btnTimerStop.addEventListener('click', () => {
-      if (!confirm('¿Detener y reiniciar el cronómetro de esta parte?')) return;
-      liveScore.timer.running = false;
-      liveScore.timer.startTimestamp = null;
-      liveScore.timer.accumulatedSeconds = 0;
-      saveLiveState();
-      renderScoreboard();
-    });
-
-    // --- EVENTOS DEL PARTIDO (Goles y Cambios) ---
-    function renderEventsForTeam(team) {
-      const container = team === 'local' ? eventsLocalEl : eventsAwayEl;
-      const teamEvents = liveScore.events.filter(e => e.team === team).sort((a, b) => a.minute - b.minute);
-      if (teamEvents.length === 0) {
-        container.innerHTML = `<p class="text-slate-500 text-[10px] text-center py-2">Sin eventos</p>`;
-        return;
-      }
-      container.innerHTML = teamEvents.map(ev => {
-        if (ev.type === 'goal') {
-          return `
-            <div class="flex justify-between items-center gap-1 bg-slate-900/60 rounded-lg px-2 py-1 text-[11px]">
-              <span class="truncate">⚽ <b>${ev.minute}'</b> ${ev.playerName}${ev.playerNumber ? ' (#' + ev.playerNumber + ')' : ''}</span>
-              <span class="flex gap-1 flex-shrink-0">
-                <button onclick="openGoalModal(${ev.id})" class="text-slate-400 hover:text-emerald-400">✏️</button>
-                <button onclick="deleteLiveEvent(${ev.id})" class="text-slate-400 hover:text-red-400">🗑️</button>
-              </span>
-            </div>`;
-        }
-        return `
-          <div class="flex justify-between items-center gap-1 bg-slate-900/60 rounded-lg px-2 py-1 text-[11px]">
-            <span class="truncate">🔄 <b>${ev.minute}'</b> ${ev.playerOut} ➜ ${ev.playerIn}</span>
-            <span class="flex gap-1 flex-shrink-0">
-              <button onclick="openSubModal(${ev.id})" class="text-slate-400 hover:text-emerald-400">✏️</button>
-              <button onclick="deleteLiveEvent(${ev.id})" class="text-slate-400 hover:text-red-400">🗑️</button>
-            </span>
-          </div>`;
-      }).join('');
-    }
-
-    window.deleteLiveEvent = function(id) {
-      if (!confirm('¿Eliminar este evento?')) return;
-      liveScore.events = liveScore.events.filter(e => e.id !== id);
-      saveLiveState();
-      renderScoreboard();
+    // --- MARCADOR EN DIRECTO ---
+    let scoreboardTimer = null, scoreboardInitialized = false;
+    const se = {
+      hn:document.getElementById('score-home-name'), an:document.getElementById('score-away-name'),
+      hs:document.getElementById('score-home'), as:document.getElementById('score-away'),
+      hg:document.getElementById('score-home-goals'), ag:document.getElementById('score-away-goals'),
+      hge:document.getElementById('score-home-goals-empty'), age:document.getElementById('score-away-goals-empty'),
+      hsub:document.getElementById('score-home-subs'), asub:document.getElementById('score-away-subs'),
+      hse:document.getElementById('score-home-subs-empty'), ase:document.getElementById('score-away-subs-empty'),
+      half:document.getElementById('match-half'), clock:document.getElementById('match-clock'), status:document.getElementById('clock-status'),
+      editTime:document.getElementById('match-time-edit'), ge:document.getElementById('goal-editor'), gt:document.getElementById('goal-team'),
+      gn:document.getElementById('goal-number'), gp:document.getElementById('goal-player'), gm:document.getElementById('goal-minute'),
+      gml:document.getElementById('goal-minute-label'), geid:document.getElementById('edit-goal-id'),
+      sue:document.getElementById('sub-editor'), st:document.getElementById('sub-team'), so:document.getElementById('sub-out'),
+      si:document.getElementById('sub-in'), sm:document.getElementById('sub-minute'), sml:document.getElementById('sub-minute-label'), seid:document.getElementById('edit-sub-id'),
+      savedPanel:document.getElementById('saved-scoreboards-panel'), savedList:document.getElementById('saved-scoreboards-list')
     };
-
-    // Modal de Gol
-    window.openGoalModal = function(editId = null) {
-      formGoal.reset();
-      if (editId) {
-        const ev = liveScore.events.find(e => e.id === editId);
-        if (!ev) return;
-        goalEditIdInput.value = ev.id;
-        goalTeamSelect.value = ev.team;
-        goalPlayerNameInput.value = ev.playerName;
-        goalPlayerNumberInput.value = ev.playerNumber || '';
-        goalMinuteInput.value = ev.minute;
-        btnDeleteGoal.classList.remove('hidden');
-      } else {
-        goalEditIdInput.value = '';
-        goalTeamSelect.value = 'local';
-        goalMinuteInput.value = Math.floor(getLiveTotalSeconds() / 60);
-        btnDeleteGoal.classList.add('hidden');
-      }
-      modalGoal.classList.remove('hidden');
-    };
-
-    btnOpenGoal.addEventListener('click', () => openGoalModal());
-    document.getElementById('btn-close-goal-modal').addEventListener('click', () => modalGoal.classList.add('hidden'));
-
-    formGoal.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const editId = goalEditIdInput.value ? parseInt(goalEditIdInput.value) : null;
-      const data = {
-        type: 'goal',
-        team: goalTeamSelect.value,
-        playerName: goalPlayerNameInput.value.trim(),
-        playerNumber: goalPlayerNumberInput.value ? parseInt(goalPlayerNumberInput.value) : null,
-        minute: parseInt(goalMinuteInput.value) || 0
-      };
-      if (editId) {
-        const idx = liveScore.events.findIndex(ev => ev.id === editId);
-        if (idx !== -1) liveScore.events[idx] = { ...liveScore.events[idx], ...data };
-      } else {
-        liveScore.events.push({ id: Date.now(), ...data });
-      }
-      saveLiveState();
-      modalGoal.classList.add('hidden');
-      renderScoreboard();
-    });
-
-    btnDeleteGoal.addEventListener('click', () => {
-      const editId = parseInt(goalEditIdInput.value);
-      if (!editId) return;
-      if (!confirm('¿Eliminar este gol del historial? (No afecta al marcador)')) return;
-      liveScore.events = liveScore.events.filter(e => e.id !== editId);
-      saveLiveState();
-      modalGoal.classList.add('hidden');
-      renderScoreboard();
-    });
-
-    // Modal de Cambio
-    window.openSubModal = function(editId = null) {
-      formSub.reset();
-      if (editId) {
-        const ev = liveScore.events.find(e => e.id === editId);
-        if (!ev) return;
-        subEditIdInput.value = ev.id;
-        subTeamSelect.value = ev.team;
-        subPlayerOutInput.value = ev.playerOut;
-        subPlayerInInput.value = ev.playerIn;
-        subMinuteInput.value = ev.minute;
-        btnDeleteSub.classList.remove('hidden');
-      } else {
-        subEditIdInput.value = '';
-        subTeamSelect.value = 'local';
-        subMinuteInput.value = Math.floor(getLiveTotalSeconds() / 60);
-        btnDeleteSub.classList.add('hidden');
-      }
-      modalSub.classList.remove('hidden');
-    };
-
-    btnOpenSub.addEventListener('click', () => openSubModal());
-    document.getElementById('btn-close-sub-modal').addEventListener('click', () => modalSub.classList.add('hidden'));
-
-    formSub.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const editId = subEditIdInput.value ? parseInt(subEditIdInput.value) : null;
-      const data = {
-        type: 'sub',
-        team: subTeamSelect.value,
-        playerOut: subPlayerOutInput.value.trim(),
-        playerIn: subPlayerInInput.value.trim(),
-        minute: parseInt(subMinuteInput.value) || 0
-      };
-      if (editId) {
-        const idx = liveScore.events.findIndex(ev => ev.id === editId);
-        if (idx !== -1) liveScore.events[idx] = { ...liveScore.events[idx], ...data };
-      } else {
-        liveScore.events.push({ id: Date.now(), ...data });
-      }
-      saveLiveState();
-      modalSub.classList.add('hidden');
-      renderScoreboard();
-    });
-
-    btnDeleteSub.addEventListener('click', () => {
-      const editId = parseInt(subEditIdInput.value);
-      if (!editId) return;
-      if (!confirm('¿Eliminar este cambio?')) return;
-      liveScore.events = liveScore.events.filter(e => e.id !== editId);
-      saveLiveState();
-      modalSub.classList.add('hidden');
-      renderScoreboard();
-    });
-
-    // --- GUARDAR / CARGAR MARCADOR ---
-    btnSaveScoreboardModal.addEventListener('click', () => {
-      document.getElementById('scoreboard-save-date').value = new Date().toISOString().split('T')[0];
-      document.getElementById('scoreboard-save-name').value = `${liveScore.teamLocalName} vs ${liveScore.teamAwayName}`;
-      modalSaveScoreboard.classList.remove('hidden');
-    });
-    document.getElementById('btn-close-save-scoreboard').addEventListener('click', () => modalSaveScoreboard.classList.add('hidden'));
-
-    formSaveScoreboard.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('scoreboard-save-name').value.trim();
-      const date = document.getElementById('scoreboard-save-date').value;
-
-      const snapshot = {
-        id: Date.now(),
-        name,
-        date,
-        teamLocalName: liveScore.teamLocalName,
-        teamAwayName: liveScore.teamAwayName,
-        scoreLocal: liveScore.scoreLocal,
-        scoreAway: liveScore.scoreAway,
-        half: liveScore.half,
-        timerSeconds: getLiveTotalSeconds(),
-        events: JSON.parse(JSON.stringify(liveScore.events))
-      };
-
-      savedScoreboards.unshift(snapshot);
-      localStorage.setItem('f11_saved_scoreboards', JSON.stringify(savedScoreboards));
-
-      modalSaveScoreboard.classList.add('hidden');
-      formSaveScoreboard.reset();
-      alert('¡Marcador guardado!');
-    });
-
-    btnLoadScoreboardModal.addEventListener('click', () => {
-      renderSavedScoreboardsList();
-      modalLoadScoreboard.classList.remove('hidden');
-    });
-    document.getElementById('btn-close-load-scoreboard').addEventListener('click', () => modalLoadScoreboard.classList.add('hidden'));
-
-    function renderSavedScoreboardsList() {
-      if (savedScoreboards.length === 0) {
-        scoreboardSavedList.innerHTML = `<p class="text-slate-500 text-xs text-center py-6">No tienes marcadores guardados.</p>`;
-        return;
-      }
-      scoreboardSavedList.innerHTML = savedScoreboards.map(s => `
-        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2">
-          <div class="flex justify-between items-start">
-            <div class="min-w-0">
-              <h4 class="font-bold text-emerald-400 text-sm truncate">${s.name}</h4>
-              <p class="text-xs text-slate-300 mt-0.5">${s.teamLocalName} <b>${s.scoreLocal}</b> - <b>${s.scoreAway}</b> ${s.teamAwayName}</p>
-            </div>
-            <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono flex-shrink-0 ml-2">${s.date}</span>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="loadSavedScoreboard(${s.id})" class="flex-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold py-1.5 rounded-lg text-xs transition">👁️ Cargar</button>
-            <button onclick="deleteSavedScoreboard(${s.id})" class="bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-red-300 px-2.5 py-1.5 rounded-lg text-xs transition">🗑️</button>
-          </div>
-        </div>
-      `).join('');
+    function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function saveSB(){localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));}
+    function elapsed(){return scoreboard.running&&scoreboard.lastStartedAt?Math.max(0,(Number(scoreboard.elapsed)||0)+(Date.now()-Number(scoreboard.lastStartedAt))/1000):Math.max(0,Number(scoreboard.elapsed)||0);}
+    function fmt(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
+    function eventMinute(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;}
+    function absoluteTime(){return (Number(scoreboard.half)===2?2700:0)+Math.floor(elapsed());}
+    function renderClock(){
+      const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);
+      se.clock.textContent=fmt(shownSeconds); se.editTime.value=fmt(shownSeconds); se.half.value=String(scoreboard.half);
+      se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';
+      if(scoreboard.running&&!scoreboardTimer)scoreboardTimer=setInterval(renderClock,250);
+      if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}
     }
-
-    window.loadSavedScoreboard = function(id) {
-      const s = savedScoreboards.find(m => m.id === id);
-      if (!s) return;
-      if (!confirm('Cargar este marcador sustituirá el marcador en directo actual. ¿Continuar?')) return;
-
-      liveScore = {
-        teamLocalName: s.teamLocalName,
-        teamAwayName: s.teamAwayName,
-        scoreLocal: s.scoreLocal,
-        scoreAway: s.scoreAway,
-        half: s.half,
-        timer: {
-          running: false,
-          baseSeconds: s.timerSeconds || 0,
-          accumulatedSeconds: 0,
-          startTimestamp: null
-        },
-        events: JSON.parse(JSON.stringify(s.events))
-      };
-      saveLiveState();
-      modalLoadScoreboard.classList.add('hidden');
-      renderScoreboard();
-    };
-
-    window.deleteSavedScoreboard = function(id) {
-      if (!confirm('¿Eliminar este marcador guardado?')) return;
-      savedScoreboards = savedScoreboards.filter(m => m.id !== id);
-      localStorage.setItem('f11_saved_scoreboards', JSON.stringify(savedScoreboards));
-      renderSavedScoreboardsList();
-    };
-
+    function renderSB(){
+      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';se.hs.textContent=Math.max(0,Number(scoreboard.homeScore)||0);se.as.textContent=Math.max(0,Number(scoreboard.awayScore)||0);renderClock();
+      ['home','away'].forEach(t=>{
+        const gs=scoreboard.goals.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds), ss=scoreboard.substitutions.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
+        se[t==='home'?'hg':'ag'].innerHTML=gs.map(g=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-emerald-400 font-mono">${g.minute}</b> — ${esc(g.player)}${g.number?` <span class="text-slate-500">#${esc(g.number)}</span>`:''}</span><button onclick="editScoreGoal(${g.id})">✏️</button></div>`).join('');
+        se[t==='home'?'hsub':'asub'].innerHTML=ss.map(x=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-sky-400 font-mono">${x.minute}</b> — ${esc(x.out)} → ${esc(x.in)}</span><button onclick="editScoreSub(${x.id})">✏️</button></div>`).join('');
+        se[t==='home'?'hge':'age'].classList.toggle('hidden',gs.length>0);se[t==='home'?'hse':'ase'].classList.toggle('hidden',ss.length>0);
+      });saveSB();
+    }
+    function players(team){
+      if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));
+      const r=rivalTeams.find(x=>String(x.id)===String(selectedRivalId));return r&&Array.isArray(r.squad)?r.squad.map(p=>({num:p.num,name:p.name})):[];
+    }
+    function fillPlayers(){const opts='<option value="">— Seleccionar —</option>'+players(se.st.value).map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');se.so.innerHTML=opts;se.si.innerHTML=opts;}
+    function openGoal(id=null){const g=id?scoreboard.goals.find(x=>x.id===id):null,sec=g?g.minuteSeconds:absoluteTime();se.geid.value=g?g.id:'';se.gt.value=g?g.team:'home';se.gn.value=g?.number??'';se.gp.value=g?.player??'';se.gm.value=sec;se.gml.textContent=eventMinute(sec);se.ge.classList.remove('hidden');}
+    function openSub(id=null){const x=id?scoreboard.substitutions.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.seid.value=x?x.id:'';se.st.value=x?x.team:'home';fillPlayers();se.so.value=x?.out||'';se.si.value=x?.in||'';se.sm.value=sec;se.sml.textContent=eventMinute(sec);se.sue.classList.remove('hidden');}
+    function closeGoal(){se.ge.classList.add('hidden');se.geid.value='';} function closeSub(){se.sue.classList.add('hidden');se.seid.value='';}
+    window.editScoreGoal=id=>openGoal(id);window.editScoreSub=id=>openSub(id);
+    function initScoreboardView(){
+      if(!scoreboardInitialized){
+        scoreboardInitialized=true;
+        ['home','away'].forEach(t=>{
+          document.getElementById(`score-${t}-plus`).onclick=()=>{scoreboard[t+'Score']=Number(scoreboard[t+'Score'])+1;renderSB();};
+          document.getElementById(`score-${t}-minus`).onclick=()=>{scoreboard[t+'Score']=Math.max(0,Number(scoreboard[t+'Score'])-1);renderSB();};
+        });
+        se.hn.oninput=()=>{scoreboard.homeName=se.hn.value;saveSB();};se.an.oninput=()=>{scoreboard.awayName=se.an.value;saveSB();};
+        document.getElementById('btn-clock-pause').onclick=()=>{if(!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        document.getElementById('btn-clock-resume').onclick=()=>{if(scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderClock();};
+        document.getElementById('btn-clock-stop').onclick=()=>{scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        document.getElementById('btn-clock-apply').onclick=()=>{const m=se.editTime.value.trim().match(/^(\d{1,3}):([0-5]\d)$/);if(!m)return alert('Formato MM:SS, por ejemplo 45:30.');const entered=parseInt(m[1])*60+parseInt(m[2]),offset=Number(scoreboard.half)===2?2700:0;if(Number(scoreboard.half)===2&&entered<2700)return alert('En la segunda parte el tiempo debe ser 45:00 o superior.');scoreboard.elapsed=Math.max(0,entered-offset);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        se.half.onchange=()=>{scoreboard.elapsed=0;scoreboard.half=Number(se.half.value);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;
+        document.getElementById('btn-save-goal').onclick=()=>{const p=se.gp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const id=se.geid.value?Number(se.geid.value):Date.now(),sec=Number(se.gm.value),d={id,team:se.gt.value,player:p,number:se.gn.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.goals.findIndex(x=>x.id===id);if(i>=0)scoreboard.goals[i]=d;else scoreboard.goals.push(d);closeGoal();renderSB();};
+        document.getElementById('btn-register-sub').onclick=()=>openSub();document.getElementById('btn-cancel-sub').onclick=closeSub;se.st.onchange=fillPlayers;
+        document.getElementById('btn-save-sub').onclick=()=>{if(!se.so.value||!se.si.value)return alert('Selecciona el jugador que sale y el que entra.');if(se.so.value===se.si.value)return alert('Los jugadores no pueden ser el mismo.');const id=se.seid.value?Number(se.seid.value):Date.now(),sec=Number(se.sm.value),d={id,team:se.st.value,out:se.so.value,in:se.si.value,minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.substitutions.findIndex(x=>x.id===id);if(i>=0)scoreboard.substitutions[i]=d;else scoreboard.substitutions.push(d);closeSub();renderSB();};
+        document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
+        document.getElementById('btn-load-scoreboard').onclick=()=>{se.savedPanel.classList.toggle('hidden');if(!se.savedPanel.classList.contains('hidden'))renderSaved();};
+      }fillPlayers();renderSB();
+    }
+    function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)}</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard={...x,running:false,lastStartedAt:null,goals:x.goals||[],substitutions:x.substitutions||[]};saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});}
 // INICIALIZACIÓN
     syncTokensWithFormation(true);
     renderPitch();
-    populateLocalPlayersDatalist();
-    renderScoreboard();
 
     // REGISTRO DE SERVICE WORKER PARA PWA
     if ('serviceWorker' in navigator) {
