@@ -28,7 +28,6 @@
       touch-action: none;
     }
   
-    /* Ajustes responsive para móviles: una sola página desplazable, sin paneles internos que bloqueen el scroll. */
     @media (max-width: 1023px) {
       html, body {
         height: 100%;
@@ -141,6 +140,9 @@
       <button id="nav-pizarra" class="w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition">
         📋 Pizarra Táctica
       </button>
+      <button id="nav-marcador" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        ⏱️ Marcador en Directo
+      </button>
       <button id="nav-tacticas" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
         📐 Tácticas (Balón Parado)
       </button>
@@ -215,10 +217,95 @@
       </div>
     </section>
 
+    <!-- SECCIÓN NUEVA: MARCADOR EN DIRECTO -->
+    <section id="sec-marcador" class="flex-1 hidden h-full overflow-y-auto p-3 sm:p-4 max-w-2xl mx-auto w-full space-y-4">
+      <!-- Cronómetro -->
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center shadow-lg space-y-3">
+        <div class="flex justify-center gap-2 mb-1">
+          <button id="btn-period-1" onclick="setPeriod(1)" class="px-3 py-1 text-xs rounded-lg font-bold bg-emerald-600 text-white transition">1ª Parte (00:00)</button>
+          <button id="btn-period-2" onclick="setPeriod(2)" class="px-3 py-1 text-xs rounded-lg font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition">2ª Parte (45:00)</button>
+        </div>
+        <div id="timer-display" class="text-4xl sm:text-5xl font-mono font-black text-emerald-400 tracking-wider">
+          00:00
+        </div>
+        <div class="flex justify-center gap-2 pt-1 flex-wrap">
+          <button id="btn-timer-start" onclick="startTimer()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition active:scale-95 flex items-center gap-1 shadow">
+            ▶️ Reanudar / Iniciar
+          </button>
+          <button id="btn-timer-pause" onclick="pauseTimer()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition active:scale-95 flex items-center gap-1 shadow">
+            ⏸️ Pausar
+          </button>
+          <button id="btn-timer-stop" onclick="stopTimer()" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition active:scale-95 flex items-center gap-1 shadow">
+            ⏹️ Parar
+          </button>
+        </div>
+      </div>
+
+      <!-- Marcador Principal -->
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg space-y-4">
+        <div class="grid grid-cols-2 gap-4 divide-x divide-slate-700">
+          
+          <!-- Local -->
+          <div class="flex flex-col items-center pr-2 space-y-2">
+            <input type="text" id="score-team-local" value="LOCAL" class="bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center font-bold text-emerald-400 text-sm sm:text-base w-full focus:outline-none focus:border-emerald-500">
+            <div class="flex items-center gap-3">
+              <div class="flex flex-col gap-1">
+                <button onclick="changeScore('local', 1)" class="bg-slate-700 hover:bg-emerald-600 text-white p-2 rounded-lg text-xs font-bold shadow active:scale-95">▲</button>
+                <button onclick="changeScore('local', -1)" class="bg-slate-700 hover:bg-red-600 text-white p-2 rounded-lg text-xs font-bold shadow active:scale-95">▼</button>
+              </div>
+              <span id="score-count-local" class="text-4xl sm:text-5xl font-black text-white w-12 text-center">0</span>
+            </div>
+            <!-- Eventos Local -->
+            <div class="w-full pt-2 border-t border-slate-700/60 space-y-1">
+              <div class="text-[10px] font-bold uppercase text-slate-400 text-left">Eventos Local:</div>
+              <div id="events-list-local" class="space-y-1 text-xs text-left max-h-48 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- Visitante -->
+          <div class="flex flex-col items-center pl-2 space-y-2">
+            <input type="text" id="score-team-away" value="VISITANTE" class="bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-center font-bold text-emerald-400 text-sm sm:text-base w-full focus:outline-none focus:border-emerald-500">
+            <div class="flex items-center gap-3">
+              <span id="score-count-away" class="text-4xl sm:text-5xl font-black text-white w-12 text-center">0</span>
+              <div class="flex flex-col gap-1">
+                <button onclick="changeScore('away', 1)" class="bg-slate-700 hover:bg-emerald-600 text-white p-2 rounded-lg text-xs font-bold shadow active:scale-95">▲</button>
+                <button onclick="changeScore('away', -1)" class="bg-slate-700 hover:bg-red-600 text-white p-2 rounded-lg text-xs font-bold shadow active:scale-95">▼</button>
+              </div>
+            </div>
+            <!-- Eventos Visitante -->
+            <div class="w-full pt-2 border-t border-slate-700/60 space-y-1">
+              <div class="text-[10px] font-bold uppercase text-slate-400 text-left">Eventos Visitante:</div>
+              <div id="events-list-away" class="space-y-1 text-xs text-left max-h-48 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Botones Añadir Eventos -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-700">
+          <button onclick="openGoalModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold py-2 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow">
+            ⚽ + Añadir Gol
+          </button>
+          <button onclick="openSubModal()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow">
+            🔄 + Registrar Cambio
+          </button>
+        </div>
+
+        <!-- Guardar / Cargar Marcador -->
+        <div class="flex gap-2 pt-2">
+          <button id="btn-save-scoreboard-modal" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow">
+            💾 Guardar Marcador
+          </button>
+          <button id="btn-load-scoreboard-modal" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold py-2 rounded-lg transition active:scale-95 border border-slate-600 flex items-center justify-center gap-1">
+            📂 Cargar Marcador
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS Y GUARDADO) -->
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
-        <!-- Media Cancha -->
         <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
           <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
             <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
@@ -234,14 +321,12 @@
           </div>
         </div>
 
-        <!-- Panel Lateral Desplegable de Herramientas + Guardado -->
         <div class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
           <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 hidden sm:block border-b border-slate-700 pb-2">
             🛠️ Herramientas
           </div>
 
           <div class="space-y-3">
-            <!-- BOTONES GUARDAR / CARGAR TÁCTICA -->
             <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-700 space-y-1.5">
               <button id="btn-save-tactic-modal" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow">
                 💾 <span class="hidden sm:inline">Guardar Táctica</span>
@@ -251,7 +336,6 @@
               </button>
             </div>
 
-            <!-- DIBUJAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-draw" onclick="setActiveTool('draw')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">✏️ <span class="hidden sm:inline">Dibujar</span></span>
@@ -272,7 +356,6 @@
               </div>
             </div>
 
-            <!-- BORRAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-erase" onclick="setActiveTool('erase')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
                 <span class="flex items-center gap-2">🧹 <span class="hidden sm:inline">Borrar</span></span>
@@ -287,7 +370,6 @@
               </div>
             </div>
 
-            <!-- ICONOS / OBJETOS -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <div class="font-bold text-xs flex items-center justify-between text-slate-200 mb-2">
                 <span class="flex items-center gap-2">🎯 <span class="hidden sm:inline">Objetos</span></span>
@@ -299,13 +381,12 @@
               </div>
             </div>
 
-            <!-- ANIMACIÓN / VÍDEO DE MOVIMIENTOS -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700 space-y-2">
               <div class="font-bold text-xs flex items-center justify-between text-slate-200">
                 <span class="flex items-center gap-2">🎬 <span class="hidden sm:inline">Animación</span></span>
                 <span class="text-[10px] text-emerald-400 font-mono">(<span id="anim-frame-count">0</span>)</span>
               </div>
-              <p class="text-[9px] text-slate-400 hidden sm:block leading-tight">Captura la posición, mueve las fichas y vuelve a capturar. Con 2 o más capturas puedes generar el vídeo.</p>
+              <p class="text-[9px] text-slate-400 hidden sm:block leading-tight">Captura la posición, mueve las fichas y vuelve a capturar.</p>
 
               <button id="btn-capture-frame" class="w-full bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 shadow active:scale-95">
                 📸 <span class="hidden sm:inline">Capturar Posición</span>
@@ -337,10 +418,8 @@
       </div>
     </section>
 
-
     <!-- SECCIÓN 3: ENFRENTAMIENTO (11 vs 11 HORIZONTAL) -->
     <section id="sec-enfrentamiento" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
-      <!-- Selector de Rival Superior / Overlay -->
       <div class="mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20 space-y-2">
         <div class="flex justify-between items-center gap-2 flex-wrap">
           <div class="text-xs font-semibold text-emerald-400">
@@ -373,14 +452,10 @@
             <line x1="50%" y1="0" x2="50%" y2="100%" />
             <circle cx="50%" cy="50%" r="12%" />
             <circle cx="50%" cy="50%" r="2.5" fill="white" />
-
-            <!-- Izquierda -->
             <rect x="0" y="20%" width="16%" height="60%" />
             <rect x="0" y="35%" width="6%" height="30%" />
             <circle cx="11%" cy="50%" r="2" fill="white" />
             <path d="M 16% 38% A 12% 12% 0 0 1 16% 62%" />
-
-            <!-- Derecha -->
             <rect x="84%" y="20%" width="16%" height="60%" />
             <rect x="94%" y="35%" width="6%" height="30%" />
             <circle cx="89%" cy="50%" r="2" fill="white" />
@@ -390,7 +465,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN 4: EQUIPOS RIVALES (NUEVO) -->
+    <!-- SECCIÓN 4: EQUIPOS RIVALES -->
     <section id="sec-rivales" class="flex-1 hidden h-full overflow-y-auto p-4 max-w-lg mx-auto w-full">
       <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
         <h3 id="rival-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Crear Nuevo Equipo Rival</h3>
@@ -442,8 +517,6 @@
     <!-- SECCIÓN 5: PLANTILLA MI EQUIPO -->
     <section id="sec-plantilla" class="flex-1 hidden min-h-0 overflow-y-auto overscroll-contain p-2 sm:p-3 w-full">
       <div class="grid grid-cols-1 lg:grid-cols-[minmax(320px,430px)_1fr] gap-3 lg:h-full lg:min-h-0">
-
-        <!-- COLUMNA IZQUIERDA: AÑADIR JUGADOR + PLANTILLA -->
         <div class="min-w-0 flex flex-col gap-3">
           <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg flex-shrink-0">
             <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Jugador a Mi Equipo</h3>
@@ -486,7 +559,6 @@
           </div>
         </div>
 
-        <!-- COLUMNA DERECHA: JUGADORES AGRUPADOS POR POSICIÓN -->
         <div class="min-w-0 bg-slate-800 p-3 sm:p-4 rounded-xl border border-slate-700 shadow-lg lg:overflow-y-auto">
           <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
             <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Jugadores por Posición</h3>
@@ -494,7 +566,6 @@
           </div>
           <div id="players-by-position" class="grid grid-cols-1 min-[480px]:grid-cols-2 xl:grid-cols-3 gap-3"></div>
         </div>
-
       </div>
     </section>
 
@@ -508,7 +579,110 @@
 
   </main>
 
-  <!-- MODAL: GESTIONAR JUGADORES DE UN EQUIPO RIVAL -->
+  <!-- MODALES DE MARCADOR EN DIRECTO -->
+
+  <!-- MODAL: ANOTAR GOL -->
+  <div id="modal-score-goal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">⚽ Registrar Gol</h3>
+        <button id="btn-close-goal-modal" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-score-goal" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo</label>
+          <select id="goal-team" class="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg p-2">
+            <option value="local">Local</option>
+            <option value="away">Visitante</option>
+          </select>
+        </div>
+        <div class="flex gap-2">
+          <div class="w-24">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Número</label>
+            <input type="text" id="goal-player-num" placeholder="9" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm text-center">
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Jugador</label>
+            <input type="text" id="goal-player-name" placeholder="Ej: Benzema" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Minuto Capturado</label>
+          <input type="text" id="goal-minute" readonly class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-mono font-bold rounded-lg p-2 text-sm">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
+          Guardar Gol
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR CAMBIO -->
+  <div id="modal-score-sub" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">🔄 Registrar Cambio</h3>
+        <button id="btn-close-sub-modal" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-score-sub" class="space-y-3">
+        <input type="hidden" id="edit-sub-id" value="">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo</label>
+          <select id="sub-team" class="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg p-2">
+            <option value="local">Local</option>
+            <option value="away">Visitante</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">🔴 Sale del Campo</label>
+          <input type="text" id="sub-player-out" placeholder="Ej: #8 Iniesta" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">🟢 Entra al Campo</label>
+          <input type="text" id="sub-player-in" placeholder="Ej: #10 Modric" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Minuto</label>
+          <input type="text" id="sub-minute" required class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-mono font-bold rounded-lg p-2 text-sm">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
+          Guardar Cambio
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GUARDAR MARCADOR -->
+  <div id="modal-save-scoreboard" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">💾 Guardar Partido / Marcador</h3>
+        <button id="btn-close-save-scoreboard" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <form id="form-save-scoreboard" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Título del Partido</label>
+          <input type="text" id="scoreboard-title" placeholder="Ej: Final de Copa" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
+          Guardar Marcador
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CARGAR MARCADOR -->
+  <div id="modal-load-scoreboards" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
+        <h3 class="font-bold text-emerald-400 text-sm">📂 Marcadores Guardados</h3>
+        <button id="btn-close-load-scoreboards" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div id="scoreboards-saved-list" class="flex-1 overflow-y-auto space-y-3 my-2 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- RESTO DE MODALES EXISTENTES -->
   <div id="modal-rival-squad" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -542,7 +716,6 @@
     </div>
   </div>
 
-  <!-- MODAL: SELECCIONAR JUGADOR PARA CASILLA -->
   <div id="modal-select-player" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl flex flex-col max-h-[80vh]">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -554,7 +727,6 @@
     </div>
   </div>
 
-  <!-- MODAL: GUARDAR TÁCTICA (CON NOMBRE, FECHA Y DESCRIPCIÓN) -->
   <div id="modal-save-tactic" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -572,7 +744,7 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción / Instrucciones</label>
-          <textarea id="tactic-desc" rows="3" placeholder="Ej: Dos bloqueos en primer palo y remate al segundo..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs focus:border-emerald-500 focus:outline-none"></textarea>
+          <textarea id="tactic-desc" rows="3" placeholder="Ej: Dos bloqueos en primer palo..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs focus:border-emerald-500 focus:outline-none"></textarea>
         </div>
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition mt-2">
           Guardar Táctica
@@ -581,7 +753,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CARGAR Y EDITAR MIS TÁCTICAS -->
   <div id="modal-load-tactics" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -592,7 +763,6 @@
     </div>
   </div>
 
-  <!-- MODAL: VÍDEO DE ANIMACIÓN GENERADO -->
   <div id="modal-video-result" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -606,7 +776,6 @@
     </div>
   </div>
 
-  <!-- MODAL: EDITAR INFORMACIÓN DE TÁCTICA -->
   <div id="modal-edit-tactic-info" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -634,7 +803,6 @@
     </div>
   </div>
 
-  <!-- MODAL: GUARDAR ALINEACIÓN PRINCIPAL -->
   <div id="modal-save-lineup" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -665,39 +833,6 @@
     </div>
   </div>
 
-  <!-- MODAL: EDITAR ALINEACIÓN / PARTIDO GUARDADO -->
-  <div id="modal-edit-match-info" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm">Editar Alineación / Partido</h3>
-        <button id="btn-close-edit-match-info" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <form id="form-edit-match-info" class="space-y-3">
-        <input type="hidden" id="edit-match-id">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Alineación</label>
-          <input type="text" id="edit-match-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha</label>
-          <input type="date" id="edit-match-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Campo</label>
-          <input type="text" id="edit-match-field" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo Rival</label>
-          <input type="text" id="edit-match-rival" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
-        </div>
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm transition">
-          Actualizar Partido
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: GUARDAR ENFRENTAMIENTO -->
   <div id="modal-save-confrontation" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -728,7 +863,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CARGAR Y EDITAR ENFRENTAMIENTOS -->
   <div id="modal-load-confrontations" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -739,7 +873,6 @@
     </div>
   </div>
 
-  <!-- MODAL: EDITAR INFORMACIÓN DE ENFRENTAMIENTO -->
   <div id="modal-edit-confrontation-info" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3">
@@ -815,6 +948,7 @@
     let savedMatches = JSON.parse(localStorage.getItem('f11_matches')) || [];
     let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
+    let savedScoreboards = JSON.parse(localStorage.getItem('f11_saved_scoreboards')) || [];
 
     const formations = {
       '4-3-3': [
@@ -876,32 +1010,37 @@
     let activeTokens = JSON.parse(localStorage.getItem('f11_active_tokens')) || null;
     let activeBench = JSON.parse(localStorage.getItem('f11_active_bench')) || [];
 
-    // Estado para Enfrentamiento
     let selectedRivalId = localStorage.getItem('f11_selected_rival_id') || "";
     let selectedRivalKit = localStorage.getItem('f11_selected_rival_kit') || "local";
     let activeRivalTokens = JSON.parse(localStorage.getItem('f11_active_rival_tokens')) || [];
 
-    let selectedSlotId = null;
-    let selectedBenchIndex = null;
-    let selectedRivalSlotId = null;
+    // --- ESTADO DEL MARCADOR Y CRONÓMETRO ---
+    let scoreLocal = 0;
+    let scoreAway = 0;
+    let scoreEvents = [];
 
-    // Elementos DOM
+    let timerPeriod = 1;
+    let timerState = 'stopped';
+    let timerBaseSeconds = 0;
+    let timerStartTimestamp = null;
+    let timerInterval = null;
+
+    // DOM General
     const pitch = document.getElementById('pitch');
     const selectFormation = document.getElementById('select-formation');
     const selectKit = document.getElementById('select-kit');
-    const resetBtn = document.getElementById('reset-btn');
     const squadList = document.getElementById('squad-list');
-    const matchesList = document.getElementById('matches-list');
     const benchList = document.getElementById('bench-list');
     const benchCount = document.getElementById('bench-count');
-    const btnAddBenchPlayer = document.getElementById('btn-add-bench-player');
 
     // Navegación
     const btnHamburger = document.getElementById('btn-hamburger');
     const btnCloseSidebar = document.getElementById('btn-close-sidebar');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
+
     const navPizarra = document.getElementById('nav-pizarra');
+    const navMarcador = document.getElementById('nav-marcador');
     const navTacticas = document.getElementById('nav-tacticas');
     const navEnfrentamiento = document.getElementById('nav-enfrentamiento');
     const navRivales = document.getElementById('nav-rivales');
@@ -909,6 +1048,7 @@
     const navPartidos = document.getElementById('nav-partidos');
 
     const secPizarra = document.getElementById('sec-pizarra');
+    const secMarcador = document.getElementById('sec-marcador');
     const secTacticas = document.getElementById('sec-tacticas');
     const secEnfrentamiento = document.getElementById('sec-enfrentamiento');
     const secRivales = document.getElementById('sec-rivales');
@@ -918,48 +1058,347 @@
     const headerTitle = document.getElementById('header-title');
     const headerActions = document.getElementById('header-actions');
 
-    const modalSelectPlayer = document.getElementById('modal-select-player');
-    const modalSaveLineup = document.getElementById('modal-save-lineup');
-    const btnSaveLineupModal = document.getElementById('btn-save-lineup-modal');
-
-    // --- FUNCIONES AUXILIARES Y SINCRO ---
-    function sortSquad() {
-      squad.sort((a, b) => parseInt(a.num) - parseInt(b.num));
+    // --- LÓGICA DEL CRONÓMETRO (PERSISTENTE EN SEGUNDO PLANO) ---
+    function getElapsedSeconds() {
+      if (timerState === 'running' && timerStartTimestamp) {
+        const now = Date.now();
+        return timerBaseSeconds + Math.floor((now - timerStartTimestamp) / 1000);
+      }
+      return timerBaseSeconds;
     }
 
-    function syncTokensWithFormation(keepPlayers = true) {
-      const formConfig = formations[currentFormationKey];
-      if (!activeTokens || activeTokens.length !== formConfig.length) {
-        activeTokens = formConfig.map(item => ({
-          slot: item.slot,
-          role: item.role,
-          x: item.x,
-          y: item.y,
-          playerId: null
-        }));
+    function formatTime(totalSec) {
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function updateTimerDisplay() {
+      const display = document.getElementById('timer-display');
+      if (display) display.innerText = formatTime(getElapsedSeconds());
+      saveTimerState();
+    }
+
+    function setPeriod(p) {
+      timerPeriod = p;
+      timerState = 'stopped';
+      timerBaseSeconds = p === 1 ? 0 : 2700;
+      timerStartTimestamp = null;
+
+      const btn1 = document.getElementById('btn-period-1');
+      const btn2 = document.getElementById('btn-period-2');
+      if (p === 1) {
+        btn1.className = "px-3 py-1 text-xs rounded-lg font-bold bg-emerald-600 text-white transition";
+        btn2.className = "px-3 py-1 text-xs rounded-lg font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
       } else {
-        activeTokens = formConfig.map((item, idx) => {
-          const prevToken = activeTokens[idx];
-          return {
-            slot: item.slot,
-            role: item.role,
-            x: item.x,
-            y: item.y,
-            playerId: keepPlayers && prevToken ? prevToken.playerId : null
-          };
+        btn2.className = "px-3 py-1 text-xs rounded-lg font-bold bg-emerald-600 text-white transition";
+        btn1.className = "px-3 py-1 text-xs rounded-lg font-bold bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+      }
+      updateTimerDisplay();
+    }
+
+    function startTimer() {
+      if (timerState === 'running') return;
+      timerState = 'running';
+      timerStartTimestamp = Date.now();
+      saveTimerState();
+    }
+
+    function pauseTimer() {
+      if (timerState !== 'running') return;
+      timerBaseSeconds = getElapsedSeconds();
+      timerState = 'paused';
+      timerStartTimestamp = null;
+      saveTimerState();
+    }
+
+    function stopTimer() {
+      timerState = 'stopped';
+      timerBaseSeconds = timerPeriod === 1 ? 0 : 2700;
+      timerStartTimestamp = null;
+      saveTimerState();
+      updateTimerDisplay();
+    }
+
+    function getCurrentMatchMinuteStr() {
+      const sec = getElapsedSeconds();
+      const mins = Math.floor(sec / 60);
+      return `${mins}'`;
+    }
+
+    function saveTimerState() {
+      const state = {
+        timerPeriod,
+        timerState,
+        timerBaseSeconds,
+        timerStartTimestamp
+      };
+      localStorage.setItem('f11_timer_state', JSON.stringify(state));
+    }
+
+    function loadTimerState() {
+      const raw = localStorage.getItem('f11_timer_state');
+      if (!raw) return;
+      try {
+        const s = JSON.parse(raw);
+        timerPeriod = s.timerPeriod || 1;
+        timerState = s.timerState || 'stopped';
+        timerBaseSeconds = s.timerBaseSeconds || 0;
+        timerStartTimestamp = s.timerStartTimestamp || null;
+        setPeriod(timerPeriod);
+      } catch(e){}
+    }
+
+    // Intervalo de actualización continuo
+    setInterval(updateTimerDisplay, 500);
+
+    // --- LÓGICA DEL MARCADOR & EVENTOS ---
+    function changeScore(team, delta) {
+      if (team === 'local') {
+        scoreLocal = Math.max(0, scoreLocal + delta);
+        document.getElementById('score-count-local').innerText = scoreLocal;
+      } else {
+        scoreAway = Math.max(0, scoreAway + delta);
+        document.getElementById('score-count-away').innerText = scoreAway;
+      }
+    }
+
+    function renderScoreEvents() {
+      const containerLocal = document.getElementById('events-list-local');
+      const containerAway = document.getElementById('events-list-away');
+      containerLocal.innerHTML = '';
+      containerAway.innerHTML = '';
+
+      scoreEvents.forEach(ev => {
+        const item = document.createElement('div');
+        item.className = "bg-slate-900 border border-slate-700 p-1.5 rounded flex justify-between items-center text-[11px]";
+
+        if (ev.type === 'goal') {
+          item.innerHTML = `
+            <div class="truncate">
+              <span>⚽ <b class="text-emerald-400">${ev.minute}</b> #${ev.playerNum} ${ev.playerName}</span>
+            </div>
+            <button onclick="deleteScoreEvent(${ev.id})" class="text-slate-500 hover:text-red-400 ml-1">✕</button>
+          `;
+        } else if (ev.type === 'sub') {
+          item.innerHTML = `
+            <div class="truncate">
+              <span>🔄 <b class="text-emerald-400">${ev.minute}</b></span>
+              <div class="text-[10px] text-slate-300">🔴 ${ev.playerOut}</div>
+              <div class="text-[10px] text-slate-300">🟢 ${ev.playerIn}</div>
+            </div>
+            <div class="flex gap-1 ml-1">
+              <button onclick="editSubEvent(${ev.id})" class="text-slate-400 hover:text-emerald-400">✏️</button>
+              <button onclick="deleteScoreEvent(${ev.id})" class="text-slate-500 hover:text-red-400">✕</button>
+            </div>
+          `;
+        }
+
+        if (ev.team === 'local') {
+          containerLocal.appendChild(item);
+        } else {
+          containerAway.appendChild(item);
+        }
+      });
+    }
+
+    function deleteScoreEvent(id) {
+      scoreEvents = scoreEvents.filter(e => e.id !== id);
+      renderScoreEvents();
+    }
+
+    function openGoalModal() {
+      document.getElementById('goal-minute').value = getCurrentMatchMinuteStr();
+      document.getElementById('form-score-goal').reset();
+      document.getElementById('goal-minute').value = getCurrentMatchMinuteStr();
+      document.getElementById('modal-score-goal').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-close-goal-modal').onclick = () => {
+      document.getElementById('modal-score-goal').classList.add('hidden');
+    };
+
+    document.getElementById('form-score-goal').onsubmit = (e) => {
+      e.preventDefault();
+      const team = document.getElementById('goal-team').value;
+      const num = document.getElementById('goal-player-num').value.trim();
+      const name = document.getElementById('goal-player-name').value.trim();
+      const min = document.getElementById('goal-minute').value;
+
+      scoreEvents.push({
+        id: Date.now(),
+        type: 'goal',
+        team,
+        minute: min,
+        playerNum: num,
+        playerName: name
+      });
+
+      renderScoreEvents();
+      document.getElementById('modal-score-goal').classList.add('hidden');
+    };
+
+    function openSubModal() {
+      document.getElementById('edit-sub-id').value = '';
+      document.getElementById('form-score-sub').reset();
+      document.getElementById('sub-minute').value = getCurrentMatchMinuteStr();
+      document.getElementById('modal-score-sub').classList.remove('hidden');
+    }
+
+    function editSubEvent(id) {
+      const ev = scoreEvents.find(e => e.id === id);
+      if (!ev) return;
+
+      document.getElementById('edit-sub-id').value = ev.id;
+      document.getElementById('sub-team').value = ev.team;
+      document.getElementById('sub-player-out').value = ev.playerOut;
+      document.getElementById('sub-player-in').value = ev.playerIn;
+      document.getElementById('sub-minute').value = ev.minute;
+
+      document.getElementById('modal-score-sub').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-close-sub-modal').onclick = () => {
+      document.getElementById('modal-score-sub').classList.add('hidden');
+    };
+
+    document.getElementById('form-score-sub').onsubmit = (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('edit-sub-id').value;
+      const team = document.getElementById('sub-team').value;
+      const playerOut = document.getElementById('sub-player-out').value.trim();
+      const playerIn = document.getElementById('sub-player-in').value.trim();
+      const min = document.getElementById('sub-minute').value.trim();
+
+      if (editId) {
+        const ev = scoreEvents.find(x => x.id === parseInt(editId));
+        if (ev) {
+          ev.team = team;
+          ev.playerOut = playerOut;
+          ev.playerIn = playerIn;
+          ev.minute = min;
+        }
+      } else {
+        scoreEvents.push({
+          id: Date.now(),
+          type: 'sub',
+          team,
+          minute: min,
+          playerOut,
+          playerIn
         });
       }
-      savePitchState();
+
+      renderScoreEvents();
+      document.getElementById('modal-score-sub').classList.add('hidden');
+    };
+
+    // GUARDAR Y CARGAR MARCADOR
+    document.getElementById('btn-save-scoreboard-modal').onclick = () => {
+      document.getElementById('modal-save-scoreboard').classList.remove('hidden');
+    };
+
+    document.getElementById('btn-close-save-scoreboard').onclick = () => {
+      document.getElementById('modal-save-scoreboard').classList.add('hidden');
+    };
+
+    document.getElementById('form-save-scoreboard').onsubmit = (e) => {
+      e.preventDefault();
+      const title = document.getElementById('scoreboard-title').value.trim();
+      const teamLocal = document.getElementById('score-team-local').value.trim();
+      const teamAway = document.getElementById('score-team-away').value.trim();
+
+      const newScoreboard = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        title,
+        teamLocal,
+        teamAway,
+        scoreLocal,
+        scoreAway,
+        events: JSON.parse(JSON.stringify(scoreEvents)),
+        period: timerPeriod,
+        elapsedSec: getElapsedSeconds()
+      };
+
+      savedScoreboards.unshift(newScoreboard);
+      localStorage.setItem('f11_saved_scoreboards', JSON.stringify(savedScoreboards));
+
+      document.getElementById('modal-save-scoreboard').classList.add('hidden');
+      document.getElementById('form-save-scoreboard').reset();
+      alert('¡Marcador guardado con éxito!');
+    };
+
+    document.getElementById('btn-load-scoreboard-modal').onclick = () => {
+      renderSavedScoreboards();
+      document.getElementById('modal-load-scoreboards').classList.remove('hidden');
+    };
+
+    document.getElementById('btn-close-load-scoreboards').onclick = () => {
+      document.getElementById('modal-load-scoreboards').classList.add('hidden');
+    };
+
+    function renderSavedScoreboards() {
+      const container = document.getElementById('scoreboards-saved-list');
+      container.innerHTML = '';
+
+      if (savedScoreboards.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No hay marcadores guardados.</p>`;
+        return;
+      }
+
+      savedScoreboards.forEach(sb => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-bold text-emerald-400 text-xs">${sb.title}</h4>
+              <span class="text-[10px] text-slate-400">${sb.date}</span>
+            </div>
+            <button onclick="deleteScoreboard(${sb.id})" class="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">🗑️</button>
+          </div>
+          <div class="text-sm font-bold text-center text-white bg-slate-800 p-2 rounded">
+            ${sb.teamLocal} ${sb.scoreLocal} - ${sb.scoreAway} ${sb.teamAway}
+          </div>
+          <button onclick="loadScoreboardState(${sb.id})" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 text-xs font-bold py-1.5 rounded-lg transition">
+            👁️ Cargar Marcador
+          </button>
+        `;
+        container.appendChild(card);
+      });
     }
 
-    function savePitchState() {
-      localStorage.setItem('f11_formation', currentFormationKey);
-      localStorage.setItem('f11_kit', currentKit);
-      localStorage.setItem('f11_active_tokens', JSON.stringify(activeTokens));
-      localStorage.setItem('f11_active_bench', JSON.stringify(activeBench));
-      localStorage.setItem('f11_selected_rival_id', selectedRivalId);
-      localStorage.setItem('f11_selected_rival_kit', selectedRivalKit);
-      localStorage.setItem('f11_active_rival_tokens', JSON.stringify(activeRivalTokens));
+    function loadScoreboardState(id) {
+      const sb = savedScoreboards.find(x => x.id === id);
+      if (!sb) return;
+
+      document.getElementById('score-team-local').value = sb.teamLocal;
+      document.getElementById('score-team-away').value = sb.teamAway;
+      scoreLocal = sb.scoreLocal;
+      scoreAway = sb.scoreAway;
+      document.getElementById('score-count-local').innerText = scoreLocal;
+      document.getElementById('score-count-away').innerText = scoreAway;
+
+      scoreEvents = JSON.parse(JSON.stringify(sb.events));
+      renderScoreEvents();
+
+      setPeriod(sb.period || 1);
+      timerBaseSeconds = sb.elapsedSec || 0;
+      timerState = 'paused';
+      timerStartTimestamp = null;
+      updateTimerDisplay();
+
+      document.getElementById('modal-load-scoreboards').classList.add('hidden');
+      switchView('marcador');
+    }
+
+    function deleteScoreboard(id) {
+      if (confirm('¿Eliminar este marcador guardado?')) {
+        savedScoreboards = savedScoreboards.filter(x => x.id !== id);
+        localStorage.setItem('f11_saved_scoreboards', JSON.stringify(savedScoreboards));
+        renderSavedScoreboards();
+      }
     }
 
     // --- NAVEGACIÓN VISTAS ---
@@ -975,13 +1414,14 @@
 
     function switchView(view) {
       secPizarra.classList.add('hidden');
+      secMarcador.classList.add('hidden');
       secTacticas.classList.add('hidden');
       secEnfrentamiento.classList.add('hidden');
       secRivales.classList.add('hidden');
       secPlantilla.classList.add('hidden');
       secPartidos.classList.add('hidden');
 
-      const allNavs = [navPizarra, navTacticas, navEnfrentamiento, navRivales, navPlantilla, navPartidos];
+      const allNavs = [navPizarra, navMarcador, navTacticas, navEnfrentamiento, navRivales, navPlantilla, navPartidos];
       allNavs.forEach(n => n.className = "w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition");
 
       if (view === 'pizarra') {
@@ -989,6 +1429,11 @@
         navPizarra.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
         headerTitle.innerHTML = '⚽ Pizarra Táctica';
         headerActions.classList.remove('hidden');
+      } else if (view === 'marcador') {
+        secMarcador.classList.remove('hidden');
+        navMarcador.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
+        headerTitle.innerHTML = '⏱️ Marcador en Directo';
+        headerActions.classList.add('hidden');
       } else if (view === 'tacticas') {
         secTacticas.classList.remove('hidden');
         navTacticas.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
@@ -1028,1743 +1473,17 @@
     sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
 
     navPizarra.addEventListener('click', () => switchView('pizarra'));
+    navMarcador.addEventListener('click', () => switchView('marcador'));
     navTacticas.addEventListener('click', () => switchView('tacticas'));
     navEnfrentamiento.addEventListener('click', () => switchView('enfrentamiento'));
     navRivales.addEventListener('click', () => switchView('rivales'));
     navPlantilla.addEventListener('click', () => switchView('plantilla'));
     navPartidos.addEventListener('click', () => switchView('partidos'));
 
-    // --- PIZARRA PRINCIPAL ---
-    function renderPitch() {
-      document.querySelectorAll('#pitch .player-token').forEach(el => el.remove());
-
-      activeTokens.forEach(token => {
-        const assignedPlayer = squad.find(p => p.id === token.playerId);
-        let kitStyle = '';
-        if (currentKit === 'local') {
-          kitStyle = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
-        } else {
-          kitStyle = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
-        }
-
-        const tokenEl = document.createElement('div');
-        tokenEl.className = `player-token absolute rounded-full ${kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-        tokenEl.style.width = '42px';
-        tokenEl.style.height = '42px';
-        tokenEl.style.left = `${token.x}%`;
-        tokenEl.style.top = `${token.y}%`;
-        tokenEl.style.transform = 'translate(-50%, -50%)';
-
-        const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
-        const displayName = assignedPlayer ? assignedPlayer.name : token.role;
-
-        tokenEl.innerHTML = `
-          <span class="text-xs leading-none">${displayNum}</span>
-          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
-        `;
-
-        makeDraggable(tokenEl, token, pitch);
-        tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
-        
-        let tapTimer = null;
-        tokenEl.addEventListener('touchend', () => {
-          if (!tapTimer) {
-            tapTimer = setTimeout(() => { tapTimer = null; }, 300);
-          } else {
-            clearTimeout(tapTimer);
-            tapTimer = null;
-            openAssignPlayerModal(token.slot, token.role);
-          }
-        });
-
-        pitch.appendChild(tokenEl);
-      });
-
-      renderBench();
-    }
-
-    function renderBench() {
-      benchList.innerHTML = '';
-      benchCount.innerText = activeBench.length;
-
-      if (activeBench.length === 0) {
-        benchList.innerHTML = `<span class="text-xs text-slate-500 italic py-3 text-center">Sin suplentes</span>`;
-        return;
-      }
-
-      activeBench.forEach((playerId, index) => {
-        const player = squad.find(p => p.id === playerId);
-        if (!player) return;
-
-        const item = document.createElement('div');
-        item.className = "bg-slate-900 border border-slate-700 hover:border-emerald-500/50 rounded-lg p-2 flex items-center justify-between gap-1 flex-shrink-0 cursor-pointer shadow-sm transition";
-        item.innerHTML = `
-          <div class="flex items-center gap-1.5 min-w-0 flex-1">
-            <span class="bg-slate-800 text-emerald-400 font-bold border border-slate-600 rounded-full w-5 h-5 flex items-center justify-center text-[11px] flex-shrink-0">${player.num}</span>
-            <span class="text-xs font-semibold text-slate-200 truncate">${player.name}</span>
-          </div>
-          <button onclick="removeBenchPlayer(${index})" class="text-slate-500 hover:text-red-400 text-xs px-1 flex-shrink-0">✕</button>
-        `;
-        item.onclick = (e) => {
-          if (e.target.tagName !== 'BUTTON') {
-            openAssignBenchModal(index);
-          }
-        };
-        benchList.appendChild(item);
-      });
-    }
-
-    function removeBenchPlayer(index) {
-      activeBench.splice(index, 1);
-      savePitchState();
-      renderBench();
-    }
-
-    function makeDraggable(element, dataObj, container) {
-      let isDragging = false;
-
-      element.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        element.setPointerCapture(e.pointerId);
-        element.classList.add('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-      });
-
-      element.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        const rect = container.getBoundingClientRect();
-        let x = ((e.clientX - rect.left) / rect.width) * 100;
-        let y = ((e.clientY - rect.top) / rect.height) * 100;
-
-        x = Math.max(3, Math.min(97, x));
-        y = Math.max(3, Math.min(97, y));
-
-        element.style.left = `${x}%`;
-        element.style.top = `${y}%`;
-
-        if (dataObj) {
-          dataObj.x = x;
-          dataObj.y = y;
-        }
-      });
-
-      const stopDrag = (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        element.releasePointerCapture(e.pointerId);
-        element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-        if (container === pitch) savePitchState();
-      };
-
-      element.addEventListener('pointerup', stopDrag);
-      element.addEventListener('pointercancel', stopDrag);
-    }
-
-    // --- SECCIÓN TÁCTICAS (SINCRONIZADO CON PIZARRA + DIBUJO Y GUARDADO) ---
-    let tacticsCanvas, tacticsCtx;
-    let isDrawing = false;
-    let activeTool = 'draw';
-    let currentDrawColor = '#ef4444';
-    let eraserSize = 25;
-    let currentTacticsTokens = [];
-    let animFrames = [];
-
-    function initTacticsView() {
-      const container = document.getElementById('tactics-pitch');
-      tacticsCanvas = document.getElementById('tactics-canvas');
-      tacticsCtx = tacticsCanvas.getContext('2d');
-
-      setTimeout(() => {
-        tacticsCanvas.width = container.clientWidth;
-        tacticsCanvas.height = container.clientHeight;
-      }, 50);
-
-      document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
-
-      // Sincronización exacta con los 11 jugadores de Pizarra Táctica
-      currentTacticsTokens = activeTokens.map(t => {
-        // Mapear posición Y de campo completo a medio campo (0% a 90%)
-        const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
-        return {
-          slot: t.slot,
-          role: t.role,
-          x: t.x,
-          y: halfY,
-          playerId: t.playerId
-        };
-      });
-
-      currentTacticsTokens.forEach(token => {
-        const assignedPlayer = squad.find(p => p.id === token.playerId);
-        let kitStyle = '';
-        if (currentKit === 'local') {
-          kitStyle = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
-        } else {
-          kitStyle = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
-        }
-
-        const tokenEl = document.createElement('div');
-        tokenEl.className = `tactics-token absolute rounded-full ${kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-        tokenEl.style.width = '42px';
-        tokenEl.style.height = '42px';
-        tokenEl.style.left = `${token.x}%`;
-        tokenEl.style.top = `${token.y}%`;
-        tokenEl.style.transform = 'translate(-50%, -50%)';
-
-        const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
-        const displayName = assignedPlayer ? assignedPlayer.name : token.role;
-
-        tokenEl.innerHTML = `
-          <span class="text-xs leading-none">${displayNum}</span>
-          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
-        `;
-
-        makeDraggable(tokenEl, token, container);
-        container.appendChild(tokenEl);
-      });
-
-      setupDrawingEvents();
-
-      animFrames = [];
-      updateAnimUI();
-    }
-
-    function setupDrawingEvents() {
-      let lastX = 0, lastY = 0;
-
-      const getPos = (e) => {
-        const rect = tacticsCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-          x: (clientX - rect.left) * (tacticsCanvas.width / rect.width),
-          y: (clientY - rect.top) * (tacticsCanvas.height / rect.height)
-        };
-      };
-
-      const startDraw = (e) => {
-        isDrawing = true;
-        const pos = getPos(e);
-        lastX = pos.x;
-        lastY = pos.y;
-      };
-
-      const moveDraw = (e) => {
-        if (!isDrawing) return;
-        const pos = getPos(e);
-
-        tacticsCtx.beginPath();
-        tacticsCtx.moveTo(lastX, lastY);
-        tacticsCtx.lineTo(pos.x, pos.y);
-        tacticsCtx.lineCap = 'round';
-        tacticsCtx.lineJoin = 'round';
-
-        if (activeTool === 'draw') {
-          tacticsCtx.globalCompositeOperation = 'source-over';
-          tacticsCtx.strokeStyle = currentDrawColor;
-          tacticsCtx.lineWidth = 4;
-        } else {
-          tacticsCtx.globalCompositeOperation = 'destination-out';
-          tacticsCtx.lineWidth = eraserSize;
-        }
-
-        tacticsCtx.stroke();
-        lastX = pos.x;
-        lastY = pos.y;
-      };
-
-      const stopDraw = () => { isDrawing = false; };
-
-      tacticsCanvas.onpointerdown = startDraw;
-      tacticsCanvas.onpointermove = moveDraw;
-      tacticsCanvas.onpointerup = stopDraw;
-      tacticsCanvas.onpointercancel = stopDraw;
-    }
-
-    function setActiveTool(tool) {
-      activeTool = tool;
-      const panelDraw = document.getElementById('panel-draw-options');
-      const panelErase = document.getElementById('panel-erase-options');
-
-      if (tool === 'draw') {
-        panelDraw.classList.remove('hidden');
-        panelErase.classList.add('hidden');
-      } else {
-        panelDraw.classList.add('hidden');
-        panelErase.classList.remove('hidden');
-      }
-    }
-
-    function setDrawColor(color) {
-      currentDrawColor = color;
-      setActiveTool('draw');
-      document.getElementById('custom-color-picker').value = color;
-    }
-
-    function setEraserSize(size) {
-      eraserSize = size;
-    }
-
-    function clearTacticsCanvas() {
-      if (tacticsCtx) {
-        tacticsCtx.clearRect(0, 0, tacticsCanvas.width, tacticsCanvas.height);
-      }
-    }
-
-    function spawnProp(type, customX = 50, customY = 50) {
-      const container = document.getElementById('tactics-pitch');
-      const propEl = document.createElement('div');
-      propEl.className = 'tactics-prop absolute z-20 cursor-grab active:cursor-grabbing text-xl touch-none select-none';
-      propEl.dataset.type = type;
-      propEl.style.left = `${customX}%`;
-      propEl.style.top = `${customY}%`;
-      propEl.style.transform = 'translate(-50%, -50%)';
-
-      if (type === 'cone') propEl.innerText = '🟠';
-      else if (type === 'wall') propEl.innerText = '🧱';
-      else if (type === 'ball') propEl.innerText = '⚽';
-
-      const propData = { x: customX, y: customY };
-      makeDraggable(propEl, propData, container);
-      propEl.ondblclick = () => propEl.remove();
-
-      container.appendChild(propEl);
-    }
-
-    // --- ANIMACIÓN: CAPTURAR POSICIONES Y GENERAR VÍDEO ---
-    function readCurrentPropsFromDom() {
-      const propsSnapshot = [];
-      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
-        propsSnapshot.push({
-          type: el.dataset.type,
-          x: parseFloat(el.style.left),
-          y: parseFloat(el.style.top)
-        });
-      });
-      return propsSnapshot;
-    }
-
-    function captureAnimFrame() {
-      if (!tacticsCanvas) return;
-      const frame = {
-        tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
-        props: readCurrentPropsFromDom(),
-        drawing: tacticsCanvas.toDataURL()
-      };
-      animFrames.push(frame);
-      updateAnimUI();
-    }
-
-    window.deleteAnimFrame = function(idx) {
-      animFrames.splice(idx, 1);
-      updateAnimUI();
-    };
-
-    function updateAnimUI() {
-      const countEl = document.getElementById('anim-frame-count');
-      if (countEl) countEl.innerText = animFrames.length;
-
-      const btnGen = document.getElementById('btn-generate-video');
-      if (btnGen) btnGen.disabled = animFrames.length < 2;
-
-      const listEl = document.getElementById('anim-frames-list');
-      if (listEl) {
-        listEl.innerHTML = '';
-        animFrames.forEach((f, idx) => {
-          const chip = document.createElement('div');
-          chip.className = "flex items-center gap-1 bg-slate-800 border border-slate-600 rounded-lg px-1.5 py-1 text-[10px] text-slate-300 flex-shrink-0";
-          chip.innerHTML = `<span>#${idx + 1}</span> <button class="text-slate-500 hover:text-red-400" onclick="deleteAnimFrame(${idx})">✕</button>`;
-          listEl.appendChild(chip);
-        });
-      }
-    }
-
-    document.getElementById('btn-capture-frame').addEventListener('click', captureAnimFrame);
-
-    document.getElementById('btn-clear-frames').addEventListener('click', () => {
-      if (animFrames.length === 0) return;
-      if (confirm('¿Borrar todas las posiciones capturadas?')) {
-        animFrames = [];
-        updateAnimUI();
-      }
-    });
-
-    function loadImageSafe(dataUrl) {
-      return new Promise((resolve) => {
-        if (!dataUrl) { resolve(null); return; }
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => resolve(null);
-        img.src = dataUrl;
-      });
-    }
-
-    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
-
-    function drawPitchBackground(ctx, w, h) {
-      ctx.fillStyle = '#047857';
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-      ctx.fillStyle = '#ffffff';
-      ctx.lineWidth = Math.max(2, w * 0.006);
-
-      const px = (v) => (v / 100) * w;
-      const py = (v) => (v / 100) * h;
-
-      ctx.strokeRect(1, 1, w - 2, h - 2);
-
-      ctx.beginPath();
-      ctx.moveTo(0, h);
-      ctx.lineTo(w, h);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(px(50), h, px(15), Math.PI, 2 * Math.PI);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(px(50), h, Math.max(2, w * 0.007), 0, 2 * Math.PI);
-      ctx.fill();
-
-      ctx.strokeRect(px(18), 0, px(64), py(32));
-      ctx.strokeRect(px(33), 0, px(34), py(12));
-
-      ctx.beginPath();
-      ctx.arc(px(50), py(22), Math.max(2, w * 0.006), 0, 2 * Math.PI);
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(px(50), py(22), px(15), 0.30 * Math.PI, 0.70 * Math.PI);
-      ctx.stroke();
-    }
-
-    function renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImg) {
-      drawPitchBackground(ctx, w, h);
-
-      if (drawingImg) {
-        ctx.drawImage(drawingImg, 0, 0, w, h);
-      }
-
-      const px = (v) => (v / 100) * w;
-      const py = (v) => (v / 100) * h;
-
-      propsList.forEach(p => {
-        let icon = '⚪';
-        if (p.type === 'cone') icon = '🟠';
-        else if (p.type === 'wall') icon = '🧱';
-        else if (p.type === 'ball') icon = '⚽';
-        ctx.font = `${Math.round(w * 0.05)}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(icon, px(p.x), py(p.y));
-      });
-
-      const radius = w * 0.045;
-      tokensList.forEach(tok => {
-        const assignedPlayer = squad.find(p => p.id === tok.playerId);
-        let bg = '#1e3a8a', fg = '#ffffff';
-        if (currentKit === 'local') {
-          if (tok.role === 'POR') { bg = '#fbbf24'; fg = '#0f172a'; }
-          else { bg = '#1e3a8a'; fg = '#ffffff'; }
-        } else {
-          if (tok.role === 'POR') { bg = '#22d3ee'; fg = '#0f172a'; }
-          else { bg = '#db2777'; fg = '#ffffff'; }
-        }
-
-        const cx = px(tok.x), cy = py(tok.y);
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = bg;
-        ctx.fill();
-        ctx.lineWidth = Math.max(2, w * 0.006);
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-
-        const displayNum = assignedPlayer ? assignedPlayer.num : tok.slot;
-        const displayName = assignedPlayer ? assignedPlayer.name : tok.role;
-
-        ctx.fillStyle = fg;
-        ctx.font = `bold ${Math.round(radius * 0.75)}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(displayNum, cx, cy - radius * 0.28);
-
-        let name = String(displayName);
-        if (name.length > 10) name = name.slice(0, 9) + '…';
-        ctx.font = `${Math.round(radius * 0.34)}px sans-serif`;
-        ctx.fillText(name, cx, cy + radius * 0.42);
-      });
-    }
-
-    function drawInterpolatedFrame(ctx, w, h, frameA, frameB, t, drawingImgA) {
-      const tokensList = frameA.tokens.map(tokA => {
-        const tokB = frameB.tokens.find(tb => tb.slot === tokA.slot) || tokA;
-        return {
-          slot: tokA.slot,
-          role: tokA.role,
-          playerId: t < 0.5 ? tokA.playerId : tokB.playerId,
-          x: lerp(tokA.x, tokB.x, t),
-          y: lerp(tokA.y, tokB.y, t)
-        };
-      });
-
-      let propsList;
-      if (frameA.props.length === frameB.props.length) {
-        propsList = frameA.props.map((pA, idx) => {
-          const pB = frameB.props[idx];
-          return { type: pA.type, x: lerp(pA.x, pB.x, t), y: lerp(pA.y, pB.y, t) };
-        });
-      } else {
-        propsList = t < 0.5 ? frameA.props : frameB.props;
-      }
-
-      renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImgA);
-    }
-
-    function animateSegment(ctx, w, h, frameA, frameB, drawingImgA, durationMs) {
-      return new Promise(resolve => {
-        const start = performance.now();
-        function step(now) {
-          const elapsed = now - start;
-          const t = Math.min(1, elapsed / durationMs);
-          const et = easeInOutQuad(t);
-          drawInterpolatedFrame(ctx, w, h, frameA, frameB, et, drawingImgA);
-          if (t < 1) {
-            requestAnimationFrame(step);
-          } else {
-            resolve();
-          }
-        }
-        requestAnimationFrame(step);
-      });
-    }
-
-    function pickSupportedMimeType() {
-      const candidates = [
-        'video/webm;codecs=vp9',
-        'video/webm;codecs=vp8',
-        'video/webm',
-        'video/mp4'
-      ];
-      if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
-      for (const m of candidates) {
-        if (MediaRecorder.isTypeSupported(m)) return m;
-      }
-      return '';
-    }
-
-    async function generateTacticsVideo() {
-      if (animFrames.length < 2) {
-        alert('Necesitas al menos 2 posiciones capturadas para generar el vídeo.');
-        return;
-      }
-
-      const mimeType = pickSupportedMimeType();
-      if (!mimeType) {
-        alert('Tu navegador no permite grabar vídeo directamente (prueba en Chrome/Android o en un ordenador).');
-        return;
-      }
-
-      const speedMap = { lenta: 1800, media: 1100, rapida: 650 };
-      const speedKey = document.getElementById('anim-speed').value;
-      const transitionMs = speedMap[speedKey] || 1100;
-
-      const pitchEl = document.getElementById('tactics-pitch');
-      const rect = pitchEl.getBoundingClientRect();
-      const scale = 2;
-      const outW = Math.round(rect.width * scale);
-      const outH = Math.round(rect.height * scale);
-
-      const renderCanvas = document.createElement('canvas');
-      renderCanvas.width = outW;
-      renderCanvas.height = outH;
-      const ctx = renderCanvas.getContext('2d');
-
-      const btnGen = document.getElementById('btn-generate-video');
-      const statusEl = document.getElementById('anim-status');
-      btnGen.disabled = true;
-      const originalLabel = btnGen.innerHTML;
-      btnGen.innerHTML = '⏳ Generando...';
-
-      try {
-        const drawingImages = await Promise.all(animFrames.map(f => loadImageSafe(f.drawing)));
-
-        // Fotograma inicial estático antes de empezar a grabar
-        drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0]);
-
-        const stream = renderCanvas.captureStream(30);
-        const recorder = new MediaRecorder(stream, { mimeType });
-        const chunks = [];
-        recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-
-        const finished = new Promise(resolve => { recorder.onstop = resolve; });
-        recorder.start();
-
-        const totalSegments = animFrames.length - 1;
-        for (let i = 0; i < totalSegments; i++) {
-          statusEl.innerText = `Grabando movimiento ${i + 1}/${totalSegments}...`;
-          await animateSegment(ctx, outW, outH, animFrames[i], animFrames[i + 1], drawingImages[i], transitionMs);
-        }
-
-        drawInterpolatedFrame(ctx, outW, outH, animFrames[animFrames.length - 1], animFrames[animFrames.length - 1], 0, drawingImages[drawingImages.length - 1]);
-        await sleep(700);
-
-        recorder.stop();
-        await finished;
-
-        const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
-        const url = URL.createObjectURL(blob);
-        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-
-        const videoPreview = document.getElementById('video-result-preview');
-        videoPreview.src = url;
-        const downloadLink = document.getElementById('video-result-download');
-        downloadLink.href = url;
-        downloadLink.download = `tactica-animacion.${ext}`;
-
-        document.getElementById('modal-video-result').classList.remove('hidden');
-        statusEl.innerText = '';
-      } catch (err) {
-        console.error(err);
-        alert('Ocurrió un error generando el vídeo. Inténtalo de nuevo.');
-        statusEl.innerText = '';
-      } finally {
-        btnGen.disabled = animFrames.length < 2;
-        btnGen.innerHTML = originalLabel;
-      }
-    }
-
-    document.getElementById('btn-generate-video').addEventListener('click', generateTacticsVideo);
-
-    document.getElementById('btn-close-video-result').onclick = () => {
-      const videoPreview = document.getElementById('video-result-preview');
-      videoPreview.pause();
-      document.getElementById('modal-video-result').classList.add('hidden');
-    };
-
-    // --- GUARDAR Y CARGAR TÁCTICAS ---
-    document.getElementById('btn-save-tactic-modal').addEventListener('click', () => {
-      document.getElementById('tactic-date').value = new Date().toISOString().split('T')[0];
-      document.getElementById('modal-save-tactic').classList.remove('hidden');
-    });
-
-    document.getElementById('btn-close-save-tactic').onclick = () => {
-      document.getElementById('modal-save-tactic').classList.add('hidden');
-    };
-
-    document.getElementById('form-save-tactic').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('tactic-name').value.trim();
-      const date = document.getElementById('tactic-date').value;
-      const desc = document.getElementById('tactic-desc').value.trim();
-
-      // Guardar Objetos/Props en el campo
-      const propsList = [];
-      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
-        propsList.push({
-          type: el.dataset.type,
-          x: parseFloat(el.style.left),
-          y: parseFloat(el.style.top)
-        });
-      });
-
-      const newTactic = {
-        id: Date.now(),
-        name,
-        date,
-        desc,
-        tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
-        props: propsList,
-        canvasData: tacticsCanvas.toDataURL()
-      };
-
-      savedTactics.unshift(newTactic);
-      localStorage.setItem('f11_tactics', JSON.stringify(savedTactics));
-
-      document.getElementById('modal-save-tactic').classList.add('hidden');
-      document.getElementById('form-save-tactic').reset();
-      alert("¡Táctica guardada con éxito!");
-    });
-
-    document.getElementById('btn-load-tactics-modal').addEventListener('click', () => {
-      renderSavedTacticsList();
-      document.getElementById('modal-load-tactics').classList.remove('hidden');
-    });
-
-    document.getElementById('btn-close-load-tactics').onclick = () => {
-      document.getElementById('modal-load-tactics').classList.add('hidden');
-    };
-
-    function renderSavedTacticsList() {
-      const container = document.getElementById('tactics-saved-list');
-      container.innerHTML = '';
-
-      if (savedTactics.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No tienes tácticas guardadas.</p>`;
-        return;
-      }
-
-      savedTactics.forEach(tac => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <h4 class="font-bold text-emerald-400 text-xs">${tac.name}</h4>
-              <span class="text-[10px] text-slate-400">${tac.date}</span>
-            </div>
-            <div class="flex gap-1">
-              <button onclick="openEditTacticModal(${tac.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">✏️</button>
-              <button onclick="deleteTactic(${tac.id})" class="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">🗑️</button>
-            </div>
-          </div>
-          ${tac.desc ? `<p class="text-[11px] text-slate-300 italic bg-slate-800/60 p-2 rounded">${tac.desc}</p>` : ''}
-          <button onclick="loadTacticToBoard(${tac.id})" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 text-xs font-bold py-1.5 rounded-lg transition">
-            👁️ Cargar esta Táctica
-          </button>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    window.loadTacticToBoard = function(id) {
-      const tac = savedTactics.find(t => t.id === id);
-      if (!tac) return;
-
-      // Limpiar canvas y props
-      clearTacticsCanvas();
-      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
-
-      // Restaurar Canvas Dibujado
-      if (tac.canvasData) {
-        const img = new Image();
-        img.onload = () => {
-          tacticsCtx.drawImage(img, 0, 0);
-        };
-        img.src = tac.canvasData;
-      }
-
-      // Restaurar Objetos
-      if (tac.props) {
-        tac.props.forEach(p => spawnProp(p.type, p.x, p.y));
-      }
-
-      // Restaurar Posiciones de fichas
-      if (tac.tokens) {
-        const container = document.getElementById('tactics-pitch');
-        document.querySelectorAll('#tactics-pitch .tactics-token').forEach(e => e.remove());
-        
-        currentTacticsTokens = JSON.parse(JSON.stringify(tac.tokens));
-        currentTacticsTokens.forEach(token => {
-          const assignedPlayer = squad.find(p => p.id === token.playerId);
-          let kitStyle = currentKit === 'local' ? (token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white') : (token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white');
-
-          const tokenEl = document.createElement('div');
-          tokenEl.className = `tactics-token absolute rounded-full ${kitStyle} font-black flex flex-col items-center justify-center border-2 shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-          tokenEl.style.width = '42px';
-          tokenEl.style.height = '42px';
-          tokenEl.style.left = `${token.x}%`;
-          tokenEl.style.top = `${token.y}%`;
-          tokenEl.style.transform = 'translate(-50%, -50%)';
-
-          const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
-          const displayName = assignedPlayer ? assignedPlayer.name : token.role;
-
-          tokenEl.innerHTML = `
-            <span class="text-xs leading-none">${displayNum}</span>
-            <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
-          `;
-
-          makeDraggable(tokenEl, token, container);
-          container.appendChild(tokenEl);
-        });
-      }
-
-      document.getElementById('modal-load-tactics').classList.add('hidden');
-    };
-
-    window.openEditTacticModal = function(id) {
-      const tac = savedTactics.find(t => t.id === id);
-      if (!tac) return;
-
-      document.getElementById('edit-tactic-id').value = tac.id;
-      document.getElementById('edit-tactic-name').value = tac.name;
-      document.getElementById('edit-tactic-date').value = tac.date;
-      document.getElementById('edit-tactic-desc').value = tac.desc || '';
-
-      document.getElementById('modal-edit-tactic-info').classList.remove('hidden');
-    };
-
-    document.getElementById('btn-close-edit-tactic-info').onclick = () => {
-      document.getElementById('modal-edit-tactic-info').classList.add('hidden');
-    };
-
-    document.getElementById('form-edit-tactic-info').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('edit-tactic-id').value);
-      const tac = savedTactics.find(t => t.id === id);
-      if (tac) {
-        tac.name = document.getElementById('edit-tactic-name').value.trim();
-        tac.date = document.getElementById('edit-tactic-date').value;
-        tac.desc = document.getElementById('edit-tactic-desc').value.trim();
-
-        localStorage.setItem('f11_tactics', JSON.stringify(savedTactics));
-        renderSavedTacticsList();
-        document.getElementById('modal-edit-tactic-info').classList.add('hidden');
-      }
-    });
-
-    window.deleteTactic = function(id) {
-      if (confirm("¿Deseas eliminar esta táctica?")) {
-        savedTactics = savedTactics.filter(t => t.id !== id);
-        localStorage.setItem('f11_tactics', JSON.stringify(savedTactics));
-        renderSavedTacticsList();
-      }
-    };
-
-    // --- GUARDAR, CARGAR Y EDITAR ENFRENTAMIENTOS ---
-    document.getElementById('btn-save-confrontation-modal').addEventListener('click', () => {
-      document.getElementById('confrontation-date').value = new Date().toISOString().split('T')[0];
-      document.getElementById('modal-save-confrontation').classList.remove('hidden');
-    });
-
-    document.getElementById('btn-close-save-confrontation').onclick = () => {
-      document.getElementById('modal-save-confrontation').classList.add('hidden');
-    };
-
-    document.getElementById('form-save-confrontation').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('confrontation-name').value.trim();
-      const date = document.getElementById('confrontation-date').value;
-      const field = document.getElementById('confrontation-field').value.trim();
-      const desc = document.getElementById('confrontation-desc').value.trim();
-
-      const newConfrontation = {
-        id: Date.now(),
-        name,
-        date,
-        field,
-        desc,
-        formation: currentFormationKey,
-        kit: currentKit,
-        tokens: JSON.parse(JSON.stringify(activeTokens)),
-        bench: JSON.parse(JSON.stringify(activeBench)),
-        rivalId: selectedRivalId,
-        rivalKit: selectedRivalKit,
-        rivalTokens: JSON.parse(JSON.stringify(activeRivalTokens))
-      };
-
-      savedConfrontations.unshift(newConfrontation);
-      localStorage.setItem('f11_confrontations', JSON.stringify(savedConfrontations));
-
-      document.getElementById('modal-save-confrontation').classList.add('hidden');
-      document.getElementById('form-save-confrontation').reset();
-      alert("¡Enfrentamiento guardado con éxito!");
-    });
-
-    document.getElementById('btn-load-confrontations-modal').addEventListener('click', () => {
-      renderSavedConfrontationsList();
-      document.getElementById('modal-load-confrontations').classList.remove('hidden');
-    });
-
-    document.getElementById('btn-close-load-confrontations').onclick = () => {
-      document.getElementById('modal-load-confrontations').classList.add('hidden');
-    };
-
-    function renderSavedConfrontationsList() {
-      const container = document.getElementById('confrontations-saved-list');
-      container.innerHTML = '';
-
-      if (savedConfrontations.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No tienes enfrentamientos guardados.</p>`;
-        return;
-      }
-
-      savedConfrontations.forEach(c => {
-        const rival = rivalTeams.find(r => r.id === parseInt(c.rivalId));
-        const card = document.createElement('div');
-        card.className = "bg-slate-900 p-3 rounded-xl border border-slate-700 space-y-2";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <h4 class="font-bold text-emerald-400 text-xs">${c.name}</h4>
-              <span class="text-[10px] text-slate-400">${c.date}${c.field ? ' · ' + c.field : ''}</span>
-            </div>
-            <div class="flex gap-1">
-              <button onclick="openEditConfrontationModal(${c.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">✏️</button>
-              <button onclick="deleteConfrontation(${c.id})" class="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">🗑️</button>
-            </div>
-          </div>
-          <p class="text-[10px] text-slate-400">Rival: <span class="text-slate-200 font-semibold">${rival ? rival.name : '—'}</span></p>
-          ${c.desc ? `<p class="text-[11px] text-slate-300 italic bg-slate-800/60 p-2 rounded">${c.desc}</p>` : ''}
-          <button onclick="loadConfrontationToBoard(${c.id})" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 text-xs font-bold py-1.5 rounded-lg transition">
-            👁️ Cargar este Enfrentamiento
-          </button>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    window.loadConfrontationToBoard = function(id) {
-      const c = savedConfrontations.find(x => x.id === id);
-      if (!c) return;
-
-      currentFormationKey = c.formation;
-      currentKit = c.kit;
-      activeTokens = JSON.parse(JSON.stringify(c.tokens));
-      activeBench = c.bench ? JSON.parse(JSON.stringify(c.bench)) : [];
-      selectedRivalId = c.rivalId;
-      selectedRivalKit = c.rivalKit;
-      activeRivalTokens = c.rivalTokens ? JSON.parse(JSON.stringify(c.rivalTokens)) : [];
-
-      selectFormation.value = currentFormationKey;
-      selectKit.value = currentKit;
-
-      savePitchState();
-      document.getElementById('modal-load-confrontations').classList.add('hidden');
-      switchView('enfrentamiento');
-    };
-
-    window.openEditConfrontationModal = function(id) {
-      const c = savedConfrontations.find(x => x.id === id);
-      if (!c) return;
-
-      document.getElementById('edit-confrontation-id').value = c.id;
-      document.getElementById('edit-confrontation-name').value = c.name;
-      document.getElementById('edit-confrontation-date').value = c.date;
-      document.getElementById('edit-confrontation-field').value = c.field || '';
-      document.getElementById('edit-confrontation-desc').value = c.desc || '';
-
-      document.getElementById('modal-edit-confrontation-info').classList.remove('hidden');
-    };
-
-    document.getElementById('btn-close-edit-confrontation-info').onclick = () => {
-      document.getElementById('modal-edit-confrontation-info').classList.add('hidden');
-    };
-
-    document.getElementById('form-edit-confrontation-info').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('edit-confrontation-id').value);
-      const c = savedConfrontations.find(x => x.id === id);
-      if (c) {
-        c.name = document.getElementById('edit-confrontation-name').value.trim();
-        c.date = document.getElementById('edit-confrontation-date').value;
-        c.field = document.getElementById('edit-confrontation-field').value.trim();
-        c.desc = document.getElementById('edit-confrontation-desc').value.trim();
-
-        localStorage.setItem('f11_confrontations', JSON.stringify(savedConfrontations));
-        renderSavedConfrontationsList();
-        document.getElementById('modal-edit-confrontation-info').classList.add('hidden');
-      }
-    });
-
-    window.deleteConfrontation = function(id) {
-      if (confirm("¿Deseas eliminar este enfrentamiento?")) {
-        savedConfrontations = savedConfrontations.filter(x => x.id !== id);
-        localStorage.setItem('f11_confrontations', JSON.stringify(savedConfrontations));
-        renderSavedConfrontationsList();
-      }
-    };
-
-    // --- SECCIÓN ENFRENTAMIENTO (11 VS 11 GRANDES + SELECCIÓN DE RIVAL) ---
-    function initMatchupView() {
-      const container = document.getElementById('matchup-pitch');
-      document.querySelectorAll('#matchup-pitch .matchup-token').forEach(e => e.remove());
-
-      const selectRivalEl = document.getElementById('select-rival-team');
-      selectRivalEl.innerHTML = `<option value="">-- Seleccionar Rival --</option>`;
-      rivalTeams.forEach(r => {
-        selectRivalEl.innerHTML += `<option value="${r.id}" ${parseInt(selectedRivalId) === r.id ? 'selected' : ''}>${r.name}</option>`;
-      });
-
-      document.getElementById('select-rival-kit').value = selectedRivalKit;
-
-      // Determinar lado del usuario según su equipación
-      const isMyTeamLeft = currentKit === 'local';
-      document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? "(Lado Izquierdo - Local)" : "(Lado Derecho - Visitante)";
-
-      // Renderizar Mi Equipo
-      activeTokens.forEach(token => {
-        const assignedPlayer = squad.find(p => p.id === token.playerId);
-        let posX, posY;
-
-        // Transformación de coordenadas verticales a horizontales según el lado
-        if (isMyTeamLeft) {
-          posX = 6 + (92 - token.y) * 0.42;
-          posY = token.x;
-        } else {
-          posX = 94 - (92 - token.y) * 0.42;
-          posY = token.x;
-        }
-
-        let kitStyle = '';
-        if (currentKit === 'local') {
-          kitStyle = token.role === 'POR' ? 'bg-amber-400 text-slate-900 border-white' : 'bg-blue-900 text-white border-white';
-        } else {
-          kitStyle = token.role === 'POR' ? 'bg-cyan-500 text-slate-900 border-white' : 'bg-pink-600 text-white border-white';
-        }
-
-        const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
-        const displayName = assignedPlayer ? assignedPlayer.name : token.role;
-
-        createMatchupToken({
-          num: displayNum,
-          name: displayName,
-          x: posX,
-          y: posY,
-          kitStyle
-        }, container);
-      });
-
-      // Renderizar Equipo Rival
-      renderRivalInMatchup();
-    }
-
-    function renderRivalInMatchup() {
-      const container = document.getElementById('matchup-pitch');
-      document.querySelectorAll('#matchup-pitch .matchup-rival-token').forEach(e => e.remove());
-
-      const rival = rivalTeams.find(r => r.id === parseInt(selectedRivalId));
-      if (!rival) return;
-
-      const isRivalRight = currentKit === 'local'; // Lado contrario a mi equipo
-      const rivalForm = formations[rival.formation] || formations['4-3-3'];
-
-      // Sincronizar fichas del rival si no están inicializadas
-      if (!activeRivalTokens || activeRivalTokens.length !== rivalForm.length) {
-        activeRivalTokens = rivalForm.map((f, idx) => ({
-          slot: f.slot,
-          role: f.role,
-          x: f.x,
-          y: f.y,
-          rivalPlayerId: rival.squad[idx] ? rival.squad[idx].id : null
-        }));
-      }
-
-      const rivalBgColor = selectedRivalKit === 'local' ? rival.homeColor : rival.awayColor;
-
-      activeRivalTokens.forEach((token, idx) => {
-        const formPos = rivalForm[idx] || { x: 50, y: 50, role: 'MC' };
-        let posX, posY;
-
-        if (isRivalRight) {
-          posX = 94 - (92 - formPos.y) * 0.42;
-          posY = formPos.x;
-        } else {
-          posX = 6 + (92 - formPos.y) * 0.42;
-          posY = formPos.x;
-        }
-
-        const assignedRivalPlayer = rival.squad.find(p => p.id === token.rivalPlayerId);
-
-        const tokenEl = document.createElement('div');
-        tokenEl.className = `matchup-rival-token absolute rounded-full font-black flex flex-col items-center justify-center border-[2px] border-white shadow-xl touch-none cursor-grab active:cursor-grabbing z-20 text-xs`;
-        tokenEl.style.width = window.matchMedia('(max-width: 640px)').matches ? '30px' : '63px';
-        tokenEl.style.height = window.matchMedia('(max-width: 640px)').matches ? '30px' : '63px';
-        tokenEl.style.backgroundColor = rivalBgColor;
-        tokenEl.style.color = getContrastTextColor(rivalBgColor);
-        tokenEl.style.left = `${posX}%`;
-        tokenEl.style.top = `${posY}%`;
-        tokenEl.style.transform = 'translate(-50%, -50%)';
-
-        const displayNum = assignedRivalPlayer ? assignedRivalPlayer.num : token.slot;
-        const displayName = assignedRivalPlayer ? assignedRivalPlayer.name : token.role;
-
-        tokenEl.innerHTML = `
-          <span class="text-[9px] sm:text-[18px] leading-none">${displayNum}</span>
-          <span class="text-[6px] sm:text-[11px] leading-tight opacity-90 truncate max-w-[27px] sm:max-w-[54px]">${displayName}</span>
-        `;
-
-        const tokenData = { x: posX, y: posY };
-        makeDraggable(tokenEl, tokenData, container);
-
-        // Click para cambiar jugador del rival
-        tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
-        tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
-
-        container.appendChild(tokenEl);
-      });
-    }
-
-    function createMatchupToken(data, container) {
-      const tokenEl = document.createElement('div');
-      tokenEl.className = `matchup-token absolute rounded-full ${data.kitStyle} font-black flex flex-col items-center justify-center border-[1px] shadow-xl touch-none cursor-grab active:cursor-grabbing z-20`;
-      tokenEl.style.width = window.matchMedia('(max-width: 640px)').matches ? '30px' : '63px';
-      tokenEl.style.height = window.matchMedia('(max-width: 640px)').matches ? '30px' : '63px';
-      tokenEl.style.left = `${data.x}%`;
-      tokenEl.style.top = `${data.y}%`;
-      tokenEl.style.transform = 'translate(-50%, -50%)';
-
-      tokenEl.innerHTML = `
-        <span class="text-[9px] sm:text-[18px] leading-none">${data.num}</span>
-        <span class="text-[6px] sm:text-[11px] leading-tight opacity-90 truncate max-w-[27px] sm:max-w-[54px]">${data.name}</span>
-      `;
-
-      makeDraggable(tokenEl, data, container);
-      container.appendChild(tokenEl);
-    }
-
-    function getContrastTextColor(hex) {
-      if (!hex || hex.length < 6) return '#ffffff';
-      const r = parseInt(hex.substr(1, 2), 16);
-      const g = parseInt(hex.substr(3, 2), 16);
-      const b = parseInt(hex.substr(5, 2), 16);
-      const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-      return (yiq >= 128) ? '#000000' : '#ffffff';
-    }
-
-    document.getElementById('select-rival-team').addEventListener('change', (e) => {
-      selectedRivalId = e.target.value;
-      activeRivalTokens = []; // Reset para regenerar
-      savePitchState();
-      renderRivalInMatchup();
-    });
-
-    document.getElementById('select-rival-kit').addEventListener('change', (e) => {
-      selectedRivalKit = e.target.value;
-      savePitchState();
-      renderRivalInMatchup();
-    });
-
-    function openAssignRivalPlayerModal(slotId, rival) {
-      selectedRivalSlotId = slotId;
-      const modalList = document.getElementById('modal-player-list');
-      document.getElementById('modal-title').innerText = `Asignar Posición Rival #${slotId}`;
-      document.getElementById('modal-subtitle').innerText = `Mostrando plantilla de ${rival.name}:`;
-      modalList.innerHTML = '';
-
-      const clearBtn = document.createElement('button');
-      clearBtn.className = "w-full p-2.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold text-left mb-2 border border-slate-600";
-      clearBtn.innerHTML = `<span>⚪ Dejar posición sin jugador</span>`;
-      clearBtn.onclick = () => assignRivalPlayerToSlot(null);
-      modalList.appendChild(clearBtn);
-
-      rival.squad.forEach(player => {
-        const item = document.createElement('button');
-        item.className = "w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500";
-        item.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>
-            <span>${player.name}</span>
-          </div>
-          <span class="text-[10px] text-slate-400">${player.role}</span>
-        `;
-        item.onclick = () => assignRivalPlayerToSlot(player.id);
-        modalList.appendChild(item);
-      });
-
-      modalSelectPlayer.classList.remove('hidden');
-    }
-
-    function assignRivalPlayerToSlot(rivalPlayerId) {
-      const token = activeRivalTokens.find(t => t.slot === selectedRivalSlotId);
-      if (token) {
-        token.rivalPlayerId = rivalPlayerId;
-        savePitchState();
-        renderRivalInMatchup();
-      }
-      modalSelectPlayer.classList.add('hidden');
-    }
-
-    // --- SECCIÓN EQUIPOS RIVALES (NUEVO MENÚ HAMBURGUESA) ---
-    const formAddRival = document.getElementById('form-add-rival');
-    const editRivalIdInput = document.getElementById('edit-rival-id');
-    const btnSaveRival = document.getElementById('btn-save-rival');
-    const btnCancelRival = document.getElementById('btn-cancel-rival');
-    const rivalsList = document.getElementById('rivals-list');
-
-    let currentEditingRivalForSquad = null;
-
-    function renderRivalsList() {
-      rivalsList.innerHTML = '';
-
-      if (rivalTeams.length === 0) {
-        rivalsList.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No hay equipos rivales creados.</p>`;
-        return;
-      }
-
-      rivalTeams.forEach(rival => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-800 p-3.5 rounded-xl border border-slate-700 space-y-3 shadow-md";
-        card.innerHTML = `
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded-full border border-white" style="background-color: ${rival.homeColor}" title="Local"></span>
-              <span class="w-4 h-4 rounded-full border border-white" style="background-color: ${rival.awayColor}" title="Visitante"></span>
-              <h4 class="font-bold text-white text-sm">${rival.name}</h4>
-            </div>
-            <span class="text-[10px] bg-slate-900 text-emerald-400 border border-slate-700 px-2 py-0.5 rounded font-mono">${rival.formation}</span>
-          </div>
-
-          <div class="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-700/60">
-            <span>Jugadores: <b class="text-slate-200">${rival.squad.length}</b></span>
-            <div class="flex gap-1">
-              <button onclick="openRivalSquadModal(${rival.id})" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 px-2 py-1 rounded-lg text-xs font-semibold transition">
-                👥 Plantilla Rival
-              </button>
-              <button onclick="editRivalTeam(${rival.id})" class="text-slate-400 hover:text-white p-1 rounded bg-slate-900 border border-slate-700">✏️</button>
-              <button onclick="deleteRivalTeam(${rival.id})" class="text-slate-400 hover:text-red-400 p-1 rounded bg-slate-900 border border-slate-700">🗑️</button>
-            </div>
-          </div>
-        `;
-        rivalsList.appendChild(card);
-      });
-    }
-
-    formAddRival.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const editId = editRivalIdInput.value;
-      const name = document.getElementById('rival-name').value.trim();
-      const homeColor = document.getElementById('rival-color-local').value;
-      const awayColor = document.getElementById('rival-color-away').value;
-      const formation = document.getElementById('rival-formation').value;
-
-      if (editId) {
-        const rival = rivalTeams.find(r => r.id === parseInt(editId));
-        if (rival) {
-          rival.name = name;
-          rival.homeColor = homeColor;
-          rival.awayColor = awayColor;
-          rival.formation = formation;
-        }
-      } else {
-        const newRival = {
-          id: Date.now(),
-          name,
-          homeColor,
-          awayColor,
-          formation,
-          squad: []
-        };
-        rivalTeams.push(newRival);
-      }
-
-      localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
-      resetRivalForm();
-      renderRivalsList();
-    });
-
-    window.editRivalTeam = function(id) {
-      const rival = rivalTeams.find(r => r.id === id);
-      if (!rival) return;
-
-      editRivalIdInput.value = rival.id;
-      document.getElementById('rival-name').value = rival.name;
-      document.getElementById('rival-color-local').value = rival.homeColor;
-      document.getElementById('rival-color-away').value = rival.awayColor;
-      document.getElementById('rival-formation').value = rival.formation;
-
-      document.getElementById('rival-form-title').innerText = "Editar Equipo Rival";
-      btnSaveRival.innerText = "Actualizar Equipo";
-      btnCancelRival.classList.remove('hidden');
-    };
-
-    function resetRivalForm() {
-      editRivalIdInput.value = '';
-      formAddRival.reset();
-      document.getElementById('rival-form-title').innerText = "Crear Nuevo Equipo Rival";
-      btnSaveRival.innerText = "Guardar Equipo Rival";
-      btnCancelRival.classList.add('hidden');
-    }
-
-    btnCancelRival.addEventListener('click', resetRivalForm);
-
-    window.deleteRivalTeam = function(id) {
-      if (confirm("¿Seguro que deseas eliminar este equipo rival?")) {
-        rivalTeams = rivalTeams.filter(r => r.id !== id);
-        localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
-        renderRivalsList();
-      }
-    };
-
-    // Modal Plantilla Rival
-    function openRivalSquadModal(rivalId) {
-      currentEditingRivalForSquad = rivalTeams.find(r => r.id === rivalId);
-      if (!currentEditingRivalForSquad) return;
-
-      document.getElementById('modal-rival-title').innerText = `Plantilla de ${currentEditingRivalForSquad.name}`;
-      renderRivalSquadList();
-      document.getElementById('modal-rival-squad').classList.remove('hidden');
-    }
-
-    document.getElementById('btn-close-rival-squad').onclick = () => {
-      document.getElementById('modal-rival-squad').classList.add('hidden');
-    };
-
-    function renderRivalSquadList() {
-      const container = document.getElementById('rival-players-list');
-      container.innerHTML = '';
-
-      if (!currentEditingRivalForSquad || currentEditingRivalForSquad.squad.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay jugadores añadidos a este rival.</p>`;
-        return;
-      }
-
-      currentEditingRivalForSquad.squad.forEach(p => {
-        const item = document.createElement('div');
-        item.className = "bg-slate-900 p-2 rounded-lg border border-slate-700 flex justify-between items-center text-xs";
-        item.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-slate-800 text-white border border-slate-600 rounded-full w-5 h-5 flex items-center justify-center font-bold">${p.num}</span>
-            <span class="font-medium text-slate-200">${p.name}</span>
-            <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">${p.role}</span>
-          </div>
-          <button onclick="deleteRivalPlayer(${p.id})" class="text-slate-500 hover:text-red-400 px-1">✕</button>
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    document.getElementById('form-rival-player').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!currentEditingRivalForSquad) return;
-
-      const num = parseInt(document.getElementById('rival-player-num').value);
-      const name = document.getElementById('rival-player-name').value.trim();
-      const role = document.getElementById('rival-player-pos').value;
-
-      currentEditingRivalForSquad.squad.push({
-        id: Date.now(),
-        num,
-        name,
-        role
-      });
-
-      localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
-      document.getElementById('form-rival-player').reset();
-      renderRivalSquadList();
-      renderRivalsList();
-    });
-
-    window.deleteRivalPlayer = function(playerId) {
-      if (!currentEditingRivalForSquad) return;
-      currentEditingRivalForSquad.squad = currentEditingRivalForSquad.squad.filter(p => p.id !== playerId);
-      localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
-      renderRivalSquadList();
-      renderRivalsList();
-    };
-
-    // --- SECCIÓN PLANTILLA MI EQUIPO ---
-    function openAssignPlayerModal(slotId, role) {
-      selectedSlotId = slotId;
-      selectedBenchIndex = null;
-      const modalList = document.getElementById('modal-player-list');
-      document.getElementById('modal-title').innerText = `Asignar Posición ${role} (#${slotId})`;
-      document.getElementById('modal-subtitle').innerText = "Mostrando jugadores de la plantilla:";
-      modalList.innerHTML = '';
-
-      const clearBtn = document.createElement('button');
-      clearBtn.className = "w-full p-2.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold text-left mb-2 flex justify-between items-center border border-slate-600";
-      clearBtn.innerHTML = `<span>⚪ Dejar posición vacía</span>`;
-      clearBtn.onclick = () => assignPlayerToSlot(null);
-      modalList.appendChild(clearBtn);
-
-      sortSquad();
-      squad.forEach(player => {
-        const isIdeal = player.roles.includes(role);
-        const item = document.createElement('button');
-        item.className = `w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition ${
-          isIdeal ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-200' : 'bg-slate-900 border-slate-700 text-slate-300'
-        }`;
-        
-        item.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>
-            <span>${player.name}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="text-[10px] text-slate-400">${player.roles.join(', ')}</span>
-            ${isIdeal ? '<span class="text-emerald-400 text-xs">★</span>' : ''}
-          </div>
-        `;
-        item.onclick = () => assignPlayerToSlot(player.id);
-        modalList.appendChild(item);
-      });
-
-      modalSelectPlayer.classList.remove('hidden');
-    }
-
-    function openAssignBenchModal(benchIndex = null) {
-      selectedBenchIndex = benchIndex;
-      selectedSlotId = null;
-
-      const modalList = document.getElementById('modal-player-list');
-      document.getElementById('modal-title').innerText = benchIndex !== null ? "Cambiar Suplente" : "Añadir a Suplentes";
-      document.getElementById('modal-subtitle').innerText = "Selecciona un jugador disponible:";
-      modalList.innerHTML = '';
-
-      const pitchPlayerIds = activeTokens.map(t => t.playerId).filter(id => id !== null);
-      
-      sortSquad();
-      squad.forEach(player => {
-        const onPitch = pitchPlayerIds.includes(player.id);
-        const onBench = activeBench.includes(player.id) && (benchIndex === null || activeBench[benchIndex] !== player.id);
-
-        if (onPitch || onBench) return;
-
-        const item = document.createElement('button');
-        item.className = "w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border transition bg-slate-900 border-slate-700 text-slate-300 hover:border-emerald-500";
-        item.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>
-            <span>${player.name}</span>
-          </div>
-          <span class="text-[10px] text-slate-400">${player.roles.join(', ')}</span>
-        `;
-        item.onclick = () => assignPlayerToBench(player.id);
-        modalList.appendChild(item);
-      });
-
-      if (modalList.children.length === 0) {
-        modalList.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay jugadores disponibles en la plantilla.</p>`;
-      }
-
-      modalSelectPlayer.classList.remove('hidden');
-    }
-
-    function assignPlayerToSlot(playerId) {
-      const token = activeTokens.find(t => t.slot === selectedSlotId);
-      if (token) {
-        token.playerId = playerId;
-        if (playerId && activeBench.includes(playerId)) {
-          activeBench = activeBench.filter(id => id !== playerId);
-        }
-        savePitchState();
-        renderPitch();
-      }
-      modalSelectPlayer.classList.add('hidden');
-    }
-
-    function assignPlayerToBench(playerId) {
-      if (selectedBenchIndex !== null) {
-        activeBench[selectedBenchIndex] = playerId;
-      } else {
-        activeBench.push(playerId);
-      }
-      savePitchState();
-      renderPitch();
-      modalSelectPlayer.classList.add('hidden');
-    }
-
-    btnAddBenchPlayer.addEventListener('click', () => openAssignBenchModal(null));
-    document.getElementById('btn-close-modal').onclick = () => modalSelectPlayer.classList.add('hidden');
-
-    selectFormation.value = currentFormationKey;
-    selectKit.value = currentKit;
-
-    selectFormation.addEventListener('change', (e) => {
-      currentFormationKey = e.target.value;
-      syncTokensWithFormation(true);
-      renderPitch();
-    });
-
-    selectKit.addEventListener('change', (e) => {
-      currentKit = e.target.value;
-      savePitchState();
-      renderPitch();
-    });
-
-    resetBtn.addEventListener('click', () => {
-      syncTokensWithFormation(true);
-      renderPitch();
-    });
-
-    // Gestión Plantilla Mi Equipo
-    const formAddPlayer = document.getElementById('form-add-player');
-    const editPlayerIdInput = document.getElementById('edit-player-id');
-    const formTitle = document.getElementById('player-form-title');
-    const btnSavePlayer = document.getElementById('btn-save-player');
-    const btnCancelEdit = document.getElementById('btn-cancel-edit');
-
-    const squadPositions = [
-      { key: 'POR', name: 'Portero' },
-      { key: 'DFC', name: 'Def. Central' },
-      { key: 'LD',  name: 'Lat. Derecho' },
-      { key: 'LI',  name: 'Lat. Izquierdo' },
-      { key: 'MCD', name: 'Mediocentro' },
-      { key: 'MC',  name: 'Interior' },
-      { key: 'ED',  name: 'Ext. Derecho' },
-      { key: 'EI',  name: 'Ext. Izquierdo' },
-      { key: 'DC',  name: 'Delantero' }
-    ];
-
-    function renderSquadList() {
-      squadList.innerHTML = '';
-      sortSquad();
-
-      if (squad.length === 0) {
-        squadList.innerHTML = `<p class="text-slate-500 text-xs text-center py-4">No hay jugadores en la plantilla.</p>`;
-      } else {
-        squad.forEach(player => {
-          const item = document.createElement('div');
-          item.className = "bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm";
-          item.innerHTML = `
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="bg-emerald-600/30 text-emerald-400 border border-emerald-500/50 w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm">${player.num}</span>
-              <div class="min-w-0">
-                <h4 class="font-bold text-sm text-white truncate">${player.name}</h4>
-                <div class="flex flex-wrap gap-1 mt-1">
-                  ${player.roles.map(r => `<span class="bg-slate-800 border border-slate-700 text-[9px] text-slate-300 px-1.5 py-0.5 rounded">${r}</span>`).join('')}
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-1 flex-shrink-0">
-              <button onclick="editPlayer(${player.id})" class="text-slate-400 hover:text-emerald-400 p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs transition">✏️ Editar</button>
-              <button onclick="deletePlayer(${player.id})" class="text-slate-400 hover:text-red-400 p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs transition">🗑️</button>
-            </div>
-          `;
-          squadList.appendChild(item);
-        });
-      }
-
-      renderPlayersByPosition();
-    }
-
-    function renderPlayersByPosition() {
-      const container = document.getElementById('players-by-position');
-      if (!container) return;
-
-      container.innerHTML = squadPositions.map(position => {
-        const players = squad.filter(player => player.roles.includes(position.key));
-
-        return `
-          <div class="bg-slate-900/80 rounded-xl border border-slate-700 p-3 min-h-[120px]">
-            <div class="flex justify-between items-center gap-2 mb-2 pb-2 border-b border-slate-700">
-              <h4 class="font-bold text-sm text-white">${position.name}</h4>
-              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">${players.length}</span>
-            </div>
-            <div class="space-y-1.5">
-              ${players.length
-                ? players.map(player => `
-                    <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5">
-                      <span class="text-[10px] font-bold text-emerald-400 w-5">${player.num}</span>
-                      <span class="text-xs text-slate-200 truncate">${player.name}</span>
-                    </div>
-                  `).join('')
-                : `<p class="text-[10px] text-slate-600 text-center py-3">Sin jugadores</p>`
-              }
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    formAddPlayer.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const editId = editPlayerIdInput.value;
-      const num = parseInt(document.getElementById('player-num').value);
-      const name = document.getElementById('player-name').value.trim();
-      const selectedRoles = Array.from(document.querySelectorAll('input[name="pos"]:checked')).map(cb => cb.value);
-
-      if (selectedRoles.length === 0) {
-        alert("Selecciona al menos una posición para el jugador.");
-        return;
-      }
-
-      if (editId) {
-        const index = squad.findIndex(p => p.id === parseInt(editId));
-        if (index !== -1) {
-          squad[index] = { id: parseInt(editId), num, name, roles: selectedRoles };
-        }
-      } else {
-        squad.push({ id: Date.now(), num, name, roles: selectedRoles });
-      }
-
-      sortSquad();
-      localStorage.setItem('f11_squad', JSON.stringify(squad));
-      resetPlayerForm();
-      renderSquadList();
-      renderPitch();
-    });
-
-    window.editPlayer = function(id) {
-      const player = squad.find(p => p.id === id);
-      if (!player) return;
-
-      editPlayerIdInput.value = player.id;
-      document.getElementById('player-num').value = player.num;
-      document.getElementById('player-name').value = player.name;
-
-      document.querySelectorAll('input[name="pos"]').forEach(cb => {
-        cb.checked = player.roles.includes(cb.value);
-      });
-
-      formTitle.innerText = "Editar Jugador";
-      btnSavePlayer.innerText = "Actualizar Jugador";
-      btnCancelEdit.classList.remove('hidden');
-    };
-
-    function resetPlayerForm() {
-      editPlayerIdInput.value = '';
-      formAddPlayer.reset();
-      formTitle.innerText = "Añadir Jugador a Mi Equipo";
-      btnSavePlayer.innerText = "Guardar Jugador";
-      btnCancelEdit.classList.add('hidden');
-    }
-
-    btnCancelEdit.addEventListener('click', resetPlayerForm);
-
-    window.deletePlayer = function(id) {
-      if (confirm("¿Seguro que deseas eliminar este jugador?")) {
-        squad = squad.filter(p => p.id !== id);
-        activeBench = activeBench.filter(bId => bId !== id);
-        sortSquad();
-        localStorage.setItem('f11_squad', JSON.stringify(squad));
-        renderSquadList();
-        renderPitch();
-      }
-    };
-
-    // --- SECCIÓN PARTIDOS GUARDADOS ---
-    btnSaveLineupModal.addEventListener('click', () => {
-      document.getElementById('match-date').value = new Date().toISOString().split('T')[0];
-      modalSaveLineup.classList.remove('hidden');
-    });
-
-    document.getElementById('btn-close-save-modal').onclick = () => modalSaveLineup.classList.add('hidden');
-
-    document.getElementById('form-save-match').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const matchName = document.getElementById('match-name').value.trim();
-      const matchDate = document.getElementById('match-date').value;
-      const matchField = document.getElementById('match-field').value.trim();
-      const matchRival = document.getElementById('match-rival').value.trim();
-
-      const newMatch = {
-        id: Date.now(),
-        name: matchName,
-        date: matchDate,
-        field: matchField,
-        rival: matchRival,
-        formation: currentFormationKey,
-        kit: currentKit,
-        tokens: JSON.parse(JSON.stringify(activeTokens)),
-        bench: JSON.parse(JSON.stringify(activeBench))
-      };
-
-      savedMatches.unshift(newMatch);
-      localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
-
-      modalSaveLineup.classList.add('hidden');
-      document.getElementById('form-save-match').reset();
-      alert("¡Alineación guardada!");
-    });
-
-    function renderMatchesList() {
-      matchesList.innerHTML = '';
-
-      if (savedMatches.length === 0) {
-        matchesList.innerHTML = `<p class="text-slate-500 text-xs text-center py-6">No tienes partidos guardados.</p>`;
-        return;
-      }
-
-      savedMatches.forEach(match => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 shadow-md";
-        const benchSize = match.bench ? match.bench.length : 0;
-
-        card.innerHTML = `
-          <div class="flex justify-between items-start border-b border-slate-700/60 pb-2">
-            <div>
-              <h4 class="font-bold text-emerald-400 text-sm">${match.name}</h4>
-              <p class="text-xs text-slate-300 font-medium mt-0.5">Rival: <span class="text-white font-semibold">${match.rival}</span></p>
-              ${match.field ? `<p class="text-xs text-slate-400 mt-0.5">📍 ${match.field}</p>` : ''}
-            </div>
-            <div class="flex flex-col items-end gap-1">
-              <span class="bg-slate-900 text-slate-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-mono">${match.date}</span>
-              <button onclick="openEditMatchModal(${match.id})" class="text-slate-400 hover:text-emerald-400 text-xs px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2 text-[10px]">
-            <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Sistema: <b>${match.formation}</b></span>
-            <span class="bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">Kit: <b>${match.kit === 'local' ? 'Local' : 'Visitante'}</b></span>
-            <span class="bg-slate-900 border border-slate-700 text-emerald-400 px-2 py-1 rounded">Suplentes: <b>${benchSize}</b></span>
-          </div>
-
-          <div class="flex gap-2 pt-1 border-t border-slate-700/40">
-            <button onclick="loadMatchToPitch(${match.id})" class="flex-1 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
-              👁️ Cargar en Pizarra
-            </button>
-            <button onclick="deleteMatch(${match.id})" class="bg-slate-700 hover:bg-red-900/60 text-slate-300 hover:text-red-300 px-2.5 py-1.5 rounded-lg text-xs transition">🗑️</button>
-          </div>
-        `;
-        matchesList.appendChild(card);
-      });
-    }
-
-    window.loadMatchToPitch = function(matchId) {
-      const match = savedMatches.find(m => m.id === matchId);
-      if (!match) return;
-
-      currentFormationKey = match.formation;
-      currentKit = match.kit;
-      activeTokens = JSON.parse(JSON.stringify(match.tokens));
-      activeBench = match.bench ? JSON.parse(JSON.stringify(match.bench)) : [];
-
-      selectFormation.value = currentFormationKey;
-      selectKit.value = currentKit;
-
-      savePitchState();
-      renderPitch();
-      switchView('pizarra');
-    };
-
-    window.deleteMatch = function(matchId) {
-      if (confirm("¿Deseas eliminar este partido?")) {
-        savedMatches = savedMatches.filter(m => m.id !== matchId);
-        localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
-        renderMatchesList();
-      }
-    };
-
-    window.openEditMatchModal = function(matchId) {
-      const match = savedMatches.find(m => m.id === matchId);
-      if (!match) return;
-
-      document.getElementById('edit-match-id').value = match.id;
-      document.getElementById('edit-match-name').value = match.name;
-      document.getElementById('edit-match-date').value = match.date;
-      document.getElementById('edit-match-field').value = match.field || '';
-      document.getElementById('edit-match-rival').value = match.rival;
-
-      document.getElementById('modal-edit-match-info').classList.remove('hidden');
-    };
-
-    document.getElementById('btn-close-edit-match-info').onclick = () => {
-      document.getElementById('modal-edit-match-info').classList.add('hidden');
-    };
-
-    document.getElementById('form-edit-match-info').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = parseInt(document.getElementById('edit-match-id').value);
-      const match = savedMatches.find(m => m.id === id);
-      if (match) {
-        match.name = document.getElementById('edit-match-name').value.trim();
-        match.date = document.getElementById('edit-match-date').value;
-        match.field = document.getElementById('edit-match-field').value.trim();
-        match.rival = document.getElementById('edit-match-rival').value.trim();
-
-        localStorage.setItem('f11_matches', JSON.stringify(savedMatches));
-        renderMatchesList();
-        document.getElementById('modal-edit-match-info').classList.add('hidden');
-      }
-    });
-
-// INICIALIZACIÓN
-    syncTokensWithFormation(true);
+    // INICIALIZACIÓN
+    loadTimerState();
+    if (!activeTokens) syncTokensWithFormation(false);
     renderPitch();
-
-    // REGISTRO DE SERVICE WORKER PARA PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('Service Worker registrado:', reg.scope))
-          .catch((err) => console.error('Error al registrar Service Worker:', err));
-      });
-    }
   </script>
 </body>
 </html>
