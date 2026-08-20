@@ -18,6 +18,7 @@
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
     body, html {
@@ -137,8 +138,21 @@
   <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity"></div>
   <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-slate-800 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
     <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900">
-      <h2 class="font-bold text-lg text-emerald-400">Gestor F11</h2>
+      <div class="flex items-center gap-2">
+        <h2 class="font-bold text-lg text-emerald-400">Gestor F11</h2>
+      </div>
       <button id="btn-close-sidebar" class="text-slate-400 hover:text-white">✕</button>
+    </div>
+    <div class="px-3 pt-3">
+      <button id="btn-cloud-account" class="w-full bg-slate-900 hover:bg-slate-700 border border-slate-700 rounded-xl px-3 py-2.5 text-left transition">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">☁️</span>
+          <div class="min-w-0">
+            <div id="cloud-account-title" class="text-xs font-bold text-white">Iniciar sesión</div>
+            <div id="cloud-account-status" class="text-[10px] text-slate-400 truncate">Sincroniza tus datos entre dispositivos</div>
+          </div>
+        </div>
+      </button>
     </div>
     <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
       <button id="nav-pizarra" class="w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition">
@@ -850,8 +864,249 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+  <!-- MODAL: CUENTA Y SINCRONIZACIÓN EN LA NUBE -->
+  <div id="modal-cloud-auth" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-5 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
+        <div>
+          <h3 class="font-bold text-emerald-400 text-base">☁️ Datos en la nube</h3>
+          <p class="text-[10px] text-slate-400 mt-0.5">Usa la misma cuenta en PC, móvil y tablet.</p>
+        </div>
+        <button id="btn-close-cloud-auth" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div id="cloud-auth-form-wrap">
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Correo electrónico</label>
+            <input id="cloud-email" type="email" autocomplete="email" placeholder="tu@email.com" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
+            <input id="cloud-password" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-emerald-500">
+          </div>
+          <p id="cloud-auth-message" class="text-[11px] text-slate-400 min-h-[32px]"></p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-cloud-login" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs">Iniciar sesión</button>
+            <button id="btn-cloud-register" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-lg text-xs">Crear cuenta</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="cloud-auth-user-wrap" class="hidden space-y-3">
+        <div class="bg-slate-900 rounded-xl border border-slate-700 p-3">
+          <div class="text-[10px] text-slate-400">Cuenta conectada</div>
+          <div id="cloud-user-email" class="text-sm font-bold text-white break-all mt-1"></div>
+          <div class="text-[10px] text-emerald-400 mt-2">✓ Sincronización activada</div>
+        </div>
+        <button id="btn-cloud-sync-now" class="w-full bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 font-bold py-2.5 rounded-lg text-xs">☁️ Sincronizar ahora</button>
+        <button id="btn-cloud-logout" class="w-full bg-slate-700 hover:bg-red-900/60 text-slate-200 hover:text-red-300 font-bold py-2.5 rounded-lg text-xs">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- SUPABASE / SINCRONIZACIÓN MULTIDISPOSITIVO ---
+    const SUPABASE_URL = 'https://mpsgwqjpijqmyaqbgtsg.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_SVQxZ1Vvd5KQVb5xcRfuIQ_frOQtVzf';
+    const f11Supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const F11_CLOUD_KEYS = [
+      'f11_squad','f11_rivals','f11_matches','f11_tactics','f11_confrontations',
+      'f11_scoreboards','f11_live_scoreboard','f11_formation','f11_kit',
+      'f11_active_tokens','f11_active_bench','f11_selected_rival_id',
+      'f11_selected_rival_kit','f11_active_rival_tokens'
+    ];
+    let f11CloudUser = null;
+    let f11CloudReady = false;
+    let f11CloudApplying = false;
+    let f11CloudTimer = null;
+
+    const nativeLocalStorageSetItem = localStorage.setItem.bind(localStorage);
+    const nativeLocalStorageRemoveItem = localStorage.removeItem.bind(localStorage);
+    localStorage.setItem = function(key, value) {
+      nativeLocalStorageSetItem(key, value);
+      if (f11CloudUser && f11CloudReady && !f11CloudApplying && F11_CLOUD_KEYS.includes(key)) {
+        f11QueueCloudSave();
+      }
+    };
+    localStorage.removeItem = function(key) {
+      nativeLocalStorageRemoveItem(key);
+      if (f11CloudUser && f11CloudReady && !f11CloudApplying && F11_CLOUD_KEYS.includes(key)) {
+        f11QueueCloudSave();
+      }
+    };
+
+    function f11ReadLocalState() {
+      const state = {};
+      F11_CLOUD_KEYS.forEach(key => {
+        const value = localStorage.getItem(key);
+        if (value !== null) {
+          try { state[key] = JSON.parse(value); }
+          catch { state[key] = value; }
+        }
+      });
+      return state;
+    }
+
+    function f11WriteLocalState(state) {
+      f11CloudApplying = true;
+      try {
+        F11_CLOUD_KEYS.forEach(key => {
+          if (Object.prototype.hasOwnProperty.call(state || {}, key)) {
+            const value = state[key];
+            nativeLocalStorageSetItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+          }
+        });
+      } finally {
+        f11CloudApplying = false;
+      }
+    }
+
+    async function f11SaveCloudState() {
+      if (!f11CloudUser || !f11CloudReady) return;
+      const state = f11ReadLocalState();
+      const { error } = await f11Supabase.from('user_app_state').upsert({
+        user_id: f11CloudUser.id,
+        state,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      if (error) {
+        console.error('Error sincronizando con Supabase:', error);
+        f11SetAuthMessage('No se pudo sincronizar. Comprueba tu conexión.');
+      }
+    }
+
+    function f11QueueCloudSave() {
+      clearTimeout(f11CloudTimer);
+      f11CloudTimer = setTimeout(() => f11SaveCloudState(), 600);
+    }
+
+    function f11SetAuthMessage(message) {
+      const el = document.getElementById('cloud-auth-message');
+      if (el) el.textContent = message || '';
+    }
+
+    function f11UpdateAccountUI() {
+      const title = document.getElementById('cloud-account-title');
+      const status = document.getElementById('cloud-account-status');
+      const form = document.getElementById('cloud-auth-form-wrap');
+      const userWrap = document.getElementById('cloud-auth-user-wrap');
+      const userEmail = document.getElementById('cloud-user-email');
+      if (!title || !status) return;
+      if (f11CloudUser) {
+        title.textContent = f11CloudUser.email || 'Cuenta conectada';
+        status.textContent = '☁️ Datos sincronizados';
+        if (form) form.classList.add('hidden');
+        if (userWrap) userWrap.classList.remove('hidden');
+        if (userEmail) userEmail.textContent = f11CloudUser.email || '';
+      } else {
+        title.textContent = 'Iniciar sesión';
+        status.textContent = 'Sincroniza tus datos entre dispositivos';
+        if (form) form.classList.remove('hidden');
+        if (userWrap) userWrap.classList.add('hidden');
+      }
+    }
+
+    function f11OpenAuthModal() {
+      const modal = document.getElementById('modal-cloud-auth');
+      if (!modal) return;
+      f11UpdateAccountUI();
+      f11SetAuthMessage('');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function f11CloseAuthModal() {
+      const modal = document.getElementById('modal-cloud-auth');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function f11Login() {
+      const email = document.getElementById('cloud-email').value.trim();
+      const password = document.getElementById('cloud-password').value;
+      if (!email || !password) return f11SetAuthMessage('Escribe el correo y la contraseña.');
+      f11SetAuthMessage('Iniciando sesión...');
+      const { error } = await f11Supabase.auth.signInWithPassword({ email, password });
+      if (error) return f11SetAuthMessage(error.message);
+    }
+
+    async function f11Register() {
+      const email = document.getElementById('cloud-email').value.trim();
+      const password = document.getElementById('cloud-password').value;
+      if (!email || !password) return f11SetAuthMessage('Escribe el correo y la contraseña.');
+      if (password.length < 6) return f11SetAuthMessage('La contraseña debe tener al menos 6 caracteres.');
+      f11SetAuthMessage('Creando cuenta...');
+      const { error } = await f11Supabase.auth.signUp({ email, password });
+      if (error) return f11SetAuthMessage(error.message);
+      f11SetAuthMessage('Cuenta creada. Iniciando sesión...');
+    }
+
+    async function f11HandleAuthenticated(user) {
+      f11CloudUser = user;
+      f11UpdateAccountUI();
+      f11SetAuthMessage('Comprobando tus datos en la nube...');
+      const { data, error } = await f11Supabase
+        .from('user_app_state')
+        .select('state, updated_at')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        f11SetAuthMessage('Error leyendo tus datos de la nube: ' + error.message);
+        return;
+      }
+
+      if (data && data.state && Object.keys(data.state).length > 0) {
+        f11WriteLocalState(data.state);
+        f11CloudReady = true;
+        f11SetAuthMessage('Datos de la nube cargados.');
+        f11UpdateAccountUI();
+        setTimeout(() => window.location.reload(), 350);
+      } else {
+        f11CloudReady = true;
+        await f11SaveCloudState();
+        f11SetAuthMessage('Datos de este dispositivo guardados en la nube.');
+        f11UpdateAccountUI();
+      }
+    }
+
+    async function f11InitCloud() {
+      document.getElementById('btn-cloud-account')?.addEventListener('click', f11OpenAuthModal);
+      document.getElementById('btn-close-cloud-auth')?.addEventListener('click', f11CloseAuthModal);
+      document.getElementById('btn-cloud-login')?.addEventListener('click', f11Login);
+      document.getElementById('btn-cloud-register')?.addEventListener('click', f11Register);
+      document.getElementById('btn-cloud-sync-now')?.addEventListener('click', async () => {
+        f11SetAuthMessage('Sincronizando...');
+        await f11SaveCloudState();
+        f11SetAuthMessage('✓ Sincronización completada.');
+      });
+      document.getElementById('btn-cloud-logout')?.addEventListener('click', async () => {
+        await f11Supabase.auth.signOut();
+        f11CloudUser = null;
+        f11CloudReady = false;
+        f11UpdateAccountUI();
+        f11SetAuthMessage('Sesión cerrada.');
+      });
+
+      const { data } = await f11Supabase.auth.getSession();
+      if (data?.session?.user) await f11HandleAuthenticated(data.session.user);
+      else f11UpdateAccountUI();
+
+      f11Supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session?.user && (!f11CloudUser || f11CloudUser.id !== session.user.id)) {
+          await f11HandleAuthenticated(session.user);
+        } else if (!session) {
+          f11CloudUser = null;
+          f11CloudReady = false;
+          f11UpdateAccountUI();
+        }
+      });
+    }
+  </script>
+
   <script>
     // --- ESTADO GLOBAL ---
     let squad = JSON.parse(localStorage.getItem('f11_squad')) || [
@@ -3161,6 +3416,7 @@
     }
     function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)}</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard={...x,running:false,lastStartedAt:null,goals:x.goals||[],substitutions:x.substitutions||[]};saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});}
 // INICIALIZACIÓN
+    f11InitCloud();
     syncTokensWithFormation(true);
     renderPitch();
 
