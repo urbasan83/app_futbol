@@ -1064,7 +1064,16 @@
         f11CloudReady = true;
         f11SetAuthMessage('Datos de la nube cargados.');
         f11UpdateAccountUI();
-        setTimeout(() => window.location.reload(), 350);
+
+        // El estado de la nube se escribe en localStorage y la aplicación
+        // necesita reinicializar sus variables globales una sola vez.
+        // Evitamos un bucle infinito de recargas al conservar una marca
+        // temporal por usuario en sessionStorage.
+        const reloadKey = 'f11_cloud_bootstrap_user_' + user.id;
+        if (sessionStorage.getItem(reloadKey) !== '1') {
+          sessionStorage.setItem(reloadKey, '1');
+          setTimeout(() => window.location.reload(), 350);
+        }
       } else {
         f11CloudReady = true;
         await f11SaveCloudState();
