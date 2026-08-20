@@ -920,18 +920,24 @@
     let f11CloudReady = false;
     let f11CloudApplying = false;
     let f11CloudTimer = null;
+    let f11CloudPollTimer = null;
+    let f11CloudSaveInFlight = false;
+    let f11CloudDirty = false;
+    let f11CloudUpdatedAt = null;
 
     const nativeLocalStorageSetItem = localStorage.setItem.bind(localStorage);
     const nativeLocalStorageRemoveItem = localStorage.removeItem.bind(localStorage);
     localStorage.setItem = function(key, value) {
       nativeLocalStorageSetItem(key, value);
       if (f11CloudUser && f11CloudReady && !f11CloudApplying && F11_CLOUD_KEYS.includes(key)) {
+        f11CloudDirty = true;
         f11QueueCloudSave();
       }
     };
     localStorage.removeItem = function(key) {
       nativeLocalStorageRemoveItem(key);
       if (f11CloudUser && f11CloudReady && !f11CloudApplying && F11_CLOUD_KEYS.includes(key)) {
+        f11CloudDirty = true;
         f11QueueCloudSave();
       }
     };
@@ -965,15 +971,61 @@
     async function f11SaveCloudState() {
       if (!f11CloudUser || !f11CloudReady) return;
       const state = f11ReadLocalState();
-      const { error } = await f11Supabase.from('user_app_state').upsert({
-        user_id: f11CloudUser.id,
-        state,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-      if (error) {
-        console.error('Error sincronizando con Supabase:', error);
-        f11SetAuthMessage('No se pudo sincronizar. Comprueba tu conexión.');
+      const updatedAt = new Date().toISOString();
+      f11CloudSaveInFlight = true;
+      try {
+        const { error } = await f11Supabase.from('user_app_state').upsert({
+          user_id: f11CloudUser.id,
+          state,
+          updated_at: updatedAt
+        }, { onConflict: 'user_id' });
+        if (error) {
+          console.error('Error sincronizando con Supabase:', error);
+          f11SetAuthMessage('No se pudo sincronizar. Comprueba tu conexión.');
+          return;
+        }
+        f11CloudUpdatedAt = updatedAt;
+        f11CloudDirty = false;
+        f11SetAuthMessage('✓ Sincronizado automáticamente');
+      } finally {
+        f11CloudSaveInFlight = false;
       }
+    }
+
+    async function f11CheckCloudChanges() {
+      if (!f11CloudUser || !f11CloudReady || f11CloudDirty || f11CloudSaveInFlight) return;
+      const { data, error } = await f11Supabase
+        .from('user_app_state')
+        .select('state, updated_at')
+        .eq('user_id', f11CloudUser.id)
+        .maybeSingle();
+      if (error || !data?.state || !data.updated_at) return;
+
+      const remoteUpdatedAt = data.updated_at;
+      if (f11CloudUpdatedAt && remoteUpdatedAt <= f11CloudUpdatedAt) return;
+
+      const appliedKey = 'f11_cloud_applied_' + f11CloudUser.id;
+      if (sessionStorage.getItem(appliedKey) === remoteUpdatedAt) {
+        f11CloudUpdatedAt = remoteUpdatedAt;
+        return;
+      }
+
+      f11WriteLocalState(data.state);
+      f11CloudUpdatedAt = remoteUpdatedAt;
+      sessionStorage.setItem(appliedKey, remoteUpdatedAt);
+      sessionStorage.setItem('f11_cloud_remote_reload', '1');
+      f11SetAuthMessage('☁️ Cambios nuevos recibidos. Actualizando...');
+      setTimeout(() => window.location.reload(), 250);
+    }
+
+    function f11StartCloudPolling() {
+      clearInterval(f11CloudPollTimer);
+      f11CloudPollTimer = setInterval(f11CheckCloudChanges, 5000);
+    }
+
+    function f11StopCloudPolling() {
+      clearInterval(f11CloudPollTimer);
+      f11CloudPollTimer = null;
     }
 
     function f11QueueCloudSave() {
@@ -1061,7 +1113,9 @@
 
       if (data && data.state && Object.keys(data.state).length > 0) {
         f11WriteLocalState(data.state);
+        f11CloudUpdatedAt = data.updated_at || null;
         f11CloudReady = true;
+        f11StartCloudPolling();
         f11SetAuthMessage('Datos de la nube cargados.');
         f11UpdateAccountUI();
 
@@ -1076,6 +1130,8 @@
         }
       } else {
         f11CloudReady = true;
+        f11CloudUpdatedAt = null;
+        f11StartCloudPolling();
         await f11SaveCloudState();
         f11SetAuthMessage('Datos de este dispositivo guardados en la nube.');
         f11UpdateAccountUI();
@@ -1093,9 +1149,12 @@
         f11SetAuthMessage('✓ Sincronización completada.');
       });
       document.getElementById('btn-cloud-logout')?.addEventListener('click', async () => {
+        f11StopCloudPolling();
         await f11Supabase.auth.signOut();
         f11CloudUser = null;
         f11CloudReady = false;
+        f11CloudDirty = false;
+        f11CloudUpdatedAt = null;
         f11UpdateAccountUI();
         f11SetAuthMessage('Sesión cerrada.');
       });
@@ -1108,8 +1167,11 @@
         if (session?.user && (!f11CloudUser || f11CloudUser.id !== session.user.id)) {
           await f11HandleAuthenticated(session.user);
         } else if (!session) {
+          f11StopCloudPolling();
           f11CloudUser = null;
           f11CloudReady = false;
+          f11CloudDirty = false;
+          f11CloudUpdatedAt = null;
           f11UpdateAccountUI();
         }
       });
