@@ -1272,7 +1272,10 @@
     let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
     let savedScoreboards = JSON.parse(localStorage.getItem('f11_scoreboards')) || [];
-    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[]};
+    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],updatedAt:0};
+    if(scoreboard.running && scoreboard.lastStartedAt){
+      scoreboard.elapsed=Math.max(0,(Number(scoreboard.elapsed)||0)+(Date.now()-Number(scoreboard.lastStartedAt))/1000);
+    }
     scoreboard.goals = Array.isArray(scoreboard.goals) ? scoreboard.goals : [];
     scoreboard.substitutions = Array.isArray(scoreboard.substitutions) ? scoreboard.substitutions : [];
 
@@ -3483,7 +3486,26 @@
       savedPanel:document.getElementById('saved-scoreboards-panel'), savedList:document.getElementById('saved-scoreboards-list')
     };
     function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-    function saveSB(){localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));}
+    function saveSB(){
+      scoreboard.updatedAt=Date.now();
+      localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
+    }
+    function persistScoreboardBeforeLeaving(){
+      try{
+        if(scoreboard.running){
+          scoreboard.elapsed=elapsed();
+          // Conservamos lastStartedAt: al volver a abrir la app, Date.now()-lastStartedAt
+          // recupera automáticamente el tiempo transcurrido aunque la página haya estado cerrada.
+          localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
+        }else{
+          localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
+        }
+      }catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}
+    }
+    document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='hidden') persistScoreboardBeforeLeaving();
+    });
+    window.addEventListener('pagehide',persistScoreboardBeforeLeaving);
     function elapsed(){return scoreboard.running&&scoreboard.lastStartedAt?Math.max(0,(Number(scoreboard.elapsed)||0)+(Date.now()-Number(scoreboard.lastStartedAt))/1000):Math.max(0,Number(scoreboard.elapsed)||0);}
     function fmt(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
     function eventMinute(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;}
@@ -3492,7 +3514,9 @@
       const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);
       se.clock.textContent=fmt(shownSeconds); se.editTime.value=fmt(shownSeconds); se.half.value=String(scoreboard.half);
       se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';
-      if(scoreboard.running&&!scoreboardTimer)scoreboardTimer=setInterval(renderClock,250);
+      if(scoreboard.running&&!scoreboardTimer){
+        scoreboardTimer=setInterval(renderClock,250);
+      }
       if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}
     }
     function renderSB(){
