@@ -3516,9 +3516,11 @@
     function persistScoreboardBeforeLeaving(){
       try{
         if(scoreboard.running){
+          // Hacemos un checkpoint: incorporamos el tiempo transcurrido y
+          // movemos lastStartedAt al instante actual. Así visibilitychange y
+          // pagehide no pueden contar dos veces el mismo intervalo.
           scoreboard.elapsed=elapsed();
-          // Conservamos lastStartedAt: al volver a abrir la app, Date.now()-lastStartedAt
-          // recupera automáticamente el tiempo transcurrido aunque la página haya estado cerrada.
+          scoreboard.lastStartedAt=Date.now();
           localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
         }else{
           localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
