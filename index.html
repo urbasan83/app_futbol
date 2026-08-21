@@ -237,6 +237,15 @@
             <option value="visitante">💗 Visitante</option>
           </select>
         </div>
+        <div class="relative">
+          <button id="btn-team-colors" type="button" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 flex items-center gap-1">🎨 <span class="hidden sm:inline">Colores</span></button>
+          <div id="team-colors-panel" class="hidden absolute right-0 top-full mt-2 z-50 w-56 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl p-3 space-y-3">
+            <div class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Colores del equipo</div>
+            <div><label class="block text-[10px] text-slate-300 mb-1">Local</label><div class="flex items-center gap-2"><input id="team-color-local" type="color" value="#1d4ed8" class="w-10 h-8 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1"><span id="team-color-local-value" class="font-mono text-[10px] text-slate-400">#1D4ED8</span></div></div>
+            <div><label class="block text-[10px] text-slate-300 mb-1">Visitante</label><div class="flex items-center gap-2"><input id="team-color-away" type="color" value="#db2777" class="w-10 h-8 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1"><span id="team-color-away-value" class="font-mono text-[10px] text-slate-400">#DB2777</span></div></div>
+            <p class="text-[9px] text-slate-500">Estos colores se comparten con la pizarra, tácticas, enfrentamiento y marcador.</p>
+          </div>
+        </div>
       </div>
 
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0">
@@ -584,8 +593,8 @@
           </div>
         </div>
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><div class="flex items-center gap-2"><select id="match-half" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="1">Primera parte</option><option value="2">Segunda parte</option></select><input id="match-time-edit" inputmode="numeric" placeholder="00:00" class="w-20 bg-slate-900 border border-slate-600 rounded-lg p-2 text-center font-mono text-sm"></div></div>
-          <div class="flex flex-col items-center gap-3 mt-4"><div id="match-clock" class="text-6xl sm:text-8xl font-black font-mono tabular-nums">00:00</div><div class="flex flex-wrap justify-center gap-2"><button id="btn-clock-pause" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⏸️ Pausar</button><button id="btn-clock-resume" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">▶️ Reanudar</button><button id="btn-clock-stop" class="bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-xs">⏹️ Parar</button><button id="btn-clock-apply" class="bg-slate-700 text-white font-bold px-4 py-2 rounded-lg text-xs border border-slate-600">✏️ Aplicar tiempo</button></div><span id="clock-status" class="text-[10px] text-slate-400">Detenido</span></div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><div class="flex items-center gap-2"><select id="match-half" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="1">Primera parte</option><option value="2">Segunda parte</option></select></div></div>
+          <div class="flex flex-col items-center gap-3 mt-4"><div id="match-clock" class="text-6xl sm:text-8xl font-black font-mono tabular-nums">00:00</div><div class="flex flex-wrap justify-center gap-2"><button id="btn-clock-pause" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⏸️ Pausar</button><button id="btn-clock-resume" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">▶️ Reanudar</button><button id="btn-clock-stop" class="bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-xs">⏹️ Parar</button></div><span id="clock-status" class="text-[10px] text-slate-400">Detenido</span></div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⚽ Registrar gol</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-goal" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⚽ Gol</button></div>
@@ -914,7 +923,7 @@
       'f11_squad','f11_rivals','f11_matches','f11_tactics','f11_confrontations',
       'f11_scoreboards','f11_live_scoreboard','f11_formation','f11_kit',
       'f11_active_tokens','f11_active_bench','f11_selected_rival_id',
-      'f11_selected_rival_kit','f11_active_rival_tokens'
+      'f11_selected_rival_kit','f11_active_rival_tokens','f11_team_colors'
     ];
     let f11CloudUser = null;
     let f11CloudReady = false;
@@ -1291,6 +1300,10 @@
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
     let savedScoreboards = JSON.parse(localStorage.getItem('f11_scoreboards')) || [];
     let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],updatedAt:0};
+    let teamColors = JSON.parse(localStorage.getItem('f11_team_colors')) || {local:'#1d4ed8', visitante:'#db2777'};
+    if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.local)) teamColors.local='#1d4ed8';
+    if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.visitante)) teamColors.visitante='#db2777';
+    localStorage.setItem('f11_team_colors',JSON.stringify(teamColors));
     if(scoreboard.running && scoreboard.lastStartedAt){
       const now = Date.now();
       scoreboard.elapsed = Math.max(0,(Number(scoreboard.elapsed)||0)+(now-Number(scoreboard.lastStartedAt))/1000);
@@ -1359,6 +1372,10 @@
 
     let currentFormationKey = localStorage.getItem('f11_formation') || '4-3-3';
     let currentKit = localStorage.getItem('f11_kit') || 'local';
+    function getTeamColor(side){return side==='local'?teamColors.local:teamColors.visitante;}
+    function applyTeamColorToToken(el,side){const bg=getTeamColor(side);el.style.backgroundColor=bg;el.style.color=getContrastTextColor(bg);}
+    function renderTeamColorControls(){const l=document.getElementById('team-color-local'),a=document.getElementById('team-color-away');if(!l||!a)return;l.value=teamColors.local;a.value=teamColors.visitante;document.getElementById('team-color-local-value').textContent=teamColors.local.toUpperCase();document.getElementById('team-color-away-value').textContent=teamColors.visitante.toUpperCase();}
+    function setTeamColor(side,color){if(!/^#[0-9a-fA-F]{6}$/.test(color))return;teamColors[side]=color;localStorage.setItem('f11_team_colors',JSON.stringify(teamColors));renderTeamColorControls();renderPitch();document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>applyTeamColorToToken(el,currentKit==='local'?'local':'visitante'));document.querySelectorAll('#matchup-pitch .matchup-token').forEach(el=>applyTeamColorToToken(el,'local'));if(typeof renderSB==='function')renderSB();}
     let activeTokens = JSON.parse(localStorage.getItem('f11_active_tokens')) || null;
     let activeBench = JSON.parse(localStorage.getItem('f11_active_bench')) || [];
 
@@ -1791,6 +1808,7 @@
         tokenEl.style.left = `${token.x}%`;
         tokenEl.style.top = `${token.y}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
+        applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante');
 
         const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
         const displayName = assignedPlayer ? assignedPlayer.name : token.role;
@@ -1946,6 +1964,8 @@
         tokenEl.style.left = `${token.x}%`;
         tokenEl.style.top = `${token.y}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
+          applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante');
+        applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante');
 
         const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
         const displayName = assignedPlayer ? assignedPlayer.name : token.role;
@@ -2751,7 +2771,8 @@
           name: displayName,
           x: posX,
           y: posY,
-          kitStyle
+          kitStyle,
+          teamSide:'local'
         }, container);
       });
 
@@ -2833,6 +2854,7 @@
       tokenEl.style.left = `${data.x}%`;
       tokenEl.style.top = `${data.y}%`;
       tokenEl.style.transform = 'translate(-50%, -50%)';
+      if(data.teamSide) applyTeamColorToToken(tokenEl,data.teamSide);
 
       tokenEl.innerHTML = `
         <span class="text-[9px] sm:text-[18px] leading-none">${data.num}</span>
@@ -3501,7 +3523,7 @@
       hsub:document.getElementById('score-home-subs'), asub:document.getElementById('score-away-subs'),
       hse:document.getElementById('score-home-subs-empty'), ase:document.getElementById('score-away-subs-empty'),
       half:document.getElementById('match-half'), clock:document.getElementById('match-clock'), status:document.getElementById('clock-status'),
-      editTime:document.getElementById('match-time-edit'), ge:document.getElementById('goal-editor'), gt:document.getElementById('goal-team'),
+ge:document.getElementById('goal-editor'), gt:document.getElementById('goal-team'),
       gn:document.getElementById('goal-number'), gp:document.getElementById('goal-player'), gm:document.getElementById('goal-minute'),
       gml:document.getElementById('goal-minute-label'), geid:document.getElementById('edit-goal-id'),
       sue:document.getElementById('sub-editor'), st:document.getElementById('sub-team'), so:document.getElementById('sub-out'),
@@ -3513,31 +3535,22 @@
       scoreboard.updatedAt=Date.now();
       localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
     }
+    let scoreboardLeaveCheckpointed=false;
     function persistScoreboardBeforeLeaving(){
-      try{
-        if(scoreboard.running){
-          // Hacemos un checkpoint: incorporamos el tiempo transcurrido y
-          // movemos lastStartedAt al instante actual. Así visibilitychange y
-          // pagehide no pueden contar dos veces el mismo intervalo.
-          scoreboard.elapsed=elapsed();
-          scoreboard.lastStartedAt=Date.now();
-          localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
-        }else{
-          localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));
-        }
-      }catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}
+      if(scoreboardLeaveCheckpointed)return;
+      scoreboardLeaveCheckpointed=true;
+      try{if(scoreboard.running){scoreboard.elapsed=elapsed();scoreboard.lastStartedAt=Date.now();}localStorage.setItem('f11_live_scoreboard',JSON.stringify(scoreboard));}catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}
     }
-    document.addEventListener('visibilitychange',()=>{
-      if(document.visibilityState==='hidden') persistScoreboardBeforeLeaving();
-    });
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistScoreboardBeforeLeaving();else scoreboardLeaveCheckpointed=false;});
     window.addEventListener('pagehide',persistScoreboardBeforeLeaving);
+    window.addEventListener('pageshow',()=>{scoreboardLeaveCheckpointed=false;});
     function elapsed(){return scoreboard.running&&scoreboard.lastStartedAt?Math.max(0,(Number(scoreboard.elapsed)||0)+(Date.now()-Number(scoreboard.lastStartedAt))/1000):Math.max(0,Number(scoreboard.elapsed)||0);}
     function fmt(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
     function eventMinute(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;}
     function absoluteTime(){return (Number(scoreboard.half)===2?2700:0)+Math.floor(elapsed());}
     function renderClock(){
       const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);
-      se.clock.textContent=fmt(shownSeconds); se.editTime.value=fmt(shownSeconds); se.half.value=String(scoreboard.half);
+      se.clock.textContent=fmt(shownSeconds); se.half.value=String(scoreboard.half);
       se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';
       if(scoreboard.running&&!scoreboardTimer){
         scoreboardTimer=setInterval(renderClock,250);
@@ -3545,7 +3558,7 @@
       if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}
     }
     function renderSB(){
-      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';se.hs.textContent=Math.max(0,Number(scoreboard.homeScore)||0);se.as.textContent=Math.max(0,Number(scoreboard.awayScore)||0);renderClock();
+      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';se.hn.style.borderColor=getTeamColor('local');se.hn.style.color=getTeamColor('local');se.an.style.borderColor=getTeamColor('visitante');se.an.style.color=getTeamColor('visitante');se.hs.style.color=getTeamColor('local');se.as.style.color=getTeamColor('visitante');renderClock();
       ['home','away'].forEach(t=>{
         const gs=scoreboard.goals.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds), ss=scoreboard.substitutions.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
         se[t==='home'?'hg':'ag'].innerHTML=gs.map(g=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-emerald-400 font-mono">${g.minute}</b> — ${esc(g.player)}${g.number?` <span class="text-slate-500">#${esc(g.number)}</span>`:''}</span><button onclick="editScoreGoal(${g.id})">✏️</button></div>`).join('');
@@ -3572,8 +3585,7 @@
         se.hn.oninput=()=>{scoreboard.homeName=se.hn.value;saveSB();};se.an.oninput=()=>{scoreboard.awayName=se.an.value;saveSB();};
         document.getElementById('btn-clock-pause').onclick=()=>{if(!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         document.getElementById('btn-clock-resume').onclick=()=>{if(scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderClock();};
-        document.getElementById('btn-clock-stop').onclick=()=>{scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
-        document.getElementById('btn-clock-apply').onclick=()=>{const m=se.editTime.value.trim().match(/^(\d{1,3}):([0-5]\d)$/);if(!m)return alert('Formato MM:SS, por ejemplo 45:30.');const entered=parseInt(m[1])*60+parseInt(m[2]),offset=Number(scoreboard.half)===2?2700:0;if(Number(scoreboard.half)===2&&entered<2700)return alert('En la segunda parte el tiempo debe ser 45:00 o superior.');scoreboard.elapsed=Math.max(0,entered-offset);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        document.getElementById('btn-clock-stop').onclick=()=>{scoreboard.elapsed=0;scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         se.half.onchange=()=>{scoreboard.elapsed=0;scoreboard.half=Number(se.half.value);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;
         document.getElementById('btn-save-goal').onclick=()=>{const p=se.gp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const id=se.geid.value?Number(se.geid.value):Date.now(),sec=Number(se.gm.value),d={id,team:se.gt.value,player:p,number:se.gn.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.goals.findIndex(x=>x.id===id);if(i>=0)scoreboard.goals[i]=d;else scoreboard.goals.push(d);closeGoal();renderSB();};
@@ -3584,7 +3596,14 @@
       }fillPlayers();renderSB();
     }
     function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)}</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard={...x,running:false,lastStartedAt:null,goals:x.goals||[],substitutions:x.substitutions||[]};saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});}
-// INICIALIZACIÓN
+// PALETA DE COLORES COMPARTIDA
+    document.getElementById('btn-team-colors')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('team-colors-panel')?.classList.toggle('hidden');renderTeamColorControls();});
+    document.getElementById('team-color-local')?.addEventListener('input',e=>setTeamColor('local',e.target.value));
+    document.getElementById('team-color-away')?.addEventListener('input',e=>setTeamColor('visitante',e.target.value));
+    document.addEventListener('click',e=>{const p=document.getElementById('team-colors-panel'),b=document.getElementById('btn-team-colors');if(p&&b&&!p.contains(e.target)&&!b.contains(e.target))p.classList.add('hidden');});
+    renderTeamColorControls();
+
+    // INICIALIZACIÓN
     f11InitCloud();
     syncTokensWithFormation(true);
     renderPitch();
