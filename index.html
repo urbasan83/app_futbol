@@ -1059,11 +1059,29 @@
 
       f11WriteLocalState(data.state);
       f11CloudUpdatedAt = remoteUpdatedAt;
-      const appliedKey = 'f11_cloud_applied_' + f11CloudUser.id;
-      sessionStorage.setItem(appliedKey, remoteUpdatedAt);
-      sessionStorage.setItem('f11_cloud_remote_reload', '1');
-      f11SetAuthMessage('☁️ Cambios nuevos recibidos. Actualizando...');
-      setTimeout(() => window.location.reload(), 250);
+      f11SetAuthMessage('☁️ Cambios nuevos recibidos');
+      // No recargamos la página: una recarga mientras el cronómetro está en marcha
+      // puede volver a sumar un intervalo ya contabilizado. Actualizamos el estado
+      // del marcador en memoria y la interfaz directamente.
+      try {
+        if (Object.prototype.hasOwnProperty.call(data.state, 'f11_live_scoreboard')) {
+          const remoteScoreboard = data.state.f11_live_scoreboard;
+          if (remoteScoreboard) {
+            scoreboard = {
+              ...remoteScoreboard,
+              goals: Array.isArray(remoteScoreboard.goals) ? remoteScoreboard.goals : [],
+              substitutions: Array.isArray(remoteScoreboard.substitutions) ? remoteScoreboard.substitutions : []
+            };
+            if (scoreboard.running && scoreboard.lastStartedAt) {
+              // El timestamp ya pertenece al estado remoto; no lo reajustamos.
+              renderClock();
+              renderSB();
+            } else {
+              renderSB();
+            }
+          }
+        }
+      } catch (e) { console.warn('No se pudo actualizar el marcador desde la nube', e); }
     }
 
     function f11StartCloudPolling() {
@@ -1274,7 +1292,12 @@
     let savedScoreboards = JSON.parse(localStorage.getItem('f11_scoreboards')) || [];
     let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],updatedAt:0};
     if(scoreboard.running && scoreboard.lastStartedAt){
-      scoreboard.elapsed=Math.max(0,(Number(scoreboard.elapsed)||0)+(Date.now()-Number(scoreboard.lastStartedAt))/1000);
+      const now = Date.now();
+      scoreboard.elapsed = Math.max(0,(Number(scoreboard.elapsed)||0)+(now-Number(scoreboard.lastStartedAt))/1000);
+      // Checkpointamos el tiempo al abrir para no volver a sumar el mismo intervalo
+      // si la aplicación vuelve a cargar el estado del marcador.
+      scoreboard.lastStartedAt = now;
+      localStorage.setItem('f11_live_scoreboard', JSON.stringify(scoreboard));
     }
     scoreboard.goals = Array.isArray(scoreboard.goals) ? scoreboard.goals : [];
     scoreboard.substitutions = Array.isArray(scoreboard.substitutions) ? scoreboard.substitutions : [];
@@ -3526,7 +3549,7 @@
         se[t==='home'?'hg':'ag'].innerHTML=gs.map(g=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-emerald-400 font-mono">${g.minute}</b> — ${esc(g.player)}${g.number?` <span class="text-slate-500">#${esc(g.number)}</span>`:''}</span><button onclick="editScoreGoal(${g.id})">✏️</button></div>`).join('');
         se[t==='home'?'hsub':'asub'].innerHTML=ss.map(x=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-sky-400 font-mono">${x.minute}</b> — ${esc(x.out)} → ${esc(x.in)}</span><button onclick="editScoreSub(${x.id})">✏️</button></div>`).join('');
         se[t==='home'?'hge':'age'].classList.toggle('hidden',gs.length>0);se[t==='home'?'hse':'ase'].classList.toggle('hidden',ss.length>0);
-      });saveSB();
+      });
     }
     function players(team){
       if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));
