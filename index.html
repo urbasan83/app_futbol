@@ -923,7 +923,9 @@
     let f11CloudPollTimer = null;
     let f11CloudSaveInFlight = false;
     let f11CloudDirty = false;
+    let f11CloudDirtyKeys = new Set();
     let f11CloudUpdatedAt = null;
+
 
     const nativeLocalStorageSetItem = localStorage.setItem.bind(localStorage);
     const nativeLocalStorageRemoveItem = localStorage.removeItem.bind(localStorage);
@@ -931,6 +933,7 @@
       nativeLocalStorageSetItem(key, value);
       if (f11CloudUser && f11CloudReady && !f11CloudApplying && F11_CLOUD_KEYS.includes(key)) {
         f11CloudDirty = true;
+        f11CloudDirtyKeys.add(key);
         f11QueueCloudSave();
       }
     };
@@ -938,6 +941,7 @@
       nativeLocalStorageRemoveItem(key);
       if (f11CloudUser && f11CloudReady && !f11CloudApplying && F11_CLOUD_KEYS.includes(key)) {
         f11CloudDirty = true;
+        f11CloudDirtyKeys.add(key);
         f11QueueCloudSave();
       }
     };
@@ -968,24 +972,70 @@
       }
     }
 
-    async function f11SaveCloudState() {
+    async function f11FetchCloudState() {
+      if (!f11CloudUser) return null;
+      const { data, error } = await f11Supabase
+        .from('user_app_state')
+        .select('state, updated_at')
+        .eq('user_id', f11CloudUser.id)
+        .maybeSingle();
+      if (error) {
+        console.error('Error leyendo Supabase:', error);
+        return null;
+      }
+      return data || null;
+    }
+
+    async function f11SaveCloudState(force = false) {
       if (!f11CloudUser || !f11CloudReady) return;
-      const state = f11ReadLocalState();
-      const updatedAt = new Date().toISOString();
+      if (f11CloudSaveInFlight) return;
+
+      // Si no hay cambios locales, una sincronización manual solo comprueba la nube.
+      if (!force && !f11CloudDirty) return;
+
+      const dirtySnapshot = new Set(f11CloudDirtyKeys);
+      const localState = f11ReadLocalState();
       f11CloudSaveInFlight = true;
+
       try {
+        const remote = await f11FetchCloudState();
+        let stateToSave = localState;
+
+        // Control optimista de concurrencia:
+        // si otro dispositivo ha escrito después de nuestra última versión conocida,
+        // conservamos sus cambios y solo sobrescribimos las claves que realmente
+        // modificamos nosotros.
+        if (remote?.state && remote.updated_at && f11CloudUpdatedAt && remote.updated_at > f11CloudUpdatedAt) {
+          stateToSave = { ...remote.state };
+          dirtySnapshot.forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(localState, key)) {
+              stateToSave[key] = localState[key];
+            } else {
+              delete stateToSave[key];
+            }
+          });
+        } else if (remote?.state && remote.updated_at && !f11CloudUpdatedAt && !f11CloudDirty) {
+          stateToSave = remote.state;
+        }
+
+        const updatedAt = new Date().toISOString();
         const { error } = await f11Supabase.from('user_app_state').upsert({
           user_id: f11CloudUser.id,
-          state,
+          state: stateToSave,
           updated_at: updatedAt
         }, { onConflict: 'user_id' });
+
         if (error) {
           console.error('Error sincronizando con Supabase:', error);
           f11SetAuthMessage('No se pudo sincronizar. Comprueba tu conexión.');
           return;
         }
+
         f11CloudUpdatedAt = updatedAt;
-        f11CloudDirty = false;
+        dirtySnapshot.forEach(key => {
+          if (f11CloudDirtyKeys.has(key)) f11CloudDirtyKeys.delete(key);
+        });
+        f11CloudDirty = f11CloudDirtyKeys.size > 0;
         f11SetAuthMessage('✓ Sincronizado automáticamente');
       } finally {
         f11CloudSaveInFlight = false;
@@ -993,25 +1043,23 @@
     }
 
     async function f11CheckCloudChanges() {
-      if (!f11CloudUser || !f11CloudReady || f11CloudDirty || f11CloudSaveInFlight) return;
-      const { data, error } = await f11Supabase
-        .from('user_app_state')
-        .select('state, updated_at')
-        .eq('user_id', f11CloudUser.id)
-        .maybeSingle();
-      if (error || !data?.state || !data.updated_at) return;
+      if (!f11CloudUser || !f11CloudReady || f11CloudSaveInFlight) return;
+      const data = await f11FetchCloudState();
+      if (!data?.state || !data.updated_at) return;
 
       const remoteUpdatedAt = data.updated_at;
       if (f11CloudUpdatedAt && remoteUpdatedAt <= f11CloudUpdatedAt) return;
 
-      const appliedKey = 'f11_cloud_applied_' + f11CloudUser.id;
-      if (sessionStorage.getItem(appliedKey) === remoteUpdatedAt) {
-        f11CloudUpdatedAt = remoteUpdatedAt;
+      // Si tenemos cambios locales pendientes, f11SaveCloudState hará un merge
+      // conservando los cambios del otro dispositivo que no hayamos tocado.
+      if (f11CloudDirty) {
+        await f11SaveCloudState();
         return;
       }
 
       f11WriteLocalState(data.state);
       f11CloudUpdatedAt = remoteUpdatedAt;
+      const appliedKey = 'f11_cloud_applied_' + f11CloudUser.id;
       sessionStorage.setItem(appliedKey, remoteUpdatedAt);
       sessionStorage.setItem('f11_cloud_remote_reload', '1');
       f11SetAuthMessage('☁️ Cambios nuevos recibidos. Actualizando...');
@@ -1145,7 +1193,7 @@
       document.getElementById('btn-cloud-register')?.addEventListener('click', f11Register);
       document.getElementById('btn-cloud-sync-now')?.addEventListener('click', async () => {
         f11SetAuthMessage('Sincronizando...');
-        await f11SaveCloudState();
+        await f11SaveCloudState(true);
         f11SetAuthMessage('✓ Sincronización completada.');
       });
       document.getElementById('btn-cloud-logout')?.addEventListener('click', async () => {
@@ -1154,6 +1202,7 @@
         f11CloudUser = null;
         f11CloudReady = false;
         f11CloudDirty = false;
+        f11CloudDirtyKeys.clear();
         f11CloudUpdatedAt = null;
         f11UpdateAccountUI();
         f11SetAuthMessage('Sesión cerrada.');
