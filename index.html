@@ -3780,8 +3780,47 @@
       ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(homeName,homeLeft,nameBaseline);ctx.fillText(awayName,awayLeft,nameBaseline);
       if(hi)ctx.drawImage(hi,homeLeft-logoGap-logoSize,centerY-logoSize/2,logoSize,logoSize);
       if(ai)ctx.drawImage(ai,awayRight+logoGap,centerY-logoSize/2,logoSize,logoSize);
-      const drawTeam=(x,title,team)=>{ctx.textAlign='left';ctx.fillStyle='#fff';ctx.font='800 24px Arial';ctx.fillText(title,x,285);let y=320;eventRows(team).forEach(r=>{ctx.font='500 18px Arial';ctx.fillStyle='#e5e7eb';ctx.fillText(r.text,x,y);y+=30;});};
-      drawTeam(90,'LOCAL','home');drawTeam(750,'VISITANTE','away');
+      // Acciones: ambas columnas quedan ancladas simétricamente al centro.
+      // Local: el contenido termina a 25 px a la izquierda del centro y crece hacia la izquierda.
+      // Visitante: el contenido empieza a 25 px a la derecha del centro y crece hacia la derecha.
+      const actionRows=(team,isLocal)=>{
+        const rows=[];
+        const push=(arr,icon,kind)=>arr.filter(x=>x.team===team).forEach(x=>{
+          const minute=x.minute||'';
+          const number=x.number?`#${x.number}`:'';
+          const name=x.player||'—';
+          if(kind==='goal') rows.push({sec:x.minuteSeconds||0,text:isLocal?`${name} ${number} ${icon} ${minute}`:`${minute} — ${icon} Gol ${number} ${name}`});
+          else rows.push({sec:x.minuteSeconds||0,text:isLocal?`${name} ${number} ${icon} ${minute}`:`${minute} — ${icon} ${kind} ${number} ${name}`});
+        });
+        push(scoreboard.goals,'⚽','goal');
+        scoreboard.substitutions.filter(x=>x.team===team).forEach(x=>{
+          const outNum=x.outNumber||substitutionPlayerNumber(x.team,x.out);
+          const inNum=x.inNumber||substitutionPlayerNumber(x.team,x.in);
+          const outName=x.out||'—';
+          const inName=x.in||'—';
+          const minute=x.minute||'';
+          rows.push({sec:x.minuteSeconds||0,text:isLocal
+            ? `${outName} ${outNum?`#${outNum}`:''} ← ${inName} ${inNum?`#${inNum}`:''} 🔄`
+            : `${minute} — 🔄 Cambio: ${outNum?`#${outNum} `:''}${outName} → ${inNum?`#${inNum} `:''}${inName}`});
+          if(isLocal) rows[rows.length-1].text += ` ${minute}`;
+        });
+        push(scoreboard.yellowCards,'🟨','Amarilla');
+        push(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');
+        push(scoreboard.redCards,'🟥','Roja');
+        return rows.sort((a,b)=>a.sec-b.sec);
+      };
+      const drawTeam=(x,title,team,isLocal)=>{
+        ctx.fillStyle='#fff';ctx.font='800 24px Arial';ctx.textAlign=isLocal?'right':'left';ctx.fillText(title,x,285);
+        let y=320;
+        actionRows(team,isLocal).forEach(r=>{
+          ctx.font='500 18px Arial';ctx.fillStyle='#e5e7eb';ctx.textAlign=isLocal?'right':'left';ctx.fillText(r.text,x,y);y+=30;
+        });
+      };
+      const actionCenterGap=25;
+      const localActionX=scoreCenter-actionCenterGap;
+      const awayActionX=scoreCenter+actionCenterGap;
+      drawTeam(localActionX,'LOCAL','home',true);
+      drawTeam(awayActionX,'VISITANTE','away',false);
     }
     document.getElementById('btn-capture-scoreboard')?.addEventListener('click',openScoreboardCapture);document.getElementById('btn-close-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));document.getElementById('btn-cancel-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));['scorecap-title','scorecap-subtitle'].forEach(id=>document.getElementById(id)?.addEventListener('input',renderScoreboardCapture));document.getElementById('btn-download-scoreboard-capture')?.addEventListener('click',async()=>{await renderScoreboardCapture();const a=document.createElement('a');a.download='marcador.png';a.href=document.getElementById('scoreboard-capture-canvas').toDataURL('image/png',1);a.click();});
 
