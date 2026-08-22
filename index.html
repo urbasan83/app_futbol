@@ -220,7 +220,8 @@
     <!-- SECCIÓN 1: PIZARRA TÁCTICA PRINCIPAL -->
     <section id="sec-pizarra" class="flex-1 flex flex-col h-full overflow-hidden p-2">
       <div class="flex justify-between items-center gap-2 mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0">
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2">
+          <span id="pitch-my-team-badge" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-600 overflow-hidden flex items-center justify-center">🛡️</span>
           <label class="text-xs text-slate-400 font-medium">Sistema:</label>
           <select id="select-formation" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
             <option value="4-3-3">4-3-3</option>
@@ -238,6 +239,7 @@
           </select>
         </div>
         <div class="relative">
+          <button id="btn-select-pitch" type="button" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 flex items-center gap-1" title="Seleccionar varios jugadores">▱ <span class="hidden sm:inline">Seleccionar</span></button>
           <button id="btn-team-colors" type="button" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 flex items-center gap-1">🎨 <span class="hidden sm:inline">Colores</span></button>
           <div id="team-colors-panel" class="hidden absolute right-0 top-full mt-2 z-50 w-56 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl p-3 space-y-3">
             <div class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Colores del equipo</div>
@@ -300,8 +302,9 @@
 
         <!-- Panel Lateral Desplegable de Herramientas + Guardado -->
         <div class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
-          <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 hidden sm:block border-b border-slate-700 pb-2">
-            🛠️ Herramientas
+          <div class="flex items-center justify-between text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 border-b border-slate-700 pb-2">
+            <span>🛠️ Herramientas</span>
+            <button id="btn-select-tactics" type="button" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg px-2 py-1" title="Seleccionar varios jugadores">▱ Seleccionar</button>
           </div>
 
           <div class="space-y-3">
@@ -312,6 +315,9 @@
               </button>
               <button id="btn-load-tactics-modal" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1 border border-slate-600">
                 📂 <span class="hidden sm:inline">Mis Tácticas</span>
+              </button>
+              <button id="btn-tactic-annotations" class="w-full bg-violet-600/80 hover:bg-violet-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1">
+                📝 <span class="hidden sm:inline">Anotaciones</span>
               </button>
             </div>
 
@@ -392,7 +398,6 @@
 
               <button id="btn-clear-frames" class="w-full bg-slate-700 hover:bg-red-900/50 text-slate-300 hover:text-red-300 text-[10px] font-semibold py-1 px-2 rounded-lg transition border border-slate-600">
                 🗑️ Reiniciar Capturas
-              </button>
 
               <p id="anim-status" class="text-[10px] text-emerald-400 text-center min-h-[14px]"></p>
             </div>
@@ -407,10 +412,12 @@
       <!-- Selector de Rival Superior / Overlay -->
       <div class="mb-2 bg-slate-800 p-2 rounded-xl border border-slate-700 flex-shrink-0 z-20 space-y-2">
         <div class="flex justify-between items-center gap-2 flex-wrap">
-          <div class="text-xs font-semibold text-emerald-400">
+          <div class="text-xs font-semibold text-emerald-400 flex items-center gap-2">
+            <span id="matchup-my-team-logo" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-600 overflow-hidden flex items-center justify-center">🛡️</span>
             Mi Equipo: <span id="matchup-my-side-label" class="text-white font-normal">(Izquierda)</span>
           </div>
           <div class="flex items-center gap-2">
+            <button id="btn-select-confrontation" type="button" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5" title="Seleccionar varios jugadores">▱ Seleccionar</button>
             <label class="text-xs text-slate-300 font-medium">Rival:</label>
             <select id="select-rival-team" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-1.5 focus:ring-emerald-500">
               <option value="">-- Seleccionar Rival --</option>
@@ -477,6 +484,16 @@
           </div>
 
           <div>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <label class="block text-xs font-semibold text-slate-300">Escudo del equipo</label>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btn-rival-image" class="bg-slate-900 border border-slate-600 text-slate-200 text-[10px] font-bold px-2 py-1 rounded-lg">🖼️ Imagen</button>
+                <input id="rival-image-input" type="file" accept="image/*" class="hidden">
+                <div id="rival-image-preview" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-600 flex items-center justify-center overflow-hidden">🛡️</div>
+              </div>
+            </div>
+          </div>
+          <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Formación Predeterminada</label>
             <select id="rival-formation" class="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg p-2 focus:border-emerald-500">
               <option value="4-3-3">4-3-3</option>
@@ -510,7 +527,17 @@
         <!-- COLUMNA IZQUIERDA: AÑADIR JUGADOR + PLANTILLA -->
         <div class="min-w-0 flex flex-col gap-3">
           <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg flex-shrink-0">
-            <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 mb-3 uppercase tracking-wider">Añadir Jugador a Mi Equipo</h3>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <h3 id="player-form-title" class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Añadir Jugador a Mi Equipo</h3>
+              <div class="flex gap-1">
+                <button type="button" id="btn-my-team-image" class="bg-slate-900 border border-slate-600 text-slate-200 text-[10px] font-bold px-2 py-1 rounded-lg">🖼️ Imagen</button>
+                <input id="my-team-image-input" type="file" accept="image/*" class="hidden">
+              </div>
+            </div>
+            <div class="grid grid-cols-[1fr_auto] gap-2 mb-3">
+              <input id="my-team-name" value="Mi Equipo" maxlength="40" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm" placeholder="Nombre de mi equipo">
+              <div id="my-team-logo-preview" class="w-10 h-10 rounded-lg bg-slate-900 border border-slate-600 flex items-center justify-center overflow-hidden text-lg">🛡️</div>
+            </div>
             <form id="form-add-player" class="space-y-3">
               <input type="hidden" id="edit-player-id" value="">
               <div class="flex gap-2">
@@ -575,19 +602,23 @@
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
           <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
             <div><h2 class="text-base font-bold text-emerald-400">🏟️ Marcador en Directo</h2><p class="text-[11px] text-slate-400">Resultado, reloj y todos los eventos del partido.</p></div>
-            <div class="flex flex-wrap gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button><button id="btn-show-annotations" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📝 Anotaciones</button></div>
+            <div class="grid grid-cols-2 gap-2 w-full sm:w-auto">
+              <select id="score-home-team-select" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg p-2"><option value="">Local: elegir equipo</option></select>
+              <select id="score-away-team-select" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg p-2"><option value="">Visitante: elegir rival</option></select>
+            </div>
+            <div class="flex flex-wrap gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button><button id="btn-capture-scoreboard" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg">📸 Captura</button><button id="btn-show-annotations" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📝 Anotaciones</button></div>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
-            <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[10px] uppercase tracking-wider text-slate-400">Local</span><input id="score-home-name" value="Local" maxlength="40" class="flex-1 max-w-[240px] bg-slate-900 border border-slate-600 rounded-lg px-2 py-1.5 text-white text-sm font-semibold text-right"></div>
+            <div class="flex items-center justify-between gap-2 mb-3"><span id="score-home-logo" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-600 overflow-hidden flex items-center justify-center">🛡️</span><span class="text-[10px] uppercase tracking-wider text-slate-400">Local</span><input id="score-home-name" value="Local" maxlength="40" class="flex-1 max-w-[240px] bg-slate-900 border border-slate-600 rounded-lg px-2 py-1.5 text-white text-sm font-semibold text-right"></div>
             <div class="flex items-center justify-center gap-3"><div class="flex flex-col gap-2"><button id="score-home-plus" class="w-11 h-11 rounded-xl bg-emerald-600 text-xl font-bold">▲</button><button id="score-home-minus" class="w-11 h-11 rounded-xl bg-slate-700 text-xl font-bold border border-slate-600">▼</button></div><span id="score-home" class="text-6xl sm:text-7xl font-black tabular-nums min-w-[110px] text-center">0</span><div class="w-11"></div></div>
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">⚽ Goles</h4><div id="score-home-goals" class="space-y-1"></div><p id="score-home-goals-empty" class="text-[10px] text-slate-500">Sin goles registrados.</p></div>
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-sky-400 mb-2">🔄 Cambios</h4><div id="score-home-subs" class="space-y-1"></div><p id="score-home-subs-empty" class="text-[10px] text-slate-500">Sin cambios registrados.</p></div>
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-amber-400 mb-2">🟨 Tarjetas</h4><div id="score-home-cards" class="space-y-1"></div><p id="score-home-cards-empty" class="text-[10px] text-slate-500">Sin tarjetas registradas.</p></div>
           </div>
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
-            <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[10px] uppercase tracking-wider text-slate-400">Visitante</span><input id="score-away-name" value="Visitante" maxlength="40" class="flex-1 max-w-[240px] bg-slate-900 border border-slate-600 rounded-lg px-2 py-1.5 text-white text-sm font-semibold text-right"></div>
+            <div class="flex items-center justify-between gap-2 mb-3"><span id="score-away-logo" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-600 overflow-hidden flex items-center justify-center">🛡️</span><span class="text-[10px] uppercase tracking-wider text-slate-400">Visitante</span><input id="score-away-name" value="Visitante" maxlength="40" class="flex-1 max-w-[240px] bg-slate-900 border border-slate-600 rounded-lg px-2 py-1.5 text-white text-sm font-semibold text-right"></div>
             <div class="flex items-center justify-center gap-3"><div class="flex flex-col gap-2"><button id="score-away-plus" class="w-11 h-11 rounded-xl bg-emerald-600 text-xl font-bold">▲</button><button id="score-away-minus" class="w-11 h-11 rounded-xl bg-slate-700 text-xl font-bold border border-slate-600">▼</button></div><span id="score-away" class="text-6xl sm:text-7xl font-black tabular-nums min-w-[110px] text-center">0</span><div class="w-11"></div></div>
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">⚽ Goles</h4><div id="score-away-goals" class="space-y-1"></div><p id="score-away-goals-empty" class="text-[10px] text-slate-500">Sin goles registrados.</p></div>
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-sky-400 mb-2">🔄 Cambios</h4><div id="score-away-subs" class="space-y-1"></div><p id="score-away-subs-empty" class="text-[10px] text-slate-500">Sin cambios registrados.</p></div>
@@ -600,18 +631,18 @@
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⚽ Registrar gol</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-goal" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⚽ Gol</button></div>
-            <div id="goal-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-goal-id"><input id="goal-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-2 gap-2"><select id="goal-team" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><input id="goal-number" type="number" min="1" max="99" placeholder="Nº" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"></div><input id="goal-player" placeholder="Nombre del jugador" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><textarea id="goal-note" rows="2" placeholder="Anotación opcional (no se mostrará en el marcador)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="goal-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-goal" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-save-goal" class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar gol</button></div></div></div>
+            <div id="goal-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-goal-id"><input id="goal-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-2 gap-2"><select id="goal-team" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><input id="goal-number" type="number" min="1" max="99" placeholder="Nº" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"></div><input id="goal-player" placeholder="Nombre del jugador" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><textarea id="goal-note" rows="2" placeholder="Anotación opcional (no se mostrará en el marcador)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="goal-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-goal" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-goal" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-goal" class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar gol</button></div></div></div>
           </div>
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">🔄 Registrar cambio</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-sub" class="bg-sky-600 text-white font-bold px-4 py-2 rounded-lg text-xs">🔄 Cambio</button></div>
-            <div id="sub-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-sub-id"><input id="sub-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><select id="sub-team" class="w-full bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><select id="sub-out" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select><select id="sub-in" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select></div><textarea id="sub-note" rows="2" placeholder="Anotación opcional (no se mostrará en el marcador)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="sub-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-sub" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-save-sub" class="bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar cambio</button></div></div></div>
+            <div id="sub-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-sub-id"><input id="sub-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><select id="sub-team" class="w-full bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><select id="sub-out" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select><select id="sub-in" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select></div><textarea id="sub-note" rows="2" placeholder="Anotación opcional (no se mostrará en el marcador)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="sub-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-sub" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-sub" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-sub" class="bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar cambio</button></div></div></div>
           </div>
         </div>
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
           <div class="flex flex-wrap items-center gap-2 mb-3"><div class="mr-auto"><h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider">🟨 Registrar tarjeta</h3><p class="text-[10px] text-slate-400">Las anotaciones de motivo se guardan pero no aparecen en el marcador.</p></div><button id="btn-register-yellow" class="bg-yellow-600 text-white font-bold px-3 py-2 rounded-lg text-xs">🟨 Amarilla</button><button id="btn-register-double-yellow" class="bg-orange-600 text-white font-bold px-3 py-2 rounded-lg text-xs">🟨🟨 Doble amarilla</button><button id="btn-register-red" class="bg-red-700 text-white font-bold px-3 py-2 rounded-lg text-xs">🟥 Roja</button></div>
-          <div id="card-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-card-id"><input id="card-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><input type="hidden" id="card-type"><div class="grid grid-cols-2 gap-2"><select id="card-team" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><input id="card-number" type="number" min="1" max="99" placeholder="Nº" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"></div><input id="card-player" placeholder="Nombre del jugador" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><textarea id="card-note" rows="2" placeholder="Motivo / anotación opcional" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="card-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-card" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-save-card" class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar tarjeta</button></div></div></div>
+          <div id="card-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-card-id"><input id="card-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><input type="hidden" id="card-type"><div class="grid grid-cols-2 gap-2"><select id="card-team" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><input id="card-number" type="number" min="1" max="99" placeholder="Nº" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"></div><input id="card-player" placeholder="Nombre del jugador" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><textarea id="card-note" rows="2" placeholder="Motivo / anotación opcional" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="card-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-card" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-card" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-card" class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar tarjeta</button></div></div></div>
         </div>
         <div id="annotations-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-violet-400 uppercase tracking-wider">📝 Anotaciones del partido</h3><p class="text-[10px] text-slate-400">Notas internas con el minuto exacto. No aparecen en el marcador de equipos.</p></div><button id="btn-add-annotation" class="bg-violet-600 text-white font-bold px-3 py-2 rounded-lg text-xs">➕ Añadir anotación</button></div><div id="annotations-list" class="space-y-2"></div><p id="annotations-empty" class="text-[10px] text-slate-500 text-center py-3">No hay anotaciones.</p></div>
-        <div id="annotation-editor" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><input type="hidden" id="edit-annotation-id"><input id="annotation-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><input id="annotation-title" placeholder="Título" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><span class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-xs text-slate-400">Minuto: <b id="annotation-minute-label" class="text-white font-mono">00:00</b></span></div><textarea id="annotation-description" rows="4" placeholder="Descripción" class="w-full mt-2 bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex justify-end gap-2 mt-2"><button id="btn-cancel-annotation" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-save-annotation" class="bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar anotación</button></div></div>
+        <div id="annotation-editor" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><input type="hidden" id="edit-annotation-id"><input id="annotation-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><input id="annotation-title" placeholder="Título" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><span class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-xs text-slate-400">Minuto: <b id="annotation-minute-label" class="text-white font-mono">00:00</b></span></div><textarea id="annotation-description" rows="4" placeholder="Descripción" class="w-full mt-2 bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex justify-end gap-2 mt-2"><button id="btn-cancel-annotation" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-annotation" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-annotation" class="bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar anotación</button></div></div>
         <div id="saved-scoreboards-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">Marcadores guardados</h3><div id="saved-scoreboards-list" class="space-y-2"></div></div>
       </div>
     </section>
@@ -881,6 +912,25 @@
     </div>
   </div>
 
+  <!-- MODAL: ANOTACIONES DE TÁCTICA -->
+  <div id="modal-tactic-annotations" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><h3 class="font-bold text-violet-400 text-sm">📝 Anotaciones de la táctica</h3><button id="btn-close-tactic-annotations" class="text-slate-400">✕</button></div>
+      <div id="tactic-annotations-list" class="space-y-2 mb-3"></div>
+      <div class="grid grid-cols-1 gap-2"><input id="tactic-annotation-title" placeholder="Título" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><textarea id="tactic-annotation-desc" rows="3" placeholder="Descripción" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"></textarea><button id="btn-add-tactic-annotation" class="bg-violet-600 text-white font-bold py-2 rounded-lg text-xs">➕ Añadir anotación</button></div>
+    </div>
+  </div>
+
+  <!-- MODAL: CAPTURA DEL MARCADOR -->
+  <div id="modal-scoreboard-capture" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-5xl w-full p-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><div><h3 class="font-bold text-indigo-300 text-sm">📸 Captura del marcador</h3><p class="text-[10px] text-slate-400">Se incluyen escudos y eventos públicos del partido.</p></div><button id="btn-close-scoreboard-capture" class="text-slate-400">✕</button></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3"><input id="scorecap-title" value="Marcador del partido" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm"><input id="scorecap-subtitle" value="Marcador en directo" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm"></div>
+      <canvas id="scoreboard-capture-canvas" class="w-full rounded-xl bg-slate-950 border border-slate-700"></canvas>
+      <div class="flex justify-end gap-2 mt-3"><button id="btn-cancel-scoreboard-capture" class="bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs">Cancelar</button><button id="btn-download-scoreboard-capture" class="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⬇️ Descargar imagen</button></div>
+    </div>
+  </div>
+
   <!-- MODAL: CUENTA Y SINCRONIZACIÓN EN LA NUBE -->
   <div id="modal-cloud-auth" class="fixed inset-0 bg-black/80 z-[100] hidden items-center justify-center p-4">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-5 shadow-2xl">
@@ -931,7 +981,7 @@
       'f11_squad','f11_rivals','f11_matches','f11_tactics','f11_confrontations',
       'f11_scoreboards','f11_live_scoreboard','f11_formation','f11_kit',
       'f11_active_tokens','f11_active_bench','f11_selected_rival_id',
-      'f11_selected_rival_kit','f11_active_rival_tokens','f11_team_colors'
+      'f11_selected_rival_kit','f11_active_rival_tokens','f11_team_colors','f11_my_team'
     ];
     let f11CloudUser = null;
     let f11CloudReady = false;
@@ -1075,6 +1125,7 @@
       }
 
       f11WriteLocalState(data.state);
+      try { myTeam = JSON.parse(localStorage.getItem('f11_my_team')) || myTeam; rivalTeams = JSON.parse(localStorage.getItem('f11_rivals')) || rivalTeams; } catch(e) {}
       f11CloudUpdatedAt = remoteUpdatedAt;
       f11SetAuthMessage('☁️ Cambios nuevos recibidos');
       // No recargamos la página: una recarga mientras el cronómetro está en marcha
@@ -1085,6 +1136,7 @@
           const remoteScoreboard = data.state.f11_live_scoreboard;
           if (remoteScoreboard) {
             scoreboard = {
+              ...normalizeScoreboard(remoteScoreboard),
               ...remoteScoreboard,
               goals: Array.isArray(remoteScoreboard.goals) ? remoteScoreboard.goals : [],
               substitutions: Array.isArray(remoteScoreboard.substitutions) ? remoteScoreboard.substitutions : []
@@ -1309,8 +1361,12 @@
     let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
     let savedScoreboards = (JSON.parse(localStorage.getItem('f11_scoreboards')) || []).map(x => ({...x, goals:Array.isArray(x.goals)?x.goals:[], substitutions:Array.isArray(x.substitutions)?x.substitutions:[], yellowCards:Array.isArray(x.yellowCards)?x.yellowCards:[], doubleYellowCards:Array.isArray(x.doubleYellowCards)?x.doubleYellowCards:[], redCards:Array.isArray(x.redCards)?x.redCards:[], annotations:Array.isArray(x.annotations)?x.annotations:[]}));
-    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0};
+    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0};
     let teamColors = JSON.parse(localStorage.getItem('f11_team_colors')) || {local:'#1d4ed8', visitante:'#db2777'};
+    let myTeam = JSON.parse(localStorage.getItem('f11_my_team')) || {name:'Mi Equipo', image:''};
+    let selectionModes = {pitch:false,tactics:false,confrontation:false};
+    let selectedElements = {pitch:new Set(),tactics:new Set(),confrontation:new Set()};
+    let currentTacticAnnotations = [];
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.local)) teamColors.local='#1d4ed8';
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.visitante)) teamColors.visitante='#db2777';
     localStorage.setItem('f11_team_colors',JSON.stringify(teamColors));
@@ -1566,6 +1622,7 @@
         headerTitle.innerHTML = '🏟️ Marcador en Directo';
         headerActions.classList.add('hidden');
         initScoreboardView();
+        populateScoreTeamSelectors();
       }
       toggleSidebar(false);
     }
@@ -1846,10 +1903,11 @@
         `;
 
         makeDraggable(tokenEl, token, pitch);
-        tokenEl.addEventListener('dblclick', () => openAssignPlayerModal(token.slot, token.role));
+        tokenEl.addEventListener('dblclick', () => { if(selectionModes.pitch) return; openAssignPlayerModal(token.slot, token.role); });
         
         let tapTimer = null;
         tokenEl.addEventListener('touchend', () => {
+          if (selectionModes.pitch) return;
           if (!tapTimer) {
             tapTimer = setTimeout(() => { tapTimer = null; }, 300);
           } else {
@@ -1902,43 +1960,32 @@
       renderBench();
     }
 
+    function selectionKeyForContainer(container){ if(container===pitch) return 'pitch'; if(container?.id==='tactics-pitch') return 'tactics'; if(container?.id==='matchup-pitch') return 'confrontation'; return null; }
+    function clearSelection(key){ if(!selectedElements[key]) return; selectedElements[key].forEach(el=>el.classList.remove('ring-4','ring-yellow-300','scale-105')); selectedElements[key].clear(); }
+    function toggleSelectedElement(el,key){ if(!key)return; if(selectedElements[key].has(el)){selectedElements[key].delete(el);el.classList.remove('ring-4','ring-yellow-300','scale-105');}else{selectedElements[key].add(el);el.classList.add('ring-4','ring-yellow-300','scale-105');} }
+    function setSelectionMode(key,on){ selectionModes[key]=on; clearSelection(key); const btn=document.getElementById('btn-select-'+(key==='pitch'?'pitch':key)); if(btn){btn.classList.toggle('bg-emerald-600',on);btn.classList.toggle('border-emerald-400',on);btn.innerHTML=on?'▱ Selección activa':'▱ Seleccionar';} }
+    function updateGroupPositions(key,activeEl,dx,dy,container){ const set=selectedElements[key]; if(!set||set.size<2)return; const rect=container.getBoundingClientRect(); set.forEach(el=>{ if(el===activeEl)return; const start=el._groupStart; if(!start)return; let x=start.x+(dx/rect.width)*100,y=start.y+(dy/rect.height)*100;x=Math.max(3,Math.min(97,x));y=Math.max(3,Math.min(97,y));el.style.left=x+'%';el.style.top=y+'%';if(el._dataObj){el._dataObj.x=x;el._dataObj.y=y;} }); }
+
     function makeDraggable(element, dataObj, container) {
-      let isDragging = false;
-
+      let isDragging = false, moved = false, startX = 0, startY = 0;
+      const key = selectionKeyForContainer(container);
+      element._dataObj = dataObj;
       element.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        element.setPointerCapture(e.pointerId);
-        element.classList.add('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-      });
-
-      element.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        const rect = container.getBoundingClientRect();
-        let x = ((e.clientX - rect.left) / rect.width) * 100;
-        let y = ((e.clientY - rect.top) / rect.height) * 100;
-
-        x = Math.max(3, Math.min(97, x));
-        y = Math.max(3, Math.min(97, y));
-
-        element.style.left = `${x}%`;
-        element.style.top = `${y}%`;
-
-        if (dataObj) {
-          dataObj.x = x;
-          dataObj.y = y;
+        if(key && selectionModes[key]){
+          if(!selectedElements[key].has(element)) toggleSelectedElement(element,key);
+          selectedElements[key].forEach(el=>{el._groupStart={x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50};});
         }
+        isDragging=true; moved=false; startX=e.clientX; startY=e.clientY; element.setPointerCapture?.(e.pointerId); element.classList.add('scale-125','z-30');
       });
-
-      const stopDrag = (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        element.releasePointerCapture(e.pointerId);
-        element.classList.remove('scale-125', 'z-30', 'ring-4', 'ring-emerald-400/50');
-        if (container === pitch) savePitchState();
-      };
-
-      element.addEventListener('pointerup', stopDrag);
-      element.addEventListener('pointercancel', stopDrag);
+      element.addEventListener('pointermove', (e) => {
+        if(!isDragging)return;
+        const dx=e.clientX-startX,dy=e.clientY-startY; if(Math.abs(dx)+Math.abs(dy)>4)moved=true;
+        const rect=container.getBoundingClientRect(); let x=((e.clientX-rect.left)/rect.width)*100,y=((e.clientY-rect.top)/rect.height)*100;x=Math.max(3,Math.min(97,x));y=Math.max(3,Math.min(97,y));
+        const startXData=parseFloat(element._groupStart?.x ?? element.style.left)||50,startYData=parseFloat(element._groupStart?.y ?? element.style.top)||50;
+        if(key && selectionModes[key] && selectedElements[key].size>1){ const gx=Math.max(3,Math.min(97,startXData+(dx/rect.width)*100)); const gy=Math.max(3,Math.min(97,startYData+(dy/rect.height)*100)); element.style.left=gx+'%';element.style.top=gy+'%';if(dataObj){dataObj.x=gx;dataObj.y=gy;} updateGroupPositions(key,element,dx,dy,container); } else { element.style.left=x+'%';element.style.top=y+'%';if(dataObj){dataObj.x=x;dataObj.y=y;} }
+      });
+      const stopDrag=(e)=>{if(!isDragging)return;isDragging=false;element.releasePointerCapture?.(e.pointerId);element.classList.remove('scale-125','z-30');if(key&&selectionModes[key]&&!moved){toggleSelectedElement(element,key);}if(container===pitch)savePitchState();if(container?.id==='tactics-pitch'){ /* posiciones ya viven en currentTacticsTokens */ } if(container?.id==='matchup-pitch'){savePitchState();} };
+      element.addEventListener('pointerup',stopDrag);element.addEventListener('pointercancel',stopDrag);
     }
 
     // --- SECCIÓN TÁCTICAS (SINCRONIZADO CON PIZARRA + DIBUJO Y GUARDADO) ---
@@ -2327,10 +2374,11 @@
 
     function pickSupportedMimeType() {
       const candidates = [
+        'video/mp4;codecs=avc1.42E01E',
+        'video/mp4',
         'video/webm;codecs=vp9',
         'video/webm;codecs=vp8',
-        'video/webm',
-        'video/mp4'
+        'video/webm'
       ];
       if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
       for (const m of candidates) {
@@ -2461,7 +2509,8 @@
         desc,
         tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
         props: propsList,
-        canvasData: tacticsCanvas.toDataURL()
+        canvasData: tacticsCanvas.toDataURL(),
+        annotations: JSON.parse(JSON.stringify(currentTacticAnnotations))
       };
 
       savedTactics.unshift(newTactic);
@@ -2478,6 +2527,8 @@
     });
 
     document.getElementById('btn-close-load-tactics').onclick = () => {
+      currentTacticAnnotations = Array.isArray(tac.annotations) ? JSON.parse(JSON.stringify(tac.annotations)) : [];
+      renderTacticAnnotations();
       document.getElementById('modal-load-tactics').classList.add('hidden');
     };
 
@@ -2767,7 +2818,7 @@
 
       // Determinar lado del usuario según su equipación
       const isMyTeamLeft = currentKit === 'local';
-      document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? "(Lado Izquierdo - Local)" : "(Lado Derecho - Visitante)";
+      document.getElementById('matchup-my-side-label').innerText = isMyTeamLeft ? `(Lado Izquierdo - Local) ${myTeam.name}` : `(Lado Derecho - Visitante) ${myTeam.name}`;
 
       // Renderizar Mi Equipo
       activeTokens.forEach(token => {
@@ -2866,8 +2917,8 @@
         makeDraggable(tokenEl, tokenData, container);
 
         // Click para cambiar jugador del rival
-        tokenEl.addEventListener('dblclick', () => openAssignRivalPlayerModal(token.slot, rival));
-        tokenEl.addEventListener('touchend', () => openAssignRivalPlayerModal(token.slot, rival));
+        tokenEl.addEventListener('dblclick', () => { if(selectionModes.confrontation) return; openAssignRivalPlayerModal(token.slot, rival); });
+        tokenEl.addEventListener('touchend', () => { if(selectionModes.confrontation) return; openAssignRivalPlayerModal(token.slot, rival); });
 
         container.appendChild(tokenEl);
       });
@@ -2977,6 +3028,7 @@
         card.innerHTML = `
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
+              <span class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-600 overflow-hidden flex items-center justify-center">${rival.image ? `<img src="${rival.image}" class="w-full h-full object-contain">` : '🛡️'}</span>
               <span class="w-4 h-4 rounded-full border border-white" style="background-color: ${rival.homeColor}" title="Local"></span>
               <span class="w-4 h-4 rounded-full border border-white" style="background-color: ${rival.awayColor}" title="Visitante"></span>
               <h4 class="font-bold text-white text-sm">${rival.name}</h4>
@@ -3006,6 +3058,7 @@
       const homeColor = document.getElementById('rival-color-local').value;
       const awayColor = document.getElementById('rival-color-away').value;
       const formation = document.getElementById('rival-formation').value;
+      const image = document.getElementById('rival-image-input').dataset.value || '';
 
       if (editId) {
         const rival = rivalTeams.find(r => r.id === parseInt(editId));
@@ -3014,6 +3067,7 @@
           rival.homeColor = homeColor;
           rival.awayColor = awayColor;
           rival.formation = formation;
+          rival.image = image;
         }
       } else {
         const newRival = {
@@ -3022,6 +3076,7 @@
           homeColor,
           awayColor,
           formation,
+          image,
           squad: []
         };
         rivalTeams.push(newRival);
@@ -3041,6 +3096,8 @@
       document.getElementById('rival-color-local').value = rival.homeColor;
       document.getElementById('rival-color-away').value = rival.awayColor;
       document.getElementById('rival-formation').value = rival.formation;
+      document.getElementById('rival-image-input').dataset.value = rival.image || '';
+      document.getElementById('rival-image-preview').innerHTML = rival.image ? `<img src="${rival.image}" class="w-full h-full object-contain">` : '🛡️';
 
       document.getElementById('rival-form-title').innerText = "Editar Equipo Rival";
       btnSaveRival.innerText = "Actualizar Equipo";
@@ -3053,6 +3110,8 @@
       document.getElementById('rival-form-title').innerText = "Crear Nuevo Equipo Rival";
       btnSaveRival.innerText = "Guardar Equipo Rival";
       btnCancelRival.classList.add('hidden');
+      const ri=document.getElementById('rival-image-input'); if(ri) ri.dataset.value='';
+      renderRivalLogoPreview();
     }
 
     btnCancelRival.addEventListener('click', resetRivalForm);
@@ -3559,7 +3618,7 @@
       savedPanel:document.getElementById('saved-scoreboards-panel'), savedList:document.getElementById('saved-scoreboards-list')
     };
     function normalizeScoreboard(sb){
-      const base={homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0};
+      const base={homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0};
       const x={...base,...(sb||{})};
       ['goals','substitutions','yellowCards','doubleYellowCards','redCards','annotations'].forEach(k=>{x[k]=Array.isArray(x[k])?x[k]:[];});
       return x;
@@ -3590,7 +3649,7 @@
     function renderClock(){const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);se.clock.textContent=fmt(shownSeconds);se.half.value=String(scoreboard.half);se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';if(scoreboard.running&&!scoreboardTimer)scoreboardTimer=setInterval(renderClock,250);if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}}
     function cardTypeLabel(type){return type==='yellow'?'🟨 Amarilla':type==='doubleYellow'?'🟨🟨 Doble amarilla':'🟥 Roja';}
     function renderSB(){
-      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';se.hn.style.borderColor=getTeamColor('local');se.hn.style.color=getTeamColor('local');se.an.style.borderColor=getTeamColor('visitante');se.an.style.color=getTeamColor('visitante');se.hs.style.color=getTeamColor('local');se.as.style.color=getTeamColor('visitante');renderClock();
+      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';const hlogo=document.getElementById('score-home-logo'),alogo=document.getElementById('score-away-logo');if(hlogo)hlogo.innerHTML=scoreboard.homeLogo?`<img src="${scoreboard.homeLogo}" class="w-full h-full object-contain">`:'🛡️';if(alogo)alogo.innerHTML=scoreboard.awayLogo?`<img src="${scoreboard.awayLogo}" class="w-full h-full object-contain">`:'🛡️';se.hn.style.borderColor=getTeamColor('local');se.hn.style.color=getTeamColor('local');se.an.style.borderColor=getTeamColor('visitante');se.an.style.color=getTeamColor('visitante');se.hs.style.color=getTeamColor('local');se.as.style.color=getTeamColor('visitante');renderClock();
       ['home','away'].forEach(t=>{
         const gs=scoreboard.goals.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds), ss=scoreboard.substitutions.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
         const cs=[...scoreboard.yellowCards.map(x=>({...x,type:'yellow'})),...scoreboard.doubleYellowCards.map(x=>({...x,type:'doubleYellow'})),...scoreboard.redCards.map(x=>({...x,type:'red'}))].filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
@@ -3603,13 +3662,13 @@
     }
     function players(team){if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));const r=rivalTeams.find(x=>String(x.id)===String(selectedRivalId));return r&&Array.isArray(r.squad)?r.squad.map(p=>({num:p.num,name:p.name})):[];}
     function fillPlayers(){const opts='<option value="">— Seleccionar —</option>'+players(se.st.value).map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');se.so.innerHTML=opts;se.si.innerHTML=opts;}
-    function openGoal(id=null){const g=id?scoreboard.goals.find(x=>x.id===id):null,sec=g?g.minuteSeconds:absoluteTime();se.geid.value=g?g.id:'';se.gt.value=g?g.team:'home';se.gn.value=g?.number??'';se.gp.value=g?.player??'';se.gnote.value=g?.note??'';se.gm.value=eventMinute(sec);se.gml.textContent=eventMinute(sec);se.ge.classList.remove('hidden');}
-    function openSub(id=null){const x=id?scoreboard.substitutions.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.seid.value=x?x.id:'';se.st.value=x?x.team:'home';fillPlayers();se.so.value=x?.out||'';se.si.value=x?.in||'';se.snote.value=x?.note??'';se.sm.value=eventMinute(sec);se.sml.textContent=eventMinute(sec);se.sue.classList.remove('hidden');}
-    function openCard(type,id=null){let arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards;const x=id?arr.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.ceid.value=x?x.id:'';se.ctype.value=type;se.ct.value=x?.team||'home';se.cn.value=x?.number??'';se.cp.value=x?.player??'';se.cnote.value=x?.note??'';se.cm.value=eventMinute(sec);se.cml.textContent=eventMinute(sec);se.ce.classList.remove('hidden');}
-    function openAnnotation(id=null){const x=id?scoreboard.annotations.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.aeid.value=x?x.id:'';se.atitle.value=x?.title||'';se.adesc.value=x?.description||'';se.amin.value=eventMinute(sec);se.aminl.textContent=eventMinute(sec);se.ae.classList.remove('hidden');se.ap.classList.remove('hidden');}
-    function closeGoal(){se.ge.classList.add('hidden');se.geid.value='';} function closeSub(){se.sue.classList.add('hidden');se.seid.value='';} function closeCard(){se.ce.classList.add('hidden');se.ceid.value='';} function closeAnnotation(){se.ae.classList.add('hidden');se.aeid.value='';}
-    window.editScoreGoal=id=>openGoal(id);window.editScoreSub=id=>openSub(id);window.editScoreCard=(type,id)=>openCard(type,id);window.editScoreAnnotation=id=>openAnnotation(id);
-    function renderAnnotations(){if(!se.al)return;const list=[...scoreboard.annotations].sort((a,b)=>a.minuteSeconds-b.minuteSeconds);se.al.innerHTML=list.map(x=>`<div class="bg-slate-900/80 rounded-lg p-2 text-[11px] flex items-start justify-between gap-2"><div><b class="text-violet-300 font-mono">${esc(x.minute)}</b> — <strong>${esc(x.title)}</strong><div class="text-slate-400 whitespace-pre-wrap mt-1">${esc(x.description||'')}</div></div><button onclick="editScoreAnnotation(${x.id})">✏️</button></div>`).join('');se.ale.classList.toggle('hidden',list.length>0);}
+    function openGoal(id=null){const g=id?scoreboard.goals.find(x=>x.id===id):null,sec=g?g.minuteSeconds:absoluteTime();se.geid.value=g?g.id:'';document.getElementById('btn-delete-goal').classList.toggle('hidden',!g);se.gt.value=g?g.team:'home';se.gn.value=g?.number??'';se.gp.value=g?.player??'';se.gnote.value=g?.note??'';se.gm.value=eventMinute(sec);se.gml.textContent=eventMinute(sec);se.ge.classList.remove('hidden');}
+    function openSub(id=null){const x=id?scoreboard.substitutions.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.seid.value=x?x.id:'';document.getElementById('btn-delete-sub').classList.toggle('hidden',!x);se.st.value=x?x.team:'home';fillPlayers();se.so.value=x?.out||'';se.si.value=x?.in||'';se.snote.value=x?.note??'';se.sm.value=eventMinute(sec);se.sml.textContent=eventMinute(sec);se.sue.classList.remove('hidden');}
+    function openCard(type,id=null){let arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards;const x=id?arr.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.ceid.value=x?x.id:'';document.getElementById('btn-delete-card').classList.toggle('hidden',!x);se.ctype.value=type;se.ct.value=x?.team||'home';se.cn.value=x?.number??'';se.cp.value=x?.player??'';se.cnote.value=x?.note??'';se.cm.value=eventMinute(sec);se.cml.textContent=eventMinute(sec);se.ce.classList.remove('hidden');}
+    function openAnnotation(id=null){const x=id?scoreboard.annotations.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.aeid.value=x?x.id:'';document.getElementById('btn-delete-annotation').classList.toggle('hidden',!x);se.atitle.value=x?.title||'';se.adesc.value=x?.description||'';se.amin.value=eventMinute(sec);se.aminl.textContent=eventMinute(sec);se.ae.classList.remove('hidden');se.ap.classList.remove('hidden');}
+    function closeGoal(){se.ge.classList.add('hidden');se.geid.value='';document.getElementById('btn-delete-goal').classList.add('hidden');} function closeSub(){se.sue.classList.add('hidden');se.seid.value='';document.getElementById('btn-delete-sub').classList.add('hidden');} function closeCard(){se.ce.classList.add('hidden');se.ceid.value='';document.getElementById('btn-delete-card').classList.add('hidden');} function closeAnnotation(){se.ae.classList.add('hidden');se.aeid.value='';document.getElementById('btn-delete-annotation').classList.add('hidden');}
+    window.editScoreGoal=id=>openGoal(id);window.editScoreSub=id=>openSub(id);window.editScoreCard=(type,id)=>openCard(type,id);window.editScoreAnnotation=id=>openAnnotation(id);window.deleteScoreAnnotation=id=>{if(confirm('¿Eliminar esta anotación?')){scoreboard.annotations=scoreboard.annotations.filter(x=>x.id!==id);saveSB();renderAnnotations();}};
+    function renderAnnotations(){if(!se.al)return;const list=[...scoreboard.annotations].sort((a,b)=>a.minuteSeconds-b.minuteSeconds);se.al.innerHTML=list.map(x=>`<div class="bg-slate-900/80 rounded-lg p-2 text-[11px] flex items-start justify-between gap-2"><div><b class="text-violet-300 font-mono">${esc(x.minute)}</b> — <strong>${esc(x.title)}</strong><div class="text-slate-400 whitespace-pre-wrap mt-1">${esc(x.description||'')}</div></div><div class="flex gap-1"><button onclick="editScoreAnnotation(${x.id})">✏️</button><button class="text-red-400" onclick="deleteScoreAnnotation(${x.id})">🗑️</button></div></div>`).join('');se.ale.classList.toggle('hidden',list.length>0);}
     function initScoreboardView(){
       if(!scoreboardInitialized){scoreboardInitialized=true;
         ['home','away'].forEach(t=>{document.getElementById(`score-${t}-plus`).onclick=()=>{scoreboard[t+'Score']=Number(scoreboard[t+'Score'])+1;saveSB();renderSB();};document.getElementById(`score-${t}-minus`).onclick=()=>{scoreboard[t+'Score']=Math.max(0,Number(scoreboard[t+'Score'])-1);saveSB();renderSB();};});
@@ -3618,20 +3677,56 @@
         document.getElementById('btn-clock-resume').onclick=()=>{if(scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderClock();};
         document.getElementById('btn-clock-stop').onclick=()=>{scoreboard.elapsed=0;scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         se.half.onchange=()=>{scoreboard.elapsed=0;scoreboard.half=Number(se.half.value);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
-        document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;
+        document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;document.getElementById('btn-delete-goal').onclick=()=>{const id=Number(se.geid.value);if(id&&confirm('¿Eliminar este gol?')){scoreboard.goals=scoreboard.goals.filter(x=>x.id!==id);saveSB();closeGoal();renderSB();}};
         document.getElementById('btn-save-goal').onclick=()=>{const p=se.gp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const id=se.geid.value?Number(se.geid.value):Date.now(),sec=parseEventTimeInput(se.gm.value,absoluteTime()),d={id,team:se.gt.value,player:p,number:String(se.gn.value||'').trim(),note:se.gnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.goals.findIndex(x=>x.id===id);if(i>=0)scoreboard.goals[i]=d;else scoreboard.goals.push(d);saveSB();closeGoal();renderSB();};
-        document.getElementById('btn-register-sub').onclick=()=>openSub();document.getElementById('btn-cancel-sub').onclick=closeSub;se.st.onchange=fillPlayers;
+        document.getElementById('btn-register-sub').onclick=()=>openSub();document.getElementById('btn-cancel-sub').onclick=closeSub;se.st.onchange=fillPlayers;document.getElementById('btn-delete-sub').onclick=()=>{const id=Number(se.seid.value);if(id&&confirm('¿Eliminar este cambio?')){scoreboard.substitutions=scoreboard.substitutions.filter(x=>x.id!==id);saveSB();closeSub();renderSB();}};
         document.getElementById('btn-save-sub').onclick=()=>{if(!se.so.value||!se.si.value)return alert('Selecciona el jugador que sale y el que entra.');if(se.so.value===se.si.value)return alert('Los jugadores no pueden ser el mismo.');const id=se.seid.value?Number(se.seid.value):Date.now(),sec=parseEventTimeInput(se.sm.value,absoluteTime()),d={id,team:se.st.value,out:se.so.value,in:se.si.value,note:se.snote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.substitutions.findIndex(x=>x.id===id);if(i>=0)scoreboard.substitutions[i]=d;else scoreboard.substitutions.push(d);saveSB();closeSub();renderSB();};
         [['yellow','btn-register-yellow'],['doubleYellow','btn-register-double-yellow'],['red','btn-register-red']].forEach(([type,id])=>document.getElementById(id).onclick=()=>openCard(type));
-        document.getElementById('btn-cancel-card').onclick=closeCard;
+        document.getElementById('btn-cancel-card').onclick=closeCard;document.getElementById('btn-delete-card').onclick=()=>{const id=Number(se.ceid.value),type=se.ctype.value,arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards;if(id&&confirm('¿Eliminar esta tarjeta?')){const idx=arr.findIndex(x=>x.id===id);if(idx>=0)arr.splice(idx,1);saveSB();closeCard();renderSB();}};
         document.getElementById('btn-save-card').onclick=()=>{const p=se.cp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const type=se.ctype.value,arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards,id=se.ceid.value?Number(se.ceid.value):Date.now(),sec=parseEventTimeInput(se.cm.value,absoluteTime()),d={id,team:se.ct.value,player:p,number:String(se.cn.value||'').trim(),note:se.cnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=arr.findIndex(x=>x.id===id);if(i>=0)arr[i]=d;else arr.push(d);saveSB();closeCard();renderSB();};
-        document.getElementById('btn-show-annotations').onclick=()=>{se.ap.classList.toggle('hidden');if(!se.ap.classList.contains('hidden'))renderAnnotations();};document.getElementById('btn-add-annotation').onclick=()=>openAnnotation();document.getElementById('btn-cancel-annotation').onclick=closeAnnotation;
+        document.getElementById('btn-show-annotations').onclick=()=>{se.ap.classList.toggle('hidden');if(!se.ap.classList.contains('hidden'))renderAnnotations();};document.getElementById('btn-add-annotation').onclick=()=>openAnnotation();document.getElementById('btn-cancel-annotation').onclick=closeAnnotation;document.getElementById('btn-delete-annotation').onclick=()=>{const id=Number(se.aeid.value);if(id&&confirm('¿Eliminar esta anotación?')){scoreboard.annotations=scoreboard.annotations.filter(x=>x.id!==id);saveSB();closeAnnotation();renderAnnotations();}};
         document.getElementById('btn-save-annotation').onclick=()=>{const title=se.atitle.value.trim();if(!title)return alert('Escribe un título.');const id=se.aeid.value?Number(se.aeid.value):Date.now(),sec=parseEventTimeInput(se.amin.value,absoluteTime()),d={id,title,description:se.adesc.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.annotations.findIndex(x=>x.id===id);if(i>=0)scoreboard.annotations[i]=d;else scoreboard.annotations.push(d);saveSB();closeAnnotation();se.ap.classList.remove('hidden');renderAnnotations();};
-        document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();saveSB();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,running:false,lastStartedAt:null,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions)),yellowCards:JSON.parse(JSON.stringify(scoreboard.yellowCards)),doubleYellowCards:JSON.parse(JSON.stringify(scoreboard.doubleYellowCards)),redCards:JSON.parse(JSON.stringify(scoreboard.redCards)),annotations:JSON.parse(JSON.stringify(scoreboard.annotations))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
+        document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();saveSB();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeTeamId:scoreboard.homeTeamId||'',awayTeamId:scoreboard.awayTeamId||'',homeLogo:scoreboard.homeLogo||'',awayLogo:scoreboard.awayLogo||'',homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,running:false,lastStartedAt:null,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions)),yellowCards:JSON.parse(JSON.stringify(scoreboard.yellowCards)),doubleYellowCards:JSON.parse(JSON.stringify(scoreboard.doubleYellowCards)),redCards:JSON.parse(JSON.stringify(scoreboard.redCards)),annotations:JSON.parse(JSON.stringify(scoreboard.annotations))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
         document.getElementById('btn-load-scoreboard').onclick=()=>{se.savedPanel.classList.toggle('hidden');if(!se.savedPanel.classList.contains('hidden'))renderSaved();};
       }fillPlayers();renderSB();
     }
     function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)} · ${((x.goals||[]).length)} goles · ${((x.substitutions||[]).length)} cambios · ${((x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length)} tarjetas</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});}
+// --- FUNCIONES EXTRA: EQUIPOS, ANOTACIONES, SELECCIÓN Y CAPTURA ---
+    function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=256,scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/png'));};img.onerror=reject;img.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
+    function renderMyTeamLogo(){const p=document.getElementById('my-team-logo-preview');const b=document.getElementById('pitch-my-team-badge');if(b)b.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain" title="${esc(myTeam.name)}">`:'🛡️';if(p)p.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain">`:'🛡️';const n=document.getElementById('my-team-name');if(n)n.value=myTeam.name||'Mi Equipo';}
+    function renderRivalLogoPreview(){const p=document.getElementById('rival-image-preview'),v=document.getElementById('rival-image-input')?.dataset.value||'';if(p)p.innerHTML=v?`<img src="${v}" class="w-full h-full object-contain">`:'🛡️';}
+    document.getElementById('btn-my-team-image')?.addEventListener('click',()=>document.getElementById('my-team-image-input')?.click());
+    document.getElementById('my-team-image-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;myTeam.image=await readFileAsDataURL(f);localStorage.setItem('f11_my_team',JSON.stringify(myTeam));renderMyTeamLogo();});
+    document.getElementById('my-team-name')?.addEventListener('input',e=>{myTeam.name=e.target.value.trim()||'Mi Equipo';localStorage.setItem('f11_my_team',JSON.stringify(myTeam));});
+    document.getElementById('btn-rival-image')?.addEventListener('click',()=>document.getElementById('rival-image-input')?.click());
+    document.getElementById('rival-image-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const v=await readFileAsDataURL(f);e.target.dataset.value=v;renderRivalLogoPreview();});
+    renderMyTeamLogo();renderRivalLogoPreview();
+
+    function renderTacticAnnotations(){const list=document.getElementById('tactic-annotations-list');if(!list)return;list.innerHTML=currentTacticAnnotations.length?currentTacticAnnotations.map(a=>`<div class="bg-slate-900 rounded-lg p-2 flex justify-between gap-2 text-xs"><div><b class="text-violet-300">${esc(a.title)}</b><div class="text-slate-400 mt-1 whitespace-pre-wrap">${esc(a.description||'')}</div></div><button class="text-red-400" onclick="deleteTacticAnnotation(${a.id})">🗑️</button></div>`).join(''):'<p class="text-[10px] text-slate-500">No hay anotaciones.</p>';}
+    window.deleteTacticAnnotation=id=>{currentTacticAnnotations=currentTacticAnnotations.filter(a=>a.id!==id);renderTacticAnnotations();};
+    document.getElementById('btn-tactic-annotations')?.addEventListener('click',()=>{renderTacticAnnotations();document.getElementById('modal-tactic-annotations').classList.remove('hidden');});
+    document.getElementById('btn-close-tactic-annotations')?.addEventListener('click',()=>document.getElementById('modal-tactic-annotations').classList.add('hidden'));
+    document.getElementById('btn-add-tactic-annotation')?.addEventListener('click',()=>{const title=document.getElementById('tactic-annotation-title').value.trim();if(!title)return alert('Escribe un título.');currentTacticAnnotations.push({id:Date.now(),title,description:document.getElementById('tactic-annotation-desc').value.trim()});document.getElementById('tactic-annotation-title').value='';document.getElementById('tactic-annotation-desc').value='';renderTacticAnnotations();});
+
+    function setupSelectionButtons(){[['pitch','btn-select-pitch'],['tactics','btn-select-tactics'],['confrontation','btn-select-confrontation']].forEach(([k,id])=>document.getElementById(id)?.addEventListener('click',()=>setSelectionMode(k,!selectionModes[k])));}
+    setupSelectionButtons();
+
+    let benchMultiSelected=new Set();
+    function openBenchMultiSelector(){const modalList=document.getElementById('modal-player-list');const footer=document.getElementById('bench-multi-footer');benchMultiSelected=new Set();modalList.innerHTML='';const pitchIds=activeTokens.map(t=>t.playerId).filter(Boolean);sortSquad();squad.forEach(player=>{if(pitchIds.includes(player.id)||activeBench.includes(player.id))return;const item=document.createElement('button');item.type='button';item.dataset.playerId=player.id;item.className='w-full p-2.5 rounded-xl text-xs font-semibold text-left flex justify-between items-center border bg-slate-900 border-slate-700 text-slate-300';item.innerHTML=`<span class="flex items-center gap-2"><span class="bg-slate-800 border border-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">${player.num}</span>${player.name}</span><span>☐</span>`;item.onclick=()=>{const id=player.id;if(benchMultiSelected.has(id)){benchMultiSelected.delete(id);item.classList.remove('border-emerald-400','bg-emerald-950/40');item.lastElementChild.textContent='☐';}else{benchMultiSelected.add(id);item.classList.add('border-emerald-400','bg-emerald-950/40');item.lastElementChild.textContent='✓';}};modalList.appendChild(item);});document.getElementById('modal-title').innerText='Añadir varios suplentes';document.getElementById('modal-subtitle').innerText='Selecciona todos los jugadores que quieras y pulsa Aceptar';footer.classList.remove('hidden');modalSelectPlayer.classList.remove('hidden');}
+    document.getElementById('btn-accept-bench-multi')?.addEventListener('click',()=>{activeBench=[...activeBench,...benchMultiSelected];savePitchState();renderPitch();modalSelectPlayer.classList.add('hidden');document.getElementById('bench-multi-footer').classList.add('hidden');});
+    document.getElementById('btn-cancel-bench-multi')?.addEventListener('click',()=>{modalSelectPlayer.classList.add('hidden');document.getElementById('bench-multi-footer').classList.add('hidden');});
+    // Sobrescribe el botón + para selección múltiple.
+    btnAddBenchPlayer.onclick=()=>openBenchMultiSelector();
+
+    function populateScoreTeamSelectors(){const hs=document.getElementById('score-home-team-select'),as=document.getElementById('score-away-team-select');if(!hs||!as)return;hs.innerHTML=`<option value="">Local: elegir equipo</option><option value="my">${esc(myTeam.name||'Mi Equipo')}</option>`;as.innerHTML='<option value="">Visitante: elegir rival</option>'+rivalTeams.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');hs.value=scoreboard.homeTeamId||'';as.value=scoreboard.awayTeamId||'';}
+    function applyScoreTeamSelection(){const hs=document.getElementById('score-home-team-select'),as=document.getElementById('score-away-team-select');if(hs){scoreboard.homeTeamId=hs.value;if(hs.value==='my'){scoreboard.homeName=myTeam.name;scoreboard.homeLogo=myTeam.image||'';}}if(as){scoreboard.awayTeamId=as.value;const r=rivalTeams.find(x=>String(x.id)===String(as.value));if(r){scoreboard.awayName=r.name;scoreboard.awayLogo=r.image||'';}}saveSB();renderSB();}
+    document.getElementById('score-home-team-select')?.addEventListener('change',applyScoreTeamSelection);document.getElementById('score-away-team-select')?.addEventListener('change',applyScoreTeamSelection);populateScoreTeamSelectors();
+
+    async function openScoreboardCapture(){const m=document.getElementById('modal-scoreboard-capture');m.classList.remove('hidden');await renderScoreboardCapture();}
+    function eventRows(team){const rows=[];const add=(arr,icon,label)=>arr.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — ${icon} ${label}${x.number?` #${x.number}`:''} ${x.player||''}`}));add(scoreboard.goals,'⚽','Gol');add(scoreboard.substitutions,'🔄', 'Cambio');add(scoreboard.yellowCards,'🟨','Amarilla');add(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');add(scoreboard.redCards,'🟥','Roja');return rows.sort((a,b)=>a.sec-b.sec);}
+    async function renderScoreboardCapture(){const c=document.getElementById('scoreboard-capture-canvas');if(!c)return;const ctx=c.getContext('2d');const W=1400,H=900;c.width=W;c.height=H;ctx.fillStyle='#0b1220';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 48px Arial';ctx.fillText(document.getElementById('scorecap-title').value.trim()||'Marcador del partido',W/2,55);ctx.fillStyle='#34d399';ctx.font='700 25px Arial';ctx.fillText(document.getElementById('scorecap-subtitle').value.trim()||'Marcador en directo',W/2,92);ctx.fillStyle='#111827';ctx.fillRect(60,120,1280,120);ctx.fillStyle='#fff';ctx.font='800 34px Arial';ctx.fillText(scoreboard.homeName,330,170);ctx.fillText(scoreboard.awayName,1070,170);ctx.font='900 70px Arial';ctx.fillText(`${scoreboard.homeScore}  —  ${scoreboard.awayScore}`,700,205);const load=src=>src?new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src;}):Promise.resolve(null);const [hi,ai]=await Promise.all([load(scoreboard.homeLogo),load(scoreboard.awayLogo)]);if(hi)ctx.drawImage(hi,130,145,60,60);if(ai)ctx.drawImage(ai,1210,145,60,60);const drawTeam=(x,title,team)=>{ctx.textAlign='left';ctx.fillStyle='#fff';ctx.font='800 24px Arial';ctx.fillText(title,x,285);let y=320;eventRows(team).forEach(r=>{ctx.font='500 18px Arial';ctx.fillStyle='#e5e7eb';ctx.fillText(r.text,x,y);y+=30;});};drawTeam(90,'LOCAL', 'home');drawTeam(750,'VISITANTE','away');}
+    document.getElementById('btn-capture-scoreboard')?.addEventListener('click',openScoreboardCapture);document.getElementById('btn-close-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));document.getElementById('btn-cancel-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));['scorecap-title','scorecap-subtitle'].forEach(id=>document.getElementById(id)?.addEventListener('input',renderScoreboardCapture));document.getElementById('btn-download-scoreboard-capture')?.addEventListener('click',async()=>{await renderScoreboardCapture();const a=document.createElement('a');a.download='marcador.png';a.href=document.getElementById('scoreboard-capture-canvas').toDataURL('image/png',1);a.click();});
+
 // PALETA DE COLORES COMPARTIDA
     document.getElementById('btn-team-colors')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('team-colors-panel')?.classList.toggle('hidden');renderTeamColorControls();});
     document.getElementById('team-color-local')?.addEventListener('input',e=>setTeamColor('local',e.target.value));
