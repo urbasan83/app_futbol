@@ -3662,7 +3662,7 @@
         const gs=scoreboard.goals.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds), ss=scoreboard.substitutions.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
         const cs=[...scoreboard.yellowCards.map(x=>({...x,type:'yellow'})),...scoreboard.doubleYellowCards.map(x=>({...x,type:'doubleYellow'})),...scoreboard.redCards.map(x=>({...x,type:'red'}))].filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
         se[t==='home'?'hg':'ag'].innerHTML=gs.map(g=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-emerald-400 font-mono">${esc(g.minute)}</b> — ${esc(g.player)}${g.number?` <span class="text-slate-500">#${esc(g.number)}</span>`:''}</span><button onclick="editScoreGoal(${g.id})">✏️</button></div>`).join('');
-        se[t==='home'?'hsub':'asub'].innerHTML=ss.map(x=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-sky-400 font-mono">${esc(x.minute)}</b> — ${esc(x.out)} → ${esc(x.in)}</span><button onclick="editScoreSub(${x.id})">✏️</button></div>`).join('');
+        se[t==='home'?'hsub':'asub'].innerHTML=ss.map(x=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="text-sky-400 font-mono">${esc(x.minute)}</b> — ${x.outNumber?`<span class="text-slate-500">#${esc(x.outNumber)}</span> `:''}${esc(x.out)} → ${x.inNumber?`<span class="text-slate-500">#${esc(x.inNumber)}</span> `:''}${esc(x.in)}</span><button onclick="editScoreSub(${x.id})">✏️</button></div>`).join('');
         se[t==='home'?'hc':'ac'].innerHTML=cs.map(x=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="font-mono">${esc(x.minute)}</b> — ${esc(cardTypeLabel(x.type))} · ${esc(x.player)}${x.number?` <span class="text-slate-500">#${esc(x.number)}</span>`:''}</span><button onclick="editScoreCard('${x.type}',${x.id})">✏️</button></div>`).join('');
         se[t==='home'?'hge':'age'].classList.toggle('hidden',gs.length>0);se[t==='home'?'hse':'ase'].classList.toggle('hidden',ss.length>0);se[t==='home'?'hce':'ace'].classList.toggle('hidden',cs.length>0);
       });
@@ -3688,7 +3688,7 @@
         document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;document.getElementById('btn-delete-goal').onclick=()=>{const id=Number(se.geid.value);if(id&&confirm('¿Eliminar este gol?')){scoreboard.goals=scoreboard.goals.filter(x=>x.id!==id);saveSB();closeGoal();renderSB();}};
         document.getElementById('btn-save-goal').onclick=()=>{const p=se.gp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const id=se.geid.value?Number(se.geid.value):Date.now(),sec=parseEventTimeInput(se.gm.value,absoluteTime()),d={id,team:se.gt.value,player:p,number:String(se.gn.value||'').trim(),note:se.gnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.goals.findIndex(x=>x.id===id);if(i>=0)scoreboard.goals[i]=d;else scoreboard.goals.push(d);saveSB();closeGoal();renderSB();};
         document.getElementById('btn-register-sub').onclick=()=>openSub();document.getElementById('btn-cancel-sub').onclick=closeSub;se.st.onchange=fillPlayers;document.getElementById('btn-delete-sub').onclick=()=>{const id=Number(se.seid.value);if(id&&confirm('¿Eliminar este cambio?')){scoreboard.substitutions=scoreboard.substitutions.filter(x=>x.id!==id);saveSB();closeSub();renderSB();}};
-        document.getElementById('btn-save-sub').onclick=()=>{if(!se.so.value||!se.si.value)return alert('Selecciona el jugador que sale y el que entra.');if(se.so.value===se.si.value)return alert('Los jugadores no pueden ser el mismo.');const id=se.seid.value?Number(se.seid.value):Date.now(),sec=parseEventTimeInput(se.sm.value,absoluteTime()),d={id,team:se.st.value,out:se.so.value,in:se.si.value,note:se.snote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.substitutions.findIndex(x=>x.id===id);if(i>=0)scoreboard.substitutions[i]=d;else scoreboard.substitutions.push(d);saveSB();closeSub();renderSB();};
+        document.getElementById('btn-save-sub').onclick=()=>{if(!se.so.value||!se.si.value)return alert('Selecciona el jugador que sale y el que entra.');if(se.so.value===se.si.value)return alert('Los jugadores no pueden ser el mismo.');const plist=players(se.st.value),outPlayer=plist.find(p=>String(p.name)===String(se.so.value)),inPlayer=plist.find(p=>String(p.name)===String(se.si.value));const id=se.seid.value?Number(se.seid.value):Date.now(),sec=parseEventTimeInput(se.sm.value,absoluteTime()),d={id,team:se.st.value,out:se.so.value,in:se.si.value,outNumber:outPlayer?.num??'',inNumber:inPlayer?.num??'',note:se.snote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.substitutions.findIndex(x=>x.id===id);if(i>=0)scoreboard.substitutions[i]=d;else scoreboard.substitutions.push(d);saveSB();closeSub();renderSB();};
         [['yellow','btn-register-yellow'],['doubleYellow','btn-register-double-yellow'],['red','btn-register-red']].forEach(([type,id])=>document.getElementById(id).onclick=()=>openCard(type));
         document.getElementById('btn-cancel-card').onclick=closeCard;document.getElementById('btn-delete-card').onclick=()=>{const id=Number(se.ceid.value),type=se.ctype.value,arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards;if(id&&confirm('¿Eliminar esta tarjeta?')){const idx=arr.findIndex(x=>x.id===id);if(idx>=0)arr.splice(idx,1);saveSB();closeCard();renderSB();}};
         document.getElementById('btn-save-card').onclick=()=>{const p=se.cp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const type=se.ctype.value,arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards,id=se.ceid.value?Number(se.ceid.value):Date.now(),sec=parseEventTimeInput(se.cm.value,absoluteTime()),d={id,team:se.ct.value,player:p,number:String(se.cn.value||'').trim(),note:se.cnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=arr.findIndex(x=>x.id===id);if(i>=0)arr[i]=d;else arr.push(d);saveSB();closeCard();renderSB();};
@@ -3748,7 +3748,9 @@
     document.getElementById('score-home-team-select')?.addEventListener('change',applyScoreTeamSelection);document.getElementById('score-away-team-select')?.addEventListener('change',applyScoreTeamSelection);populateScoreTeamSelectors();
 
     async function openScoreboardCapture(){const m=document.getElementById('modal-scoreboard-capture');m.classList.remove('hidden');await renderScoreboardCapture();}
-    function eventRows(team){const rows=[];const add=(arr,icon,label)=>arr.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — ${icon} ${label}${x.number?` #${x.number}`:''} ${x.player||''}`}));add(scoreboard.goals,'⚽','Gol');scoreboard.substitutions.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — 🔄 Cambio: ${x.out||'—'} → ${x.in||'—'}`}));add(scoreboard.yellowCards,'🟨','Amarilla');add(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');add(scoreboard.redCards,'🟥','Roja');return rows.sort((a,b)=>a.sec-b.sec);}
+    function substitutionPlayerNumber(team,name,fallback=''){const n=players(team).find(p=>String(p.name)===String(name));return n?.num??fallback??'';}
+    function substitutionText(x){const outNum=x.outNumber||substitutionPlayerNumber(x.team,x.out);const inNum=x.inNumber||substitutionPlayerNumber(x.team,x.in);return `🔄 Cambio: ${outNum?`#${outNum} `:''}${x.out||'—'} → ${inNum?`#${inNum} `:''}${x.in||'—'}`;}
+    function eventRows(team){const rows=[];const add=(arr,icon,label)=>arr.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — ${icon} ${label}${x.number?` #${x.number}`:''} ${x.player||''}`}));add(scoreboard.goals,'⚽','Gol');scoreboard.substitutions.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — ${substitutionText(x)}`}));add(scoreboard.yellowCards,'🟨','Amarilla');add(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');add(scoreboard.redCards,'🟥','Roja');return rows.sort((a,b)=>a.sec-b.sec);}
     async function renderScoreboardCapture(){
       const c=document.getElementById('scoreboard-capture-canvas');
       if(!c)return;
@@ -3763,15 +3765,21 @@
       ctx.fillStyle='#111827';ctx.fillRect(60,120,1280,120);
       const load=src=>src?new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src;}):Promise.resolve(null);
       const [hi,ai]=await Promise.all([load(scoreboard.homeLogo),load(scoreboard.awayLogo)]);
-      const homeCenter=390,awayCenter=1010,scoreCenter=700,baseline=205;
+      const scoreCenter=700,centerY=180,scoreFont='900 70px Arial',nameFont='800 34px Arial',gap=25,logoSize=96,logoGap=10;
       const homeName=scoreboard.homeName||'Local',awayName=scoreboard.awayName||'Visitante';
-      ctx.font='800 34px Arial';ctx.fillStyle='#fff';ctx.textAlign='center';
-      ctx.fillText(homeName,homeCenter,baseline);ctx.fillText(awayName,awayCenter,baseline);
-      ctx.font='900 70px Arial';ctx.fillText(`${scoreboard.homeScore}  —  ${scoreboard.awayScore}`,scoreCenter,baseline);
-      const logoSize=80;ctx.font='800 34px Arial';
-      const hw=ctx.measureText(homeName).width,aw=ctx.measureText(awayName).width;
-      if(hi)ctx.drawImage(hi,homeCenter-hw/2-10-logoSize,baseline-logoSize+18,logoSize,logoSize);
-      if(ai)ctx.drawImage(ai,awayCenter+aw/2+10,baseline-logoSize+18,logoSize,logoSize);
+      ctx.font=scoreFont;ctx.textAlign='center';ctx.fillStyle='#fff';
+      const scoreText=`${scoreboard.homeScore}  —  ${scoreboard.awayScore}`;
+      const scoreMetrics=ctx.measureText(scoreText);const scoreLeft=scoreCenter-scoreMetrics.width/2;const scoreRight=scoreCenter+scoreMetrics.width/2;
+      const scoreBaseline=centerY+(scoreMetrics.actualBoundingBoxAscent-scoreMetrics.actualBoundingBoxDescent)/2;
+      ctx.fillText(scoreText,scoreCenter,scoreBaseline);
+      ctx.font=nameFont;
+      const homeW=ctx.measureText(homeName).width,awayW=ctx.measureText(awayName).width;
+      const homeRight=scoreLeft-gap,homeLeft=homeRight-homeW;
+      const awayLeft=scoreRight+gap,awayRight=awayLeft+awayW;
+      const nameMetrics=ctx.measureText(homeName);const nameBaseline=centerY+(nameMetrics.actualBoundingBoxAscent-nameMetrics.actualBoundingBoxDescent)/2;
+      ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(homeName,homeLeft,nameBaseline);ctx.fillText(awayName,awayLeft,nameBaseline);
+      if(hi)ctx.drawImage(hi,homeLeft-logoGap-logoSize,centerY-logoSize/2,logoSize,logoSize);
+      if(ai)ctx.drawImage(ai,awayRight+logoGap,centerY-logoSize/2,logoSize,logoSize);
       const drawTeam=(x,title,team)=>{ctx.textAlign='left';ctx.fillStyle='#fff';ctx.font='800 24px Arial';ctx.fillText(title,x,285);let y=320;eventRows(team).forEach(r=>{ctx.font='500 18px Arial';ctx.fillStyle='#e5e7eb';ctx.fillText(r.text,x,y);y+=30;});};
       drawTeam(90,'LOCAL','home');drawTeam(750,'VISITANTE','away');
     }
