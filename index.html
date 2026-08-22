@@ -3789,8 +3789,8 @@
           const minute=x.minute||'';
           const number=x.number?`#${x.number}`:'';
           const name=x.player||'—';
-          if(kind==='goal') rows.push({sec:x.minuteSeconds||0,text:isLocal?`${name} ${number} ${icon} ${minute}`:`${minute} — ${icon} Gol ${number} ${name}`});
-          else rows.push({sec:x.minuteSeconds||0,text:isLocal?`${name} ${number} ${icon} ${minute}`:`${minute} — ${icon} ${kind} ${number} ${name}`});
+          if(kind==='goal') rows.push({sec:x.minuteSeconds||0,text:isLocal?`${name} ${number} ${icon} — ${minute}`:`${minute} — ${icon} Gol ${number} ${name}`});
+          else rows.push({sec:x.minuteSeconds||0,text:isLocal?`${name} ${number} ${icon} — ${minute}`:`${minute} — ${icon} ${kind} ${number} ${name}`});
         });
         push(scoreboard.goals,'⚽','goal');
         scoreboard.substitutions.filter(x=>x.team===team).forEach(x=>{
@@ -3802,7 +3802,7 @@
           rows.push({sec:x.minuteSeconds||0,text:isLocal
             ? `${outName} ${outNum?`#${outNum}`:''} ← ${inName} ${inNum?`#${inNum}`:''} 🔄`
             : `${minute} — 🔄 Cambio: ${outNum?`#${outNum} `:''}${outName} → ${inNum?`#${inNum} `:''}${inName}`});
-          if(isLocal) rows[rows.length-1].text += ` ${minute}`;
+          if(isLocal) rows[rows.length-1].text += ` — ${minute}`;
         });
         push(scoreboard.yellowCards,'🟨','Amarilla');
         push(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');
