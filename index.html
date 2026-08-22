@@ -594,7 +594,14 @@
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Alineaciones Guardadas</h3>
       </div>
-      <div id="matches-list" class="space-y-3 pb-12"></div>
+      <div id="matches-list" class="space-y-3"></div>
+      <div class="mt-5 pt-4 border-t border-slate-700/60">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-indigo-300 uppercase tracking-wider">🏟️ Marcadores Guardados</h3>
+          <button id="btn-refresh-saved-scoreboards-partidos" class="text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded-lg">↻ Actualizar</button>
+        </div>
+        <div id="partidos-scoreboards-list" class="space-y-3 pb-12"></div>
+      </div>
     </section>
     <!-- SECCIÓN 7: MARCADOR EN DIRECTO -->
     <section id="sec-marcador" class="flex-1 hidden h-full overflow-y-auto p-2 sm:p-4 w-full">
@@ -1616,6 +1623,7 @@
         headerTitle.innerHTML = '📅 Partidos Guardados';
         headerActions.classList.add('hidden');
         renderMatchesList();
+        renderPartidosScoreboards();
       } else if (view === 'marcador') {
         secMarcador.classList.remove('hidden');
         navMarcador.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
@@ -1984,7 +1992,7 @@
         const startXData=parseFloat(element._groupStart?.x ?? element.style.left)||50,startYData=parseFloat(element._groupStart?.y ?? element.style.top)||50;
         if(key && selectionModes[key] && selectedElements[key].size>1){ const gx=Math.max(3,Math.min(97,startXData+(dx/rect.width)*100)); const gy=Math.max(3,Math.min(97,startYData+(dy/rect.height)*100)); element.style.left=gx+'%';element.style.top=gy+'%';if(dataObj){dataObj.x=gx;dataObj.y=gy;} updateGroupPositions(key,element,dx,dy,container); } else { element.style.left=x+'%';element.style.top=y+'%';if(dataObj){dataObj.x=x;dataObj.y=y;} }
       });
-      const stopDrag=(e)=>{if(!isDragging)return;isDragging=false;element.releasePointerCapture?.(e.pointerId);element.classList.remove('scale-125','z-30');if(key&&selectionModes[key]&&!moved){toggleSelectedElement(element,key);}if(container===pitch)savePitchState();if(container?.id==='tactics-pitch'){ /* posiciones ya viven en currentTacticsTokens */ } if(container?.id==='matchup-pitch'){savePitchState();} };
+      const stopDrag=(e)=>{if(!isDragging)return;isDragging=false;element.releasePointerCapture?.(e.pointerId);element.classList.remove('scale-125','z-30');if(container===pitch)savePitchState();if(container?.id==='tactics-pitch'){ /* posiciones ya viven en currentTacticsTokens */ } if(container?.id==='matchup-pitch'){savePitchState();} };
       element.addEventListener('pointerup',stopDrag);element.addEventListener('pointercancel',stopDrag);
     }
 
@@ -3649,7 +3657,7 @@
     function renderClock(){const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);se.clock.textContent=fmt(shownSeconds);se.half.value=String(scoreboard.half);se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';if(scoreboard.running&&!scoreboardTimer)scoreboardTimer=setInterval(renderClock,250);if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}}
     function cardTypeLabel(type){return type==='yellow'?'🟨 Amarilla':type==='doubleYellow'?'🟨🟨 Doble amarilla':'🟥 Roja';}
     function renderSB(){
-      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';const hlogo=document.getElementById('score-home-logo'),alogo=document.getElementById('score-away-logo');if(hlogo)hlogo.innerHTML=scoreboard.homeLogo?`<img src="${scoreboard.homeLogo}" class="w-full h-full object-contain">`:'🛡️';if(alogo)alogo.innerHTML=scoreboard.awayLogo?`<img src="${scoreboard.awayLogo}" class="w-full h-full object-contain">`:'🛡️';se.hn.style.borderColor=getTeamColor('local');se.hn.style.color=getTeamColor('local');se.an.style.borderColor=getTeamColor('visitante');se.an.style.color=getTeamColor('visitante');se.hs.style.color=getTeamColor('local');se.as.style.color=getTeamColor('visitante');renderClock();
+      se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';se.hs.textContent=String(Number(scoreboard.homeScore)||0);se.as.textContent=String(Number(scoreboard.awayScore)||0);const hlogo=document.getElementById('score-home-logo'),alogo=document.getElementById('score-away-logo');if(hlogo)hlogo.innerHTML=scoreboard.homeLogo?`<img src="${scoreboard.homeLogo}" class="w-full h-full object-contain">`:'🛡️';if(alogo)alogo.innerHTML=scoreboard.awayLogo?`<img src="${scoreboard.awayLogo}" class="w-full h-full object-contain">`:'🛡️';se.hn.style.borderColor=getTeamColor('local');se.hn.style.color=getTeamColor('local');se.an.style.borderColor=getTeamColor('visitante');se.an.style.color=getTeamColor('visitante');se.hs.style.color=getTeamColor('local');se.as.style.color=getTeamColor('visitante');renderClock();
       ['home','away'].forEach(t=>{
         const gs=scoreboard.goals.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds), ss=scoreboard.substitutions.filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
         const cs=[...scoreboard.yellowCards.map(x=>({...x,type:'yellow'})),...scoreboard.doubleYellowCards.map(x=>({...x,type:'doubleYellow'})),...scoreboard.redCards.map(x=>({...x,type:'red'}))].filter(x=>x.team===t).sort((a,b)=>a.minuteSeconds-b.minuteSeconds);
@@ -3688,9 +3696,26 @@
         document.getElementById('btn-save-annotation').onclick=()=>{const title=se.atitle.value.trim();if(!title)return alert('Escribe un título.');const id=se.aeid.value?Number(se.aeid.value):Date.now(),sec=parseEventTimeInput(se.amin.value,absoluteTime()),d={id,title,description:se.adesc.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.annotations.findIndex(x=>x.id===id);if(i>=0)scoreboard.annotations[i]=d;else scoreboard.annotations.push(d);saveSB();closeAnnotation();se.ap.classList.remove('hidden');renderAnnotations();};
         document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();saveSB();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeTeamId:scoreboard.homeTeamId||'',awayTeamId:scoreboard.awayTeamId||'',homeLogo:scoreboard.homeLogo||'',awayLogo:scoreboard.awayLogo||'',homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,running:false,lastStartedAt:null,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions)),yellowCards:JSON.parse(JSON.stringify(scoreboard.yellowCards)),doubleYellowCards:JSON.parse(JSON.stringify(scoreboard.doubleYellowCards)),redCards:JSON.parse(JSON.stringify(scoreboard.redCards)),annotations:JSON.parse(JSON.stringify(scoreboard.annotations))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
         document.getElementById('btn-load-scoreboard').onclick=()=>{se.savedPanel.classList.toggle('hidden');if(!se.savedPanel.classList.contains('hidden'))renderSaved();};
+        document.getElementById('btn-refresh-saved-scoreboards-partidos')?.addEventListener('click',renderPartidosScoreboards);
       }fillPlayers();renderSB();
     }
-    function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)} · ${((x.goals||[]).length)} goles · ${((x.substitutions||[]).length)} cambios · ${((x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length)} tarjetas</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});}
+    function renderPartidosScoreboards(){
+      const list=document.getElementById('partidos-scoreboards-list');
+      if(!list)return;
+      list.innerHTML='';
+      if(!savedScoreboards.length){list.innerHTML='<p class="text-xs text-slate-500 text-center py-6">No hay marcadores guardados.</p>';return;}
+      savedScoreboards.forEach(x=>{
+        const c=document.createElement('div');
+        c.className='bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 shadow-md';
+        const cards=(x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length;
+        c.innerHTML=`<div class="flex justify-between items-start gap-3"><div><h4 class="font-bold text-indigo-300 text-sm">${esc(x.name)}</h4><p class="text-xs text-slate-300 mt-1">${esc(x.homeName)} <b>${Number(x.homeScore)||0}</b> — <b>${Number(x.awayScore)||0}</b> ${esc(x.awayName)}</p><p class="text-[10px] text-slate-500 mt-1">${esc(x.date||'')} · ${(x.goals||[]).length} goles · ${(x.substitutions||[]).length} cambios · ${cards} tarjetas · ${(x.annotations||[]).length} anotaciones</p></div><span class="text-lg">🏟️</span></div><div class="flex flex-wrap gap-2"><button class="edit bg-indigo-600/30 border border-indigo-500/50 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg">✏️ Abrir y editar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;
+        c.querySelector('.edit').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();switchView('marcador');};
+        c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};
+        list.appendChild(c);
+      });
+    }
+
+    function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)} · ${((x.goals||[]).length)} goles · ${((x.substitutions||[]).length)} cambios · ${((x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length)} tarjetas</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});renderPartidosScoreboards();}
 // --- FUNCIONES EXTRA: EQUIPOS, ANOTACIONES, SELECCIÓN Y CAPTURA ---
     function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=256,scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/png'));};img.onerror=reject;img.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
     function renderMyTeamLogo(){const p=document.getElementById('my-team-logo-preview');const b=document.getElementById('pitch-my-team-badge');if(b)b.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain" title="${esc(myTeam.name)}">`:'🛡️';if(p)p.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain">`:'🛡️';const n=document.getElementById('my-team-name');if(n)n.value=myTeam.name||'Mi Equipo';}
@@ -3723,8 +3748,33 @@
     document.getElementById('score-home-team-select')?.addEventListener('change',applyScoreTeamSelection);document.getElementById('score-away-team-select')?.addEventListener('change',applyScoreTeamSelection);populateScoreTeamSelectors();
 
     async function openScoreboardCapture(){const m=document.getElementById('modal-scoreboard-capture');m.classList.remove('hidden');await renderScoreboardCapture();}
-    function eventRows(team){const rows=[];const add=(arr,icon,label)=>arr.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — ${icon} ${label}${x.number?` #${x.number}`:''} ${x.player||''}`}));add(scoreboard.goals,'⚽','Gol');add(scoreboard.substitutions,'🔄', 'Cambio');add(scoreboard.yellowCards,'🟨','Amarilla');add(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');add(scoreboard.redCards,'🟥','Roja');return rows.sort((a,b)=>a.sec-b.sec);}
-    async function renderScoreboardCapture(){const c=document.getElementById('scoreboard-capture-canvas');if(!c)return;const ctx=c.getContext('2d');const W=1400,H=900;c.width=W;c.height=H;ctx.fillStyle='#0b1220';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 48px Arial';ctx.fillText(document.getElementById('scorecap-title').value.trim()||'Marcador del partido',W/2,55);ctx.fillStyle='#34d399';ctx.font='700 25px Arial';ctx.fillText(document.getElementById('scorecap-subtitle').value.trim()||'Marcador en directo',W/2,92);ctx.fillStyle='#111827';ctx.fillRect(60,120,1280,120);ctx.fillStyle='#fff';ctx.font='800 34px Arial';ctx.fillText(scoreboard.homeName,330,170);ctx.fillText(scoreboard.awayName,1070,170);ctx.font='900 70px Arial';ctx.fillText(`${scoreboard.homeScore}  —  ${scoreboard.awayScore}`,700,205);const load=src=>src?new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src;}):Promise.resolve(null);const [hi,ai]=await Promise.all([load(scoreboard.homeLogo),load(scoreboard.awayLogo)]);if(hi)ctx.drawImage(hi,130,145,60,60);if(ai)ctx.drawImage(ai,1210,145,60,60);const drawTeam=(x,title,team)=>{ctx.textAlign='left';ctx.fillStyle='#fff';ctx.font='800 24px Arial';ctx.fillText(title,x,285);let y=320;eventRows(team).forEach(r=>{ctx.font='500 18px Arial';ctx.fillStyle='#e5e7eb';ctx.fillText(r.text,x,y);y+=30;});};drawTeam(90,'LOCAL', 'home');drawTeam(750,'VISITANTE','away');}
+    function eventRows(team){const rows=[];const add=(arr,icon,label)=>arr.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — ${icon} ${label}${x.number?` #${x.number}`:''} ${x.player||''}`}));add(scoreboard.goals,'⚽','Gol');scoreboard.substitutions.filter(x=>x.team===team).forEach(x=>rows.push({sec:x.minuteSeconds||0,text:`${x.minute||''} — 🔄 Cambio: ${x.out||'—'} → ${x.in||'—'}`}));add(scoreboard.yellowCards,'🟨','Amarilla');add(scoreboard.doubleYellowCards,'🟨🟨','Doble amarilla');add(scoreboard.redCards,'🟥','Roja');return rows.sort((a,b)=>a.sec-b.sec);}
+    async function renderScoreboardCapture(){
+      const c=document.getElementById('scoreboard-capture-canvas');
+      if(!c)return;
+      const ctx=c.getContext('2d');
+      const W=1400,H=900;
+      c.width=W;c.height=H;
+      ctx.fillStyle='#0b1220';ctx.fillRect(0,0,W,H);
+      ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 48px Arial';
+      ctx.fillText(document.getElementById('scorecap-title').value.trim()||'Marcador del partido',W/2,55);
+      ctx.fillStyle='#34d399';ctx.font='700 25px Arial';
+      ctx.fillText(document.getElementById('scorecap-subtitle').value.trim()||'Marcador en directo',W/2,92);
+      ctx.fillStyle='#111827';ctx.fillRect(60,120,1280,120);
+      const load=src=>src?new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src=src;}):Promise.resolve(null);
+      const [hi,ai]=await Promise.all([load(scoreboard.homeLogo),load(scoreboard.awayLogo)]);
+      const homeCenter=390,awayCenter=1010,scoreCenter=700,baseline=205;
+      const homeName=scoreboard.homeName||'Local',awayName=scoreboard.awayName||'Visitante';
+      ctx.font='800 34px Arial';ctx.fillStyle='#fff';ctx.textAlign='center';
+      ctx.fillText(homeName,homeCenter,baseline);ctx.fillText(awayName,awayCenter,baseline);
+      ctx.font='900 70px Arial';ctx.fillText(`${scoreboard.homeScore}  —  ${scoreboard.awayScore}`,scoreCenter,baseline);
+      const logoSize=80;ctx.font='800 34px Arial';
+      const hw=ctx.measureText(homeName).width,aw=ctx.measureText(awayName).width;
+      if(hi)ctx.drawImage(hi,homeCenter-hw/2-10-logoSize,baseline-logoSize+18,logoSize,logoSize);
+      if(ai)ctx.drawImage(ai,awayCenter+aw/2+10,baseline-logoSize+18,logoSize,logoSize);
+      const drawTeam=(x,title,team)=>{ctx.textAlign='left';ctx.fillStyle='#fff';ctx.font='800 24px Arial';ctx.fillText(title,x,285);let y=320;eventRows(team).forEach(r=>{ctx.font='500 18px Arial';ctx.fillStyle='#e5e7eb';ctx.fillText(r.text,x,y);y+=30;});};
+      drawTeam(90,'LOCAL','home');drawTeam(750,'VISITANTE','away');
+    }
     document.getElementById('btn-capture-scoreboard')?.addEventListener('click',openScoreboardCapture);document.getElementById('btn-close-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));document.getElementById('btn-cancel-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));['scorecap-title','scorecap-subtitle'].forEach(id=>document.getElementById(id)?.addEventListener('input',renderScoreboardCapture));document.getElementById('btn-download-scoreboard-capture')?.addEventListener('click',async()=>{await renderScoreboardCapture();const a=document.createElement('a');a.download='marcador.png';a.href=document.getElementById('scoreboard-capture-canvas').toDataURL('image/png',1);a.click();});
 
 // PALETA DE COLORES COMPARTIDA
