@@ -4000,10 +4000,35 @@
       el.className='tactics-prop tactics-text-prop absolute z-30 cursor-grab active:cursor-grabbing touch-none select-none font-black';
       el.dataset.type='text'; el.dataset.text=text; el.dataset.color=color; el.dataset.baseSize=fontSize; el.dataset.id=id; el.dataset.allowOutside='true'; el.dataset.boxWidth=boxWidth; el.dataset.boxHeight=boxHeight;
       el.style.left=x+'%'; el.style.top=y+'%'; el.style.width=boxWidth+'px'; el.style.height=boxHeight+'px'; el.style.color=color; el.style.fontSize=fontSize+'px'; el.style.transform='translate(-50%,-50%)'; el.style.whiteSpace='pre-wrap'; el.style.textAlign='center'; el.style.overflow='hidden'; el.style.overflowWrap='anywhere'; el.style.lineHeight='1.15'; el.style.boxSizing='border-box'; el.textContent=text;
-      const data={x,y,type:'text',text,color,fontSize,id,boxWidth:Number(boxWidth),boxHeight:Number(boxHeight)}; makeDraggable(el,data,container); el._dataObj=data;
+      const data={x,y,type:'text',text,color,fontSize,id,boxWidth:Number(boxWidth),boxHeight:Number(boxHeight)}; el._dataObj=data;
+      // Los textos tienen interacción propia: un toque/clic selecciona, doble clic edita,
+      // y arrastrar mueve el cuadro. No usamos makeDraggable aquí porque su captura de
+      // pointer puede impedir que click/dblclick lleguen al texto en algunos móviles.
+      let textDragging=false, textMoved=false, textStartX=0, textStartY=0, textStartLeft=0, textStartTop=0;
+      el.addEventListener('pointerdown',(e)=>{
+        if(e.target.classList.contains('tactics-text-resize-handle')) return;
+        e.stopPropagation();
+        selectTacticsText(el);
+        textDragging=true; textMoved=false; textStartX=e.clientX; textStartY=e.clientY;
+        textStartLeft=parseFloat(el.style.left)||50; textStartTop=parseFloat(el.style.top)||50;
+        el.setPointerCapture?.(e.pointerId);
+      });
+      el.addEventListener('pointermove',(e)=>{
+        if(!textDragging)return;
+        const dx=e.clientX-textStartX,dy=e.clientY-textStartY;
+        if(Math.abs(dx)+Math.abs(dy)>3) textMoved=true;
+        const rect=container.getBoundingClientRect();
+        const nx=Math.max(-25,Math.min(125,textStartLeft+(dx/rect.width)*100));
+        const ny=Math.max(3,Math.min(97,textStartTop+(dy/rect.height)*100));
+        el.style.left=nx+'%'; el.style.top=ny+'%'; data.x=nx; data.y=ny;
+      });
+      el.addEventListener('pointerup',(e)=>{
+        if(!textDragging)return; textDragging=false; el.releasePointerCapture?.(e.pointerId);
+        data.x=parseFloat(el.style.left)||50; data.y=parseFloat(el.style.top)||50;
+      });
+      el.addEventListener('pointercancel',()=>{textDragging=false;});
       el.addEventListener('click',(e)=>{if(e.target.classList.contains('tactics-text-resize-handle'))return;e.stopPropagation();selectTacticsText(el);});
-      el.addEventListener('dblclick',(e)=>{e.stopPropagation();openTacticsTextEditor(el);});
-      el.addEventListener('pointerup',()=>{data.x=parseFloat(el.style.left);data.y=parseFloat(el.style.top);});
+      el.addEventListener('dblclick',(e)=>{if(e.target.classList.contains('tactics-text-resize-handle'))return;e.stopPropagation();openTacticsTextEditor(el);});
       container.appendChild(el); return el;
     }
     function readAllTacticsProps(){
