@@ -2360,34 +2360,49 @@
       propsList.forEach(p => {
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         if(p.type==='text'){
-          // Renderizar el texto en el vídeo igual que en la pizarra: respetando
-          // saltos de línea y el cuadro delimitador independiente del tamaño de letra.
-          const baseFont = Math.max(8, Number(p.fontSize || 24));
-          const fontScale = fieldW / Math.max(1, document.getElementById('tactics-pitch')?.clientWidth || fieldW);
-          const fontPx = Math.max(8, baseFont * fontScale);
-          const boxW = Math.max(40, Number(p.boxWidth || 220) * fontScale);
-          const boxH = Math.max(24, Number(p.boxHeight || 80) * (fieldH / Math.max(1, document.getElementById('tactics-pitch')?.clientHeight || fieldH)));
-          const left = px(p.x) - boxW / 2;
-          const top = py(p.y) - boxH / 2;
-          const lineH = Math.max(12, fontPx * 1.15);
-          const maxLines = Math.max(1, Math.floor(boxH / lineH));
+          // El vídeo debe representar exactamente el mismo cuadro de texto que la pizarra:
+          // posición centrada, ancho/alto independientes del tamaño de letra, saltos de línea
+          // explícitos y ajuste automático de palabras dentro del ancho disponible.
+          const pitchEl=document.getElementById('tactics-pitch');
+          const domW=Math.max(1,pitchEl?.clientWidth||1000);
+          const domH=Math.max(1,pitchEl?.clientHeight||domW);
+          const sx=fieldW/domW, sy=fieldH/domH;
+          const baseFont=Math.max(8,Number(p.fontSize||24));
+          const fontPx=Math.max(8,baseFont*sx);
+          const boxW=Math.max(1,Number(p.boxWidth||220)*sx);
+          const boxH=Math.max(1,Number(p.boxHeight||80)*sy);
+          const centerX=px(Number(p.x)||0), centerY=py(Number(p.y)||0);
+          const left=centerX-boxW/2, top=centerY-boxH/2;
+          const lineH=Math.max(10,fontPx*1.15);
           ctx.save();
-          ctx.fillStyle = p.color || '#fff';
-          ctx.font = `bold ${Math.round(fontPx)}px sans-serif`;
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'top';
-          const lines = [];
-          String(p.text || '').split('\n').forEach(raw => {
-            if (raw === '') { lines.push(''); return; }
-            let line = '';
-            raw.split(/\s+/).forEach(word => {
-              const candidate = line ? line + ' ' + word : word;
-              if (!line || ctx.measureText(candidate).width <= boxW) line = candidate;
-              else { lines.push(line); line = word; }
-            });
+          ctx.beginPath(); ctx.rect(left,top,boxW,boxH); ctx.clip();
+          ctx.fillStyle=p.color||'#fff';
+          ctx.font=`bold ${Math.round(fontPx)}px sans-serif`;
+          ctx.textAlign='left'; ctx.textBaseline='top';
+          const lines=[];
+          String(p.text||'').replace(/\r\n/g,'\n').split('\n').forEach(raw=>{
+            if(raw===''){lines.push('');return;}
+            let line='';
+            for(const word of raw.split(/\s+/)){
+              if(!word)continue;
+              // Si una palabra aislada supera el ancho, se parte por caracteres para
+              // que nunca vuelva a aparecer una línea que desborde el cuadro.
+              let candidate=line?line+' '+word:word;
+              if(ctx.measureText(candidate).width<=boxW){line=candidate;continue;}
+              if(line){lines.push(line);line='';}
+              if(ctx.measureText(word).width<=boxW){line=word;continue;}
+              let chunk='';
+              for(const ch of word){
+                const test=chunk+ch;
+                if(ctx.measureText(test).width<=boxW) chunk=test;
+                else {if(chunk)lines.push(chunk);chunk=ch;}
+              }
+              line=chunk;
+            }
             lines.push(line);
           });
-          lines.slice(0, maxLines).forEach((line, i) => ctx.fillText(line, left, top + i * lineH));
+          const maxLines=Math.max(1,Math.floor(boxH/lineH));
+          lines.slice(0,maxLines).forEach((line,i)=>ctx.fillText(line,left,top+i*lineH));
           ctx.restore();
           return;
         }
@@ -4089,6 +4104,14 @@
     function readAllTacticsProps(){
       const props=[]; document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const d=el._dataObj||{};props.push({type:el.dataset.type,x:parseFloat(el.style.left),y:parseFloat(el.style.top),scale:tacticsPropScale(el.dataset.type),text:el.dataset.text||'',color:el.dataset.color||'',fontSize:Number(el.dataset.baseSize)||24,id:el.dataset.id||Date.now(),boxWidth:Number(el.dataset.boxWidth)||220,boxHeight:Number(el.dataset.boxHeight)||80});}); return props;
     }
+    // La caja delimitadora solo se muestra mientras el texto está seleccionado.
+    document.addEventListener('pointerdown',(e)=>{
+      if(!selectedTacticsTextEl)return;
+      const clickedText=e.target.closest?.('.tactics-text-prop');
+      const clickedModal=e.target.closest?.('#modal-tactics-text');
+      if(!clickedText && !clickedModal) clearTacticsTextSelection();
+    },true);
+
     document.getElementById('btn-create-tactics-text')?.addEventListener('click',()=>{
       clearTacticsTextSelection(); document.getElementById('tactics-text-edit-id').value=''; document.getElementById('tactics-text-content').value=''; document.getElementById('tactics-text-color').value='#ffffff'; document.getElementById('tactics-text-font-size').value=24; document.getElementById('btn-delete-tactics-text').classList.add('hidden'); document.getElementById('tactics-text-modal-title').textContent='T Añadir texto a la pizarra'; document.getElementById('btn-confirm-tactics-text').textContent='Crear'; document.getElementById('modal-tactics-text').classList.remove('hidden');
     });
@@ -4101,6 +4124,8 @@
         if(el){const c=document.getElementById('tactics-text-color').value,fs=Number(document.getElementById('tactics-text-font-size').value)||24; el.dataset.text=text;el.dataset.color=c;el.dataset.baseSize=fs;el.textContent=text;el.style.color=c;el.style.fontSize=fs+'px'; if(el._dataObj){el._dataObj.text=text;el._dataObj.color=c;el._dataObj.fontSize=fs;} selectTacticsText(el);}
       } else { const el=spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24); selectTacticsText(el); }
       document.getElementById('modal-tactics-text').classList.add('hidden');
+      // Tras guardar, el texto queda visible pero sin caja delimitadora hasta volver a seleccionarlo.
+      clearTacticsTextSelection();
     });
     document.getElementById('btn-delete-tactics-text')?.addEventListener('click',()=>{
       const id=document.getElementById('tactics-text-edit-id').value; if(!id)return; const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(id)); if(el)el.remove(); if(selectedTacticsTextEl===el)clearTacticsTextSelection(); document.getElementById('modal-tactics-text').classList.add('hidden');
