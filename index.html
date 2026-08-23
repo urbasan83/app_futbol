@@ -245,6 +245,7 @@
             <div class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Colores del equipo</div>
             <div><label class="block text-[10px] text-slate-300 mb-1">Local</label><div class="flex items-center gap-2"><input id="team-color-local" type="color" value="#1d4ed8" class="w-10 h-8 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1"><span id="team-color-local-value" class="font-mono text-[10px] text-slate-400">#1D4ED8</span></div></div>
             <div><label class="block text-[10px] text-slate-300 mb-1">Visitante</label><div class="flex items-center gap-2"><input id="team-color-away" type="color" value="#db2777" class="w-10 h-8 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1"><span id="team-color-away-value" class="font-mono text-[10px] text-slate-400">#DB2777</span></div></div>
+            <div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] text-slate-300 mb-1">Portero Local</label><input id="team-color-local-por" type="color" value="#fbbf24" class="w-full h-8 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1"><span id="team-color-local-por-value" class="font-mono text-[9px] text-slate-500">#FBBF24</span></div><div><label class="block text-[10px] text-slate-300 mb-1">Portero Visitante</label><input id="team-color-away-por" type="color" value="#22d3ee" class="w-full h-8 rounded cursor-pointer bg-slate-900 border border-slate-600 p-1"><span id="team-color-away-por-value" class="font-mono text-[9px] text-slate-500">#22D3EE</span></div></div>
             <p class="text-[9px] text-slate-500">Estos colores se comparten con la pizarra, tácticas, enfrentamiento y marcador.</p>
           </div>
         </div>
@@ -366,6 +367,15 @@
                 <button onclick="spawnProp('cone')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Cono Naranja">🟠</button>
                 <button onclick="spawnProp('wall')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Barrera Amarilla">🧱</button>
                 <button onclick="spawnProp('ball')" class="p-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-center text-sm" title="Balón">⚽</button>
+                <button id="btn-create-tactics-text" class="p-1.5 bg-violet-700 hover:bg-violet-600 border border-violet-500 rounded-lg text-center text-sm font-bold" title="Añadir texto">T</button>
+              </div>
+              <div class="mt-2 space-y-2 border-t border-slate-700 pt-2">
+                <label class="text-[10px] text-slate-400">Tamaño jugadores</label>
+                <input id="tactics-player-size" type="range" min="0.45" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
+                <label class="text-[10px] text-slate-400">Tamaño conos</label><input id="tactics-cone-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
+                <label class="text-[10px] text-slate-400">Tamaño barreras</label><input id="tactics-wall-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
+                <label class="text-[10px] text-slate-400">Tamaño balones</label><input id="tactics-ball-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
+                <label class="text-[10px] text-slate-400">Tamaño textos</label><input id="tactics-text-size" type="range" min="0.5" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
               </div>
             </div>
 
@@ -554,9 +564,19 @@
                   <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="LI" class="accent-emerald-500"> Lat. Izquierdo</label>
                   <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MCD" class="accent-emerald-500"> Mediocentro</label>
                   <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MC" class="accent-emerald-500"> Interior</label>
+                  <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="MP" class="accent-emerald-500"> Media punta</label>
                   <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="ED" class="accent-emerald-500"> Ext. Derecho</label>
                   <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="EI" class="accent-emerald-500"> Ext. Izquierdo</label>
                   <label class="flex items-center gap-1.5 bg-slate-900 p-2 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="pos" value="DC" class="accent-emerald-500"> Delantero</label>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Características</label>
+                <div class="flex flex-wrap gap-1.5 text-[10px]">
+                  <label class="flex items-center gap-1 bg-yellow-500/10 border border-yellow-500/40 text-yellow-300 px-2 py-1.5 rounded-lg cursor-pointer"><input id="player-trait-juvenil" type="checkbox" class="accent-yellow-500"> JUV</label>
+                  <label class="flex items-center gap-1 bg-green-500/10 border border-green-500/40 text-green-300 px-2 py-1.5 rounded-lg cursor-pointer"><input id="player-trait-pruebas" type="checkbox" class="accent-green-500"> PRU</label>
+                  <label class="flex items-center gap-1 bg-red-500/10 border border-red-500/40 text-red-300 px-2 py-1.5 rounded-lg cursor-pointer"><input id="player-trait-out" type="checkbox" class="accent-red-500"> OUT</label>
                 </div>
               </div>
 
@@ -632,6 +652,11 @@
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-amber-400 mb-2">🟨 Tarjetas</h4><div id="score-away-cards" class="space-y-1"></div><p id="score-away-cards-empty" class="text-[10px] text-slate-500">Sin tarjetas registradas.</p></div>
           </div>
         </div>
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_220px_1fr] gap-3 items-start">
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><h3 id="score-home-xi-title" class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">11 inicial Local</h3><div id="score-home-xi" class="space-y-1"></div></div>
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg text-center"><div class="text-[10px] text-slate-400 uppercase">Resultado</div><div id="score-xi-mini-result" class="text-3xl font-black text-white mt-2">0 — 0</div><div id="score-xi-mini-time" class="text-sm font-mono text-slate-300 mt-1">00:00</div></div>
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><h3 id="score-away-xi-title" class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">11 inicial Visitante</h3><div id="score-away-xi" class="space-y-1"></div></div>
+        </div>
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><select id="match-half" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="1">Primera parte</option><option value="2">Segunda parte</option></select></div>
           <div class="flex flex-col items-center gap-3 mt-4"><div id="match-clock" class="text-6xl sm:text-8xl font-black font-mono tabular-nums">00:00</div><div class="flex flex-wrap justify-center gap-2"><button id="btn-clock-pause" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⏸️ Pausar</button><button id="btn-clock-resume" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">▶️ Reanudar</button><button id="btn-clock-stop" class="bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-xs">⏹️ Parar</button></div><span id="clock-status" class="text-[10px] text-slate-400">Detenido</span></div>
@@ -656,6 +681,15 @@
 
   </main>
 
+  <!-- MODAL: 11 INICIAL Y SUPLENTES DEL RIVAL -->
+  <div id="modal-rival-xi" class="fixed inset-0 bg-black/70 z-[85] flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl max-h-[88vh] flex flex-col">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><div><h3 id="rival-xi-title" class="font-bold text-indigo-300 text-sm">11 inicial</h3><p class="text-[10px] text-slate-400">Selecciona exactamente 11 titulares y, opcionalmente, suplentes.</p></div><button id="btn-close-rival-xi" class="text-slate-400">✕</button></div>
+      <div id="rival-xi-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1"></div>
+      <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-slate-700"><button id="btn-cancel-rival-xi" class="bg-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs">Cancelar</button><button id="btn-save-rival-xi" class="bg-indigo-600 text-white font-bold px-3 py-2 rounded-lg text-xs">Guardar 11 y suplentes</button></div>
+    </div>
+  </div>
+
   <!-- MODAL: GESTIONAR JUGADORES DE UN EQUIPO RIVAL -->
   <div id="modal-rival-squad" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl flex flex-col max-h-[85vh]">
@@ -678,6 +712,7 @@
             <option value="LI">Lat. Izquierdo (LI)</option>
             <option value="MCD">Mediocentro (MCD)</option>
             <option value="MC">Interior (MC)</option>
+            <option value="MP">Media punta (MP)</option>
             <option value="ED">Ext. Derecho (ED)</option>
             <option value="EI">Ext. Izquierdo (EI)</option>
             <option value="DC">Delantero (DC)</option>
@@ -919,6 +954,18 @@
     </div>
   </div>
 
+  <!-- MODAL: CREAR TEXTO DE TÁCTICA -->
+  <div id="modal-tactics-text" class="fixed inset-0 bg-black/70 z-[90] flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><h3 class="font-bold text-violet-400 text-sm">T Añadir texto a la pizarra</h3><button id="btn-close-tactics-text" class="text-slate-400">✕</button></div>
+      <div class="space-y-3">
+        <input id="tactics-text-content" placeholder="Texto" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        <div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] text-slate-400 mb-1">Color</label><input id="tactics-text-color" type="color" value="#ffffff" class="w-full h-9 bg-slate-900 border border-slate-600 rounded-lg"></div><div><label class="block text-[10px] text-slate-400 mb-1">Tamaño</label><input id="tactics-text-font-size" type="number" min="8" max="80" value="24" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm"></div></div>
+        <button id="btn-confirm-tactics-text" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-2 rounded-lg text-sm">Crear</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ANOTACIONES DE TÁCTICA -->
   <div id="modal-tactic-annotations" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full p-4 shadow-2xl">
@@ -988,7 +1035,7 @@
       'f11_squad','f11_rivals','f11_matches','f11_tactics','f11_confrontations',
       'f11_scoreboards','f11_live_scoreboard','f11_formation','f11_kit',
       'f11_active_tokens','f11_active_bench','f11_selected_rival_id',
-      'f11_selected_rival_kit','f11_active_rival_tokens','f11_team_colors','f11_my_team'
+      'f11_selected_rival_kit','f11_active_rival_tokens','f11_team_colors','f11_my_team','f11_tactics_display_settings'
     ];
     let f11CloudUser = null;
     let f11CloudReady = false;
@@ -1368,14 +1415,16 @@
     let savedTactics = JSON.parse(localStorage.getItem('f11_tactics')) || [];
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
     let savedScoreboards = (JSON.parse(localStorage.getItem('f11_scoreboards')) || []).map(x => ({...x, goals:Array.isArray(x.goals)?x.goals:[], substitutions:Array.isArray(x.substitutions)?x.substitutions:[], yellowCards:Array.isArray(x.yellowCards)?x.yellowCards:[], doubleYellowCards:Array.isArray(x.doubleYellowCards)?x.doubleYellowCards:[], redCards:Array.isArray(x.redCards)?x.redCards:[], annotations:Array.isArray(x.annotations)?x.annotations:[]}));
-    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0};
-    let teamColors = JSON.parse(localStorage.getItem('f11_team_colors')) || {local:'#1d4ed8', visitante:'#db2777'};
+    let scoreboard = JSON.parse(localStorage.getItem('f11_live_scoreboard')) || {homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],homeXI:[],awayXI:[],updatedAt:0};
+    let teamColors = JSON.parse(localStorage.getItem('f11_team_colors')) || {local:'#1d4ed8', visitante:'#db2777', localPor:'#fbbf24', visitantePor:'#22d3ee'};
     let myTeam = JSON.parse(localStorage.getItem('f11_my_team')) || {name:'Mi Equipo', image:''};
     let selectionModes = {pitch:false,tactics:false,confrontation:false};
     let selectedElements = {pitch:new Set(),tactics:new Set(),confrontation:new Set()};
     let currentTacticAnnotations = [];
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.local)) teamColors.local='#1d4ed8';
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.visitante)) teamColors.visitante='#db2777';
+    if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.localPor)) teamColors.localPor='#fbbf24';
+    if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.visitantePor)) teamColors.visitantePor='#22d3ee';
     localStorage.setItem('f11_team_colors',JSON.stringify(teamColors));
     if(scoreboard.running && scoreboard.lastStartedAt){
       const now = Date.now();
@@ -1445,10 +1494,10 @@
 
     let currentFormationKey = localStorage.getItem('f11_formation') || '4-3-3';
     let currentKit = localStorage.getItem('f11_kit') || 'local';
-    function getTeamColor(side){return side==='local'?teamColors.local:teamColors.visitante;}
-    function applyTeamColorToToken(el,side){const bg=getTeamColor(side);el.style.backgroundColor=bg;el.style.color=getContrastTextColor(bg);}
-    function renderTeamColorControls(){const l=document.getElementById('team-color-local'),a=document.getElementById('team-color-away');if(!l||!a)return;l.value=teamColors.local;a.value=teamColors.visitante;document.getElementById('team-color-local-value').textContent=teamColors.local.toUpperCase();document.getElementById('team-color-away-value').textContent=teamColors.visitante.toUpperCase();}
-    function setTeamColor(side,color){if(!/^#[0-9a-fA-F]{6}$/.test(color))return;teamColors[side]=color;localStorage.setItem('f11_team_colors',JSON.stringify(teamColors));renderTeamColorControls();renderPitch();document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>applyTeamColorToToken(el,currentKit==='local'?'local':'visitante'));document.querySelectorAll('#matchup-pitch .matchup-token').forEach(el=>applyTeamColorToToken(el,'local'));if(typeof renderSB==='function')renderSB();}
+    function getTeamColor(side,role=''){if(role==='POR')return side==='local'?teamColors.localPor:teamColors.visitantePor;return side==='local'?teamColors.local:teamColors.visitante;}
+    function applyTeamColorToToken(el,side,role=''){const bg=getTeamColor(side,role);el.style.backgroundColor=bg;el.style.color=getContrastTextColor(bg);}
+    function renderTeamColorControls(){const l=document.getElementById('team-color-local'),a=document.getElementById('team-color-away'),lp=document.getElementById('team-color-local-por'),ap=document.getElementById('team-color-away-por');if(!l||!a)return;l.value=teamColors.local;a.value=teamColors.visitante;if(lp)lp.value=teamColors.localPor;if(ap)ap.value=teamColors.visitantePor;document.getElementById('team-color-local-value').textContent=teamColors.local.toUpperCase();document.getElementById('team-color-away-value').textContent=teamColors.visitante.toUpperCase();if(document.getElementById('team-color-local-por-value'))document.getElementById('team-color-local-por-value').textContent=teamColors.localPor.toUpperCase();if(document.getElementById('team-color-away-por-value'))document.getElementById('team-color-away-por-value').textContent=teamColors.visitantePor.toUpperCase();}
+    function setTeamColor(side,color){if(!/^#[0-9a-fA-F]{6}$/.test(color))return;teamColors[side]=color;localStorage.setItem('f11_team_colors',JSON.stringify(teamColors));renderTeamColorControls();renderPitch();document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>applyTeamColorToToken(el,currentKit==='local'?'local':'visitante',el.dataset.role||''));document.querySelectorAll('#matchup-pitch .matchup-token').forEach(el=>applyTeamColorToToken(el,'local'));if(typeof renderSB==='function')renderSB();}
     let activeTokens = JSON.parse(localStorage.getItem('f11_active_tokens')) || null;
     let activeBench = JSON.parse(localStorage.getItem('f11_active_bench')) || [];
 
@@ -1900,15 +1949,13 @@
         tokenEl.style.left = `${token.x}%`;
         tokenEl.style.top = `${token.y}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
-        applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante');
+        applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante',token.role);
 
         const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
         const displayName = assignedPlayer ? assignedPlayer.name : token.role;
 
-        tokenEl.innerHTML = `
-          <span class="text-xs leading-none">${displayNum}</span>
-          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
-        `;
+        tokenEl.dataset.role=token.role;
+        tokenEl.innerHTML = `<span class="text-sm leading-none">${displayNum}</span>`;
 
         makeDraggable(tokenEl, token, pitch);
         tokenEl.addEventListener('dblclick', () => { if(selectionModes.pitch) return; openAssignPlayerModal(token.slot, token.role); });
@@ -2004,6 +2051,14 @@
     let eraserSize = 25;
     let currentTacticsTokens = [];
     let animFrames = [];
+    let tacticsDisplaySettings = JSON.parse(localStorage.getItem('f11_tactics_display_settings')) || {playerScale:1,props:{cone:1,wall:1,ball:1,text:1}};
+    function saveTacticsDisplaySettings(){localStorage.setItem('f11_tactics_display_settings',JSON.stringify(tacticsDisplaySettings));}
+    function tacticsPropScale(type){return Number(tacticsDisplaySettings.props?.[type]||1);}
+    function applyTacticsSizes(){
+      document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>{const scale=Number(tacticsDisplaySettings.playerScale||1);el.style.width=(42*scale)+'px';el.style.height=(42*scale)+'px';});
+      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const type=el.dataset.type||'ball';const scale=tacticsPropScale(type);el.style.fontSize=(20*scale)+'px';});
+      document.querySelectorAll('#tactics-pitch .tactics-text-prop').forEach(el=>{el.style.fontSize=(Number(el.dataset.baseSize||24)*Number(tacticsDisplaySettings.props.text||1))+'px';});
+    }
 
     function initTacticsView() {
       const container = document.getElementById('tactics-pitch');
@@ -2046,16 +2101,14 @@
         tokenEl.style.left = `${token.x}%`;
         tokenEl.style.top = `${token.y}%`;
         tokenEl.style.transform = 'translate(-50%, -50%)';
-          applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante');
-        applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante');
+          applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante',token.role);
+        applyTeamColorToToken(tokenEl,currentKit==='local'?'local':'visitante',token.role);
 
         const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
         const displayName = assignedPlayer ? assignedPlayer.name : token.role;
 
-        tokenEl.innerHTML = `
-          <span class="text-xs leading-none">${displayNum}</span>
-          <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
-        `;
+        tokenEl.dataset.role=token.role;
+        tokenEl.innerHTML = `<span class="text-sm leading-none">${displayNum}</span>`;
 
         makeDraggable(tokenEl, token, container);
         container.appendChild(tokenEl);
@@ -2065,6 +2118,7 @@
 
       animFrames = [];
       updateAnimUI();
+      applyTacticsSizes();
     }
 
     function setupDrawingEvents() {
@@ -2162,7 +2216,7 @@
       else if (type === 'wall') propEl.innerText = '🧱';
       else if (type === 'ball') propEl.innerText = '⚽';
 
-      const propData = { x: customX, y: customY };
+      const propData = { x: customX, y: customY }; propEl.style.fontSize=(20*tacticsPropScale(type))+'px';
       makeDraggable(propEl, propData, container);
       propEl.ondblclick = () => propEl.remove();
 
@@ -2171,15 +2225,7 @@
 
     // --- ANIMACIÓN: CAPTURAR POSICIONES Y GENERAR VÍDEO ---
     function readCurrentPropsFromDom() {
-      const propsSnapshot = [];
-      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
-        propsSnapshot.push({
-          type: el.dataset.type,
-          x: parseFloat(el.style.left),
-          y: parseFloat(el.style.top)
-        });
-      });
-      return propsSnapshot;
+      return readAllTacticsProps();
     }
 
     function captureAnimFrame() {
@@ -2290,17 +2336,25 @@
       const py = (v) => (v / 100) * h;
 
       propsList.forEach(p => {
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if(p.type==='text'){
+          ctx.fillStyle=p.color||'#fff';
+          ctx.font=`bold ${Math.round(Number(p.fontSize||24)*Number(p.scale||1))}px sans-serif`;
+          ctx.fillText(p.text||'',px(p.x),py(p.y));
+          return;
+        }
         let icon = '⚪';
         if (p.type === 'cone') icon = '🟠';
         else if (p.type === 'wall') icon = '🧱';
         else if (p.type === 'ball') icon = '⚽';
-        ctx.font = `${Math.round(w * 0.05)}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        const scale=Number(p.scale||1);
+        ctx.font = `${Math.round(w * 0.05 * scale)}px sans-serif`;
+        ctx.fillStyle='#fff';
         ctx.fillText(icon, px(p.x), py(p.y));
       });
 
-      const radius = w * 0.045;
+      const radius = w * 0.045 * Number(tacticsDisplaySettings.playerScale||1);
       tokensList.forEach(tok => {
         const assignedPlayer = squad.find(p => p.id === tok.playerId);
         let bg = '#1e3a8a', fg = '#ffffff';
@@ -2353,7 +2407,7 @@
       if (frameA.props.length === frameB.props.length) {
         propsList = frameA.props.map((pA, idx) => {
           const pB = frameB.props[idx];
-          return { type: pA.type, x: lerp(pA.x, pB.x, t), y: lerp(pA.y, pB.y, t) };
+          return { ...pA, type:pA.type, x: lerp(pA.x, pB.x, t), y: lerp(pA.y, pB.y, t), text:t<0.5?pA.text:pB.text, color:t<0.5?pA.color:pB.color, fontSize:t<0.5?pA.fontSize:pB.fontSize, scale:t<0.5?pA.scale:pB.scale };
         });
       } else {
         propsList = t < 0.5 ? frameA.props : frameB.props;
@@ -2501,14 +2555,7 @@
       const desc = document.getElementById('tactic-desc').value.trim();
 
       // Guardar Objetos/Props en el campo
-      const propsList = [];
-      document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el => {
-        propsList.push({
-          type: el.dataset.type,
-          x: parseFloat(el.style.left),
-          y: parseFloat(el.style.top)
-        });
-      });
+      const propsList = readAllTacticsProps();
 
       const newTactic = {
         id: Date.now(),
@@ -2518,7 +2565,7 @@
         tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
         props: propsList,
         canvasData: tacticsCanvas.toDataURL(),
-        annotations: JSON.parse(JSON.stringify(currentTacticAnnotations))
+        annotations: JSON.parse(JSON.stringify(currentTacticAnnotations)), displaySettings: JSON.parse(JSON.stringify(tacticsDisplaySettings))
       };
 
       savedTactics.unshift(newTactic);
@@ -2577,6 +2624,7 @@
       if (!tac) return;
 
       // Limpiar canvas y props
+      if(tac.displaySettings){tacticsDisplaySettings={...tacticsDisplaySettings,...tac.displaySettings,props:{...tacticsDisplaySettings.props,...(tac.displaySettings.props||{})}};saveTacticsDisplaySettings();['player','cone','wall','ball','text'].forEach(k=>{const el=document.getElementById('tactics-'+k+'-size');if(el)el.value=k==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[k]||1;});}
       clearTacticsCanvas();
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
 
@@ -2591,7 +2639,14 @@
 
       // Restaurar Objetos
       if (tac.props) {
-        tac.props.forEach(p => spawnProp(p.type, p.x, p.y));
+        tac.props.forEach(p => {
+          if(p.type==='text') spawnTextProp(p.text||'',p.color||'#fff',Number(p.fontSize)||24,p.x,p.y,p.id||Date.now());
+          else {
+            spawnProp(p.type,p.x,p.y);
+            const el=[...document.querySelectorAll('#tactics-pitch .tactics-prop')].filter(e=>e.dataset.type===p.type).pop();
+            if(el&&p.scale) el.style.fontSize=(20*Number(p.scale))+'px';
+          }
+        });
       }
 
       // Restaurar Posiciones de fichas
@@ -2615,15 +2670,14 @@
           const displayNum = assignedPlayer ? assignedPlayer.num : token.slot;
           const displayName = assignedPlayer ? assignedPlayer.name : token.role;
 
-          tokenEl.innerHTML = `
-            <span class="text-xs leading-none">${displayNum}</span>
-            <span class="text-[7px] leading-tight opacity-90 truncate max-w-[36px]">${displayName}</span>
-          `;
+          tokenEl.dataset.role=token.role;
+          tokenEl.innerHTML = `<span class="text-sm leading-none">${displayNum}</span>`;
 
           makeDraggable(tokenEl, token, container);
           container.appendChild(tokenEl);
         });
       }
+      applyTacticsSizes();
 
       document.getElementById('modal-load-tactics').classList.add('hidden');
     };
@@ -3045,11 +3099,10 @@
           </div>
 
           <div class="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-700/60">
-            <span>Jugadores: <b class="text-slate-200">${rival.squad.length}</b></span>
+            <span>Jugadores: <b class="text-slate-200">${rival.squad.length}</b> · XI: <b class="text-indigo-300">${(rival.initialXI||[]).length}/11</b></span>
             <div class="flex gap-1">
-              <button onclick="openRivalSquadModal(${rival.id})" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 px-2 py-1 rounded-lg text-xs font-semibold transition">
-                👥 Plantilla Rival
-              </button>
+              <button onclick="openRivalSquadModal(${rival.id})" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 px-2 py-1 rounded-lg text-xs font-semibold transition">👥 Plantilla Rival</button>
+              <button onclick="openRivalXI(${rival.id})" class="bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/50 px-2 py-1 rounded-lg text-xs font-semibold transition">11 Inicial</button>
               <button onclick="editRivalTeam(${rival.id})" class="text-slate-400 hover:text-white p-1 rounded bg-slate-900 border border-slate-700">✏️</button>
               <button onclick="deleteRivalTeam(${rival.id})" class="text-slate-400 hover:text-red-400 p-1 rounded bg-slate-900 border border-slate-700">🗑️</button>
             </div>
@@ -3193,7 +3246,7 @@
 
     window.deleteRivalPlayer = function(playerId) {
       if (!currentEditingRivalForSquad) return;
-      currentEditingRivalForSquad.squad = currentEditingRivalForSquad.squad.filter(p => p.id !== playerId);
+      currentEditingRivalForSquad.squad = currentEditingRivalForSquad.squad.filter(p => p.id !== playerId); currentEditingRivalForSquad.initialXI=(currentEditingRivalForSquad.initialXI||[]).filter(id=>String(id)!==String(playerId)); currentEditingRivalForSquad.bench=(currentEditingRivalForSquad.bench||[]).filter(id=>String(id)!==String(playerId));
       localStorage.setItem('f11_rivals', JSON.stringify(rivalTeams));
       renderRivalSquadList();
       renderRivalsList();
@@ -3338,6 +3391,7 @@
       { key: 'LI',  name: 'Lat. Izquierdo' },
       { key: 'MCD', name: 'Mediocentro' },
       { key: 'MC',  name: 'Interior' },
+      { key: 'MP',  name: 'Media punta' },
       { key: 'ED',  name: 'Ext. Derecho' },
       { key: 'EI',  name: 'Ext. Izquierdo' },
       { key: 'DC',  name: 'Delantero' }
@@ -3393,7 +3447,7 @@
                 ? players.map(player => `
                     <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5">
                       <span class="text-[10px] font-bold text-emerald-400 w-5">${player.num}</span>
-                      <span class="text-xs text-slate-200 truncate">${player.name}</span>
+                      <span class="text-xs text-slate-200 truncate">${player.name}</span><span class="ml-auto flex gap-1 shrink-0">${player.traits?.juvenil?'<span class="bg-yellow-500 text-slate-950 text-[8px] font-black px-1.5 py-0.5 rounded">JUV</span>':''}${player.traits?.pruebas?'<span class="bg-green-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded">PRU</span>':''}${player.traits?.out?'<span class="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded">OUT</span>':''}</span>
                     </div>
                   `).join('')
                 : `<p class="text-[10px] text-slate-600 text-center py-3">Sin jugadores</p>`
@@ -3410,6 +3464,7 @@
       const num = parseInt(document.getElementById('player-num').value);
       const name = document.getElementById('player-name').value.trim();
       const selectedRoles = Array.from(document.querySelectorAll('input[name="pos"]:checked')).map(cb => cb.value);
+      const traits = {juvenil:document.getElementById('player-trait-juvenil')?.checked||false, pruebas:document.getElementById('player-trait-pruebas')?.checked||false, out:document.getElementById('player-trait-out')?.checked||false};
 
       if (selectedRoles.length === 0) {
         alert("Selecciona al menos una posición para el jugador.");
@@ -3419,10 +3474,10 @@
       if (editId) {
         const index = squad.findIndex(p => p.id === parseInt(editId));
         if (index !== -1) {
-          squad[index] = { id: parseInt(editId), num, name, roles: selectedRoles };
+          squad[index] = { ...squad[index], id: parseInt(editId), num, name, roles: selectedRoles, traits };
         }
       } else {
-        squad.push({ id: Date.now(), num, name, roles: selectedRoles });
+        squad.push({ id: Date.now(), num, name, roles: selectedRoles, traits });
       }
 
       sortSquad();
@@ -3443,6 +3498,7 @@
       document.querySelectorAll('input[name="pos"]').forEach(cb => {
         cb.checked = player.roles.includes(cb.value);
       });
+      const tr=player.traits||{}; if(document.getElementById('player-trait-juvenil'))document.getElementById('player-trait-juvenil').checked=!!tr.juvenil; if(document.getElementById('player-trait-pruebas'))document.getElementById('player-trait-pruebas').checked=!!tr.pruebas; if(document.getElementById('player-trait-out'))document.getElementById('player-trait-out').checked=!!tr.out;
 
       formTitle.innerText = "Editar Jugador";
       btnSavePlayer.innerText = "Actualizar Jugador";
@@ -3666,7 +3722,7 @@
         se[t==='home'?'hc':'ac'].innerHTML=cs.map(x=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 rounded-lg px-2 py-1.5 text-[11px]"><span><b class="font-mono">${esc(x.minute)}</b> — ${esc(cardTypeLabel(x.type))} · ${esc(x.player)}${x.number?` <span class="text-slate-500">#${esc(x.number)}</span>`:''}</span><button onclick="editScoreCard('${x.type}',${x.id})">✏️</button></div>`).join('');
         se[t==='home'?'hge':'age'].classList.toggle('hidden',gs.length>0);se[t==='home'?'hse':'ase'].classList.toggle('hidden',ss.length>0);se[t==='home'?'hce':'ace'].classList.toggle('hidden',cs.length>0);
       });
-      renderAnnotations();
+      renderAnnotations();renderScoreStartingXIs();
     }
     function players(team){if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));const r=rivalTeams.find(x=>String(x.id)===String(selectedRivalId));return r&&Array.isArray(r.squad)?r.squad.map(p=>({num:p.num,name:p.name})):[];}
     function fillPlayers(){const opts='<option value="">— Seleccionar —</option>'+players(se.st.value).map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');se.so.innerHTML=opts;se.si.innerHTML=opts;}
@@ -3694,7 +3750,7 @@
         document.getElementById('btn-save-card').onclick=()=>{const p=se.cp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const type=se.ctype.value,arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards,id=se.ceid.value?Number(se.ceid.value):Date.now(),sec=parseEventTimeInput(se.cm.value,absoluteTime()),d={id,team:se.ct.value,player:p,number:String(se.cn.value||'').trim(),note:se.cnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=arr.findIndex(x=>x.id===id);if(i>=0)arr[i]=d;else arr.push(d);saveSB();closeCard();renderSB();};
         document.getElementById('btn-show-annotations').onclick=()=>{se.ap.classList.toggle('hidden');if(!se.ap.classList.contains('hidden'))renderAnnotations();};document.getElementById('btn-add-annotation').onclick=()=>openAnnotation();document.getElementById('btn-cancel-annotation').onclick=closeAnnotation;document.getElementById('btn-delete-annotation').onclick=()=>{const id=Number(se.aeid.value);if(id&&confirm('¿Eliminar esta anotación?')){scoreboard.annotations=scoreboard.annotations.filter(x=>x.id!==id);saveSB();closeAnnotation();renderAnnotations();}};
         document.getElementById('btn-save-annotation').onclick=()=>{const title=se.atitle.value.trim();if(!title)return alert('Escribe un título.');const id=se.aeid.value?Number(se.aeid.value):Date.now(),sec=parseEventTimeInput(se.amin.value,absoluteTime()),d={id,title,description:se.adesc.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.annotations.findIndex(x=>x.id===id);if(i>=0)scoreboard.annotations[i]=d;else scoreboard.annotations.push(d);saveSB();closeAnnotation();se.ap.classList.remove('hidden');renderAnnotations();};
-        document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();saveSB();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeTeamId:scoreboard.homeTeamId||'',awayTeamId:scoreboard.awayTeamId||'',homeLogo:scoreboard.homeLogo||'',awayLogo:scoreboard.awayLogo||'',homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,running:false,lastStartedAt:null,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions)),yellowCards:JSON.parse(JSON.stringify(scoreboard.yellowCards)),doubleYellowCards:JSON.parse(JSON.stringify(scoreboard.doubleYellowCards)),redCards:JSON.parse(JSON.stringify(scoreboard.redCards)),annotations:JSON.parse(JSON.stringify(scoreboard.annotations))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
+        document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();saveSB();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeTeamId:scoreboard.homeTeamId||'',awayTeamId:scoreboard.awayTeamId||'',homeLogo:scoreboard.homeLogo||'',awayLogo:scoreboard.awayLogo||'',homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,running:false,lastStartedAt:null,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions)),yellowCards:JSON.parse(JSON.stringify(scoreboard.yellowCards)),doubleYellowCards:JSON.parse(JSON.stringify(scoreboard.doubleYellowCards)),redCards:JSON.parse(JSON.stringify(scoreboard.redCards)),annotations:JSON.parse(JSON.stringify(scoreboard.annotations)),homeXI:JSON.parse(JSON.stringify(scoreboard.homeXI||[])),awayXI:JSON.parse(JSON.stringify(scoreboard.awayXI||[]))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
         document.getElementById('btn-load-scoreboard').onclick=()=>{se.savedPanel.classList.toggle('hidden');if(!se.savedPanel.classList.contains('hidden'))renderSaved();};
         document.getElementById('btn-refresh-saved-scoreboards-partidos')?.addEventListener('click',renderPartidosScoreboards);
       }fillPlayers();renderSB();
@@ -3818,7 +3874,7 @@
       };
       const actionCenterGap=25;
       const localActionX=scoreCenter-actionCenterGap;
-      const awayActionX=scoreCenter+ (3 * actionCenterGap);
+      const awayActionX=scoreCenter+actionCenterGap;
       drawTeam(localActionX,'LOCAL','home',true);
       drawTeam(awayActionX,'VISITANTE','away',false);
     }
@@ -3828,10 +3884,132 @@
     document.getElementById('btn-team-colors')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('team-colors-panel')?.classList.toggle('hidden');renderTeamColorControls();});
     document.getElementById('team-color-local')?.addEventListener('input',e=>setTeamColor('local',e.target.value));
     document.getElementById('team-color-away')?.addEventListener('input',e=>setTeamColor('visitante',e.target.value));
+    document.getElementById('team-color-local-por')?.addEventListener('input',e=>setTeamColor('localPor',e.target.value));
+    document.getElementById('team-color-away-por')?.addEventListener('input',e=>setTeamColor('visitantePor',e.target.value));
     document.addEventListener('click',e=>{const p=document.getElementById('team-colors-panel'),b=document.getElementById('btn-team-colors');if(p&&b&&!p.contains(e.target)&&!b.contains(e.target))p.classList.add('hidden');});
     renderTeamColorControls();
 
-    // INICIALIZACIÓN
+
+    // --- NUEVAS FUNCIONES: TÁCTICAS BALÓN PARADO / XI RIVALES / MARCADOR ---
+    function normalizeRival(r){
+      if(!r) return r;
+      r.squad=Array.isArray(r.squad)?r.squad:[];
+      r.initialXI=Array.isArray(r.initialXI)?r.initialXI:[];
+      r.bench=Array.isArray(r.bench)?r.bench:[];
+      return r;
+    }
+    rivalTeams.forEach(normalizeRival);
+    localStorage.setItem('f11_rivals',JSON.stringify(rivalTeams));
+
+    function rivalXIPlayers(rival){
+      rival=normalizeRival(rival);
+      return rival.initialXI.map(id=>rival.squad.find(p=>String(p.id)===String(id))).filter(Boolean);
+    }
+    function myXIPlayers(){
+      return activeTokens.map(t=>{
+        const p=squad.find(x=>x.id===t.playerId);
+        return p?{...p,matchRole:t.role}:null;
+      }).filter(Boolean);
+    }
+    const XI_ROLE_ORDER={POR:0,LD:1,LI:1,DFC:2,MCD:3,MC:4,MP:5,EI:6,ED:6,DC:7};
+    const XI_ROLE_LABEL={POR:'POR',LD:'LD',LI:'LI',DFC:'DFC',MCD:'MCD',MC:'MC',MP:'MP',EI:'EI',ED:'ED',DC:'DC'};
+    function xiRole(p){return p.matchRole||p.role||(p.roles&&p.roles[0])||'';}
+    function sortXIPlayers(list){return [...list].sort((a,b)=>(XI_ROLE_ORDER[xiRole(a)]??99)-(XI_ROLE_ORDER[xiRole(b)]??99)||Number(a.num)-Number(b.num));}
+    function renderXIList(el,playersList){
+      if(!el)return;
+      const list=sortXIPlayers(playersList);
+      el.innerHTML=list.length?list.map(p=>`<div class="flex items-center justify-between gap-2 bg-slate-900/80 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px]"><span class="font-bold text-white">${esc(p.num)} — ${esc(p.name)}</span><span class="text-emerald-400 font-bold">${XI_ROLE_LABEL[xiRole(p)]||esc(xiRole(p))}</span></div>`).join(''):'<p class="text-[10px] text-slate-500 italic">11 inicial no configurado.</p>';
+    }
+    function getSelectedScoreTeam(id){
+      if(id==='my')return {id:'my',name:myTeam.name||'Mi Equipo',logo:myTeam.image||'',players:myXIPlayers(),bench:activeBench.map(i=>squad.find(p=>p.id===i)).filter(Boolean)};
+      const r=rivalTeams.find(x=>String(x.id)===String(id));
+      return r?{id:String(r.id),name:r.name,logo:r.image||'',players:rivalXIPlayers(r),bench:r.bench.map(i=>r.squad.find(p=>String(p.id)===String(i))).filter(Boolean)}:null;
+    }
+    function populateScoreTeamSelectors(){
+      const hs=document.getElementById('score-home-team-select'),as=document.getElementById('score-away-team-select');if(!hs||!as)return;
+      const opts='<option value="">Elegir equipo</option><option value="my">Mi Equipo</option>'+rivalTeams.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');
+      hs.innerHTML=opts;as.innerHTML=opts;
+      hs.value=scoreboard.homeTeamId||'';as.value=scoreboard.awayTeamId||'';
+    }
+    function applyScoreTeamSelection(){
+      const hs=document.getElementById('score-home-team-select'),as=document.getElementById('score-away-team-select');
+      if(hs&&hs.value){const t=getSelectedScoreTeam(hs.value);if(t){scoreboard.homeTeamId=t.id;scoreboard.homeName=t.name;scoreboard.homeLogo=t.logo;scoreboard.homeXI=JSON.parse(JSON.stringify(t.players||[]));}}
+      if(as&&as.value){const t=getSelectedScoreTeam(as.value);if(t){scoreboard.awayTeamId=t.id;scoreboard.awayName=t.name;scoreboard.awayLogo=t.logo;scoreboard.awayXI=JSON.parse(JSON.stringify(t.players||[]));}}
+      saveSB();renderSB();
+    }
+    function renderScoreStartingXIs(){
+      const h=getSelectedScoreTeam(scoreboard.homeTeamId),a=getSelectedScoreTeam(scoreboard.awayTeamId);const hp=(scoreboard.homeXI&&scoreboard.homeXI.length)?scoreboard.homeXI:(h?.players||[]),ap=(scoreboard.awayXI&&scoreboard.awayXI.length)?scoreboard.awayXI:(a?.players||[]);
+      document.getElementById('score-home-xi-title').textContent=`11 inicial ${h?.name||scoreboard.homeName||'Local'}`;
+      document.getElementById('score-away-xi-title').textContent=`11 inicial ${a?.name||scoreboard.awayName||'Visitante'}`;
+      renderXIList(document.getElementById('score-home-xi'),hp);
+      renderXIList(document.getElementById('score-away-xi'),ap);
+      document.getElementById('score-xi-mini-result').textContent=`${Number(scoreboard.homeScore)||0} — ${Number(scoreboard.awayScore)||0}`;
+      document.getElementById('score-xi-mini-time').textContent=se.clock?.textContent||'00:00';
+    }
+    document.getElementById('score-home-team-select')?.addEventListener('change',applyScoreTeamSelection);
+    document.getElementById('score-away-team-select')?.addEventListener('change',applyScoreTeamSelection);
+
+    // Selector de 11 inicial y suplentes para cada rival
+    let editingRivalXI=null, rivalXISelected=new Set(), rivalBenchSelected=new Set();
+    window.openRivalXI=function(id){
+      const r=normalizeRival(rivalTeams.find(x=>x.id===id)); if(!r)return;
+      editingRivalXI=r; rivalXISelected=new Set(r.initialXI.map(Number)); rivalBenchSelected=new Set(r.bench.map(Number));
+      document.getElementById('rival-xi-title').textContent=`11 inicial y suplentes — ${r.name}`;
+      const list=document.getElementById('rival-xi-list');list.innerHTML='';
+      r.squad.forEach(p=>{
+        const idn=Number(p.id),starter=rivalXISelected.has(idn),bench=rivalBenchSelected.has(idn);
+        const item=document.createElement('label');item.className='flex items-center justify-between gap-2 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs cursor-pointer';
+        item.innerHTML=`<div class="flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center font-bold">${esc(p.num)}</span><span>${esc(p.name)}</span><span class="text-[9px] text-slate-500">${esc(p.role||'')}</span></div><div class="flex gap-2"><label class="text-[9px] text-emerald-300">XI <input type="checkbox" class="rxi-starter accent-emerald-500" ${starter?'checked':''}></label><label class="text-[9px] text-sky-300">SUP <input type="checkbox" class="rxi-bench accent-sky-500" ${bench?'checked':''}></label></div>`;
+        const xi=item.querySelector('.rxi-starter'),be=item.querySelector('.rxi-bench');
+        xi.onchange=()=>{if(xi.checked){rivalXISelected.add(idn);rivalBenchSelected.delete(idn);be.checked=false;}else rivalXISelected.delete(idn);};
+        be.onchange=()=>{if(be.checked){rivalBenchSelected.add(idn);rivalXISelected.delete(idn);xi.checked=false;}else rivalBenchSelected.delete(idn);};
+        list.appendChild(item);
+      });
+      document.getElementById('modal-rival-xi').classList.remove('hidden');
+    };
+    function closeRivalXI(){document.getElementById('modal-rival-xi').classList.add('hidden');editingRivalXI=null;}
+    document.getElementById('btn-close-rival-xi')?.addEventListener('click',closeRivalXI);
+    document.getElementById('btn-cancel-rival-xi')?.addEventListener('click',closeRivalXI);
+    document.getElementById('btn-save-rival-xi')?.addEventListener('click',()=>{
+      if(!editingRivalXI)return;
+      if(rivalXISelected.size!==11){alert('Debes seleccionar exactamente 11 titulares.');return;}
+      editingRivalXI.initialXI=[...rivalXISelected];editingRivalXI.bench=[...rivalBenchSelected];
+      localStorage.setItem('f11_rivals',JSON.stringify(rivalTeams));renderRivalsList();closeRivalXI();populateScoreTeamSelectors();renderSB();
+    });
+
+    // Tamaños de Tácticas Balón Parado
+    function initTacticsDisplayControls(){
+      const map=[['tactics-player-size',v=>tacticsDisplaySettings.playerScale=Number(v)],['tactics-cone-size',v=>tacticsDisplaySettings.props.cone=Number(v)],['tactics-wall-size',v=>tacticsDisplaySettings.props.wall=Number(v)],['tactics-ball-size',v=>tacticsDisplaySettings.props.ball=Number(v)],['tactics-text-size',v=>tacticsDisplaySettings.props.text=Number(v)]];
+      map.forEach(([id,fn])=>{const el=document.getElementById(id);if(!el)return;const key=id.replace('tactics-','').replace('-size','');let value=key==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[key]??1;el.value=value;el.addEventListener('input',e=>{fn(e.target.value);saveTacticsDisplaySettings();applyTacticsSizes();});});
+      applyTacticsSizes();
+    }
+    initTacticsDisplayControls();
+
+    // Texto editable en la pizarra y guardado en animaciones/tácticas
+    function spawnTextProp(text,color='#fff',fontSize=24,x=50,y=50,id=Date.now()){
+      const container=document.getElementById('tactics-pitch');const el=document.createElement('div');
+      el.className='tactics-prop tactics-text-prop absolute z-30 cursor-grab active:cursor-grabbing touch-none select-none font-black';
+      el.dataset.type='text';el.dataset.text=text;el.dataset.color=color;el.dataset.baseSize=fontSize;el.dataset.id=id;
+      el.style.left=x+'%';el.style.top=y+'%';el.style.color=color;el.style.fontSize=(fontSize*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.transform='translate(-50%,-50%)';el.textContent=text;
+      const data={x,y,type:'text',text,color,fontSize,id};makeDraggable(el,data,container);el._dataObj=data;
+      el.addEventListener('dblclick',()=>{const nuevo=prompt('Editar texto:',el.dataset.text||text);if(nuevo!==null){el.dataset.text=nuevo;el.textContent=nuevo;data.text=nuevo;}});
+      el.addEventListener('pointerup',()=>{data.x=parseFloat(el.style.left);data.y=parseFloat(el.style.top);});
+      container.appendChild(el);return el;
+    }
+    function readAllTacticsProps(){
+      const props=[];document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const d=el._dataObj||{};props.push({type:el.dataset.type,x:parseFloat(el.style.left),y:parseFloat(el.style.top),scale:tacticsPropScale(el.dataset.type),text:el.dataset.text||'',color:el.dataset.color||'',fontSize:Number(el.dataset.baseSize)||24,id:el.dataset.id||Date.now()});});return props;
+    }
+    document.getElementById('btn-create-tactics-text')?.addEventListener('click',()=>document.getElementById('modal-tactics-text').classList.remove('hidden'));
+    document.getElementById('btn-close-tactics-text')?.addEventListener('click',()=>document.getElementById('modal-tactics-text').classList.add('hidden'));
+    document.getElementById('btn-confirm-tactics-text')?.addEventListener('click',()=>{
+      const text=document.getElementById('tactics-text-content').value.trim();if(!text)return alert('Escribe el texto.');
+      spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24);
+      document.getElementById('tactics-text-content').value='';document.getElementById('modal-tactics-text').classList.add('hidden');
+    });
+
+    // Guardar textos y tamaños de objetos junto a la táctica
+    const originalTacticSaveHandler = null;
+        // INICIALIZACIÓN
     f11InitCloud();
     syncTokensWithFormation(true);
     renderPitch();
