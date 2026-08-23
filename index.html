@@ -325,6 +325,7 @@
                 <div class="grid grid-cols-3 gap-1">
                   <button id="btn-tactics-bg-current" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">Campo actual</button>
                   <button id="btn-tactics-bg-full" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">11vs11 vertical</button>
+                  <button id="btn-tactics-bg-white" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">Campo blanco</button>
                   <button id="btn-tactics-bg-custom" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">🖼️ Propio</button>
                 </div>
                 <input id="tactics-bg-input" type="file" accept="image/*" class="hidden">
@@ -384,7 +385,6 @@
                 <label class="text-[10px] text-slate-400">Tamaño conos</label><input id="tactics-cone-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
                 <label class="text-[10px] text-slate-400">Tamaño barreras</label><input id="tactics-wall-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
                 <label class="text-[10px] text-slate-400">Tamaño balones</label><input id="tactics-ball-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
-                <label class="text-[10px] text-slate-400">Tamaño textos</label><input id="tactics-text-size" type="range" min="0.5" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
               </div>
             </div>
 
@@ -2076,7 +2076,6 @@
     function applyTacticsSizes(){
       document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>{const scale=Number(tacticsDisplaySettings.playerScale||1);el.style.width=(42*scale)+'px';el.style.height=(42*scale)+'px';});
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const type=el.dataset.type||'ball';const scale=tacticsPropScale(type);el.style.fontSize=(20*scale)+'px';});
-      document.querySelectorAll('#tactics-pitch .tactics-text-prop').forEach(el=>{el.style.fontSize=(Number(el.dataset.baseSize||24)*Number(tacticsDisplaySettings.props.text||1))+'px';});
     }
 
     function initTacticsView() {
@@ -2444,6 +2443,7 @@
         let bgImg = null;
         if(tacticsBackground.type==='custom' && tacticsBackground.image) bgImg = await loadImageSafe(tacticsBackground.image);
         if(tacticsBackground.type==='fullVertical') bgImg = await loadImageSafe('data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(fullVerticalPitchSvg()));
+        if(tacticsBackground.type==='whiteVertical') bgImg = await loadImageSafe('data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(whiteVerticalPitchSvg()));
 
         // Fotograma inicial estático antes de empezar a grabar
         drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0], fieldX, fieldW, fieldH, bgImg);
@@ -2585,7 +2585,7 @@
 
       // Limpiar canvas y props
       if(tac.background){setTacticsBackground(tac.background.type,tac.background.image||'');}
-      if(tac.displaySettings){tacticsDisplaySettings={...tacticsDisplaySettings,...tac.displaySettings,props:{...tacticsDisplaySettings.props,...(tac.displaySettings.props||{})}};saveTacticsDisplaySettings();['player','cone','wall','ball','text'].forEach(k=>{const el=document.getElementById('tactics-'+k+'-size');if(el)el.value=k==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[k]||1;});}
+      if(tac.displaySettings){tacticsDisplaySettings={...tacticsDisplaySettings,...tac.displaySettings,props:{...tacticsDisplaySettings.props,...(tac.displaySettings.props||{})}};saveTacticsDisplaySettings();['player','cone','wall','ball'].forEach(k=>{const el=document.getElementById('tactics-'+k+'-size');if(el)el.value=k==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[k]||1;});}
       clearTacticsCanvas();
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
 
@@ -2601,7 +2601,7 @@
       // Restaurar Objetos
       if (tac.props) {
         tac.props.forEach(p => {
-          if(p.type==='text') spawnTextProp(p.text||'',p.color||'#fff',Number(p.fontSize)||24,p.x,p.y,p.id||Date.now());
+          if(p.type==='text') spawnTextProp(p.text||'',p.color||'#fff',Number(p.fontSize)||24,p.x,p.y,p.id||Date.now(),Number(p.boxWidth)||220,Number(p.boxHeight)||80);
           else {
             spawnProp(p.type,p.x,p.y);
             const el=[...document.querySelectorAll('#tactics-pitch .tactics-prop')].filter(e=>e.dataset.type===p.type).pop();
@@ -3947,13 +3947,43 @@
 
     // Tamaños de Tácticas Balón Parado
     function initTacticsDisplayControls(){
-      const map=[['tactics-player-size',v=>tacticsDisplaySettings.playerScale=Number(v)],['tactics-cone-size',v=>tacticsDisplaySettings.props.cone=Number(v)],['tactics-wall-size',v=>tacticsDisplaySettings.props.wall=Number(v)],['tactics-ball-size',v=>tacticsDisplaySettings.props.ball=Number(v)],['tactics-text-size',v=>tacticsDisplaySettings.props.text=Number(v)]];
+      const map=[['tactics-player-size',v=>tacticsDisplaySettings.playerScale=Number(v)],['tactics-cone-size',v=>tacticsDisplaySettings.props.cone=Number(v)],['tactics-wall-size',v=>tacticsDisplaySettings.props.wall=Number(v)],['tactics-ball-size',v=>tacticsDisplaySettings.props.ball=Number(v)]];
       map.forEach(([id,fn])=>{const el=document.getElementById(id);if(!el)return;const key=id.replace('tactics-','').replace('-size','');let value=key==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[key]??1;el.value=value;el.addEventListener('input',e=>{fn(e.target.value);saveTacticsDisplaySettings();applyTacticsSizes();});});
       applyTacticsSizes();
     }
     initTacticsDisplayControls();
 
-    // Texto editable en la pizarra y guardado en animaciones/tácticas
+    // Texto editable, redimensionable y colocable fuera del campo
+    let selectedTacticsTextEl = null;
+    let resizingTacticsText = null;
+    function clearTacticsTextSelection(){
+      if(selectedTacticsTextEl){
+        selectedTacticsTextEl.classList.remove('tactics-text-selected');
+        const h=selectedTacticsTextEl.querySelector('.tactics-text-resize-handle'); if(h)h.remove();
+      }
+      selectedTacticsTextEl=null;
+    }
+    function selectTacticsText(el){
+      if(selectedTacticsTextEl===el)return;
+      clearTacticsTextSelection(); selectedTacticsTextEl=el; el.classList.add('tactics-text-selected');
+      const handle=document.createElement('span'); handle.className='tactics-text-resize-handle'; handle.title='Arrastrar para cambiar el tamaño del cuadro';
+      handle.addEventListener('pointerdown',(e)=>{
+        e.preventDefault(); e.stopPropagation();
+        const rect=el.getBoundingClientRect();
+        resizingTacticsText={el,startX:e.clientX,startY:e.clientY,startW:rect.width,startH:rect.height};
+        handle.setPointerCapture?.(e.pointerId);
+      });
+      handle.addEventListener('pointermove',(e)=>{
+        if(!resizingTacticsText||resizingTacticsText.el!==el)return;
+        const nw=Math.max(60,resizingTacticsText.startW+(e.clientX-resizingTacticsText.startX));
+        const nh=Math.max(32,resizingTacticsText.startH+(e.clientY-resizingTacticsText.startY));
+        el.style.width=nw+'px'; el.style.height=nh+'px'; el.dataset.boxWidth=nw; el.dataset.boxHeight=nh;
+        if(el._dataObj){el._dataObj.boxWidth=nw;el._dataObj.boxHeight=nh;}
+      });
+      const stopResize=(e)=>{if(!resizingTacticsText||resizingTacticsText.el!==el)return;resizingTacticsText=null;handle.releasePointerCapture?.(e.pointerId);};
+      handle.addEventListener('pointerup',stopResize); handle.addEventListener('pointercancel',stopResize);
+      el.appendChild(handle);
+    }
     function openTacticsTextEditor(el){
       const modal=document.getElementById('modal-tactics-text');
       document.getElementById('tactics-text-edit-id').value=el.dataset.id||'';
@@ -3965,60 +3995,52 @@
       document.getElementById('btn-confirm-tactics-text').textContent='Guardar cambios';
       modal.classList.remove('hidden');
     }
-    function spawnTextProp(text,color='#fff',fontSize=24,x=50,y=50,id=Date.now()){
-      const container=document.getElementById('tactics-pitch');const el=document.createElement('div');
+    function spawnTextProp(text,color='#fff',fontSize=24,x=50,y=50,id=Date.now(),boxWidth=220,boxHeight=80){
+      const container=document.getElementById('tactics-pitch'); const el=document.createElement('div');
       el.className='tactics-prop tactics-text-prop absolute z-30 cursor-grab active:cursor-grabbing touch-none select-none font-black';
-      el.dataset.type='text';el.dataset.text=text;el.dataset.color=color;el.dataset.baseSize=fontSize;el.dataset.id=id;el.dataset.allowOutside='true';
-      el.style.left=x+'%';el.style.top=y+'%';el.style.color=color;el.style.fontSize=(fontSize*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.transform='translate(-50%,-50%)';el.style.whiteSpace='pre-wrap';el.style.textAlign='center';el.style.maxWidth='70vw';el.style.minWidth='20px';el.style.overflowWrap='anywhere';el.style.lineHeight='1.15';el.textContent=text;
-      const data={x,y,type:'text',text,color,fontSize,id};makeDraggable(el,data,container);el._dataObj=data;
+      el.dataset.type='text'; el.dataset.text=text; el.dataset.color=color; el.dataset.baseSize=fontSize; el.dataset.id=id; el.dataset.allowOutside='true'; el.dataset.boxWidth=boxWidth; el.dataset.boxHeight=boxHeight;
+      el.style.left=x+'%'; el.style.top=y+'%'; el.style.width=boxWidth+'px'; el.style.height=boxHeight+'px'; el.style.color=color; el.style.fontSize=fontSize+'px'; el.style.transform='translate(-50%,-50%)'; el.style.whiteSpace='pre-wrap'; el.style.textAlign='center'; el.style.overflow='hidden'; el.style.overflowWrap='anywhere'; el.style.lineHeight='1.15'; el.style.boxSizing='border-box'; el.textContent=text;
+      const data={x,y,type:'text',text,color,fontSize,id,boxWidth:Number(boxWidth),boxHeight:Number(boxHeight)}; makeDraggable(el,data,container); el._dataObj=data;
+      el.addEventListener('click',(e)=>{if(e.target.classList.contains('tactics-text-resize-handle'))return;e.stopPropagation();selectTacticsText(el);});
       el.addEventListener('dblclick',(e)=>{e.stopPropagation();openTacticsTextEditor(el);});
       el.addEventListener('pointerup',()=>{data.x=parseFloat(el.style.left);data.y=parseFloat(el.style.top);});
-      container.appendChild(el);return el;
+      container.appendChild(el); return el;
     }
     function readAllTacticsProps(){
-      const props=[];document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const d=el._dataObj||{};props.push({type:el.dataset.type,x:parseFloat(el.style.left),y:parseFloat(el.style.top),scale:tacticsPropScale(el.dataset.type),text:el.dataset.text||'',color:el.dataset.color||'',fontSize:Number(el.dataset.baseSize)||24,id:el.dataset.id||Date.now()});});return props;
+      const props=[]; document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const d=el._dataObj||{};props.push({type:el.dataset.type,x:parseFloat(el.style.left),y:parseFloat(el.style.top),scale:tacticsPropScale(el.dataset.type),text:el.dataset.text||'',color:el.dataset.color||'',fontSize:Number(el.dataset.baseSize)||24,id:el.dataset.id||Date.now(),boxWidth:Number(el.dataset.boxWidth)||220,boxHeight:Number(el.dataset.boxHeight)||80});}); return props;
     }
     document.getElementById('btn-create-tactics-text')?.addEventListener('click',()=>{
-      document.getElementById('tactics-text-edit-id').value='';
-      document.getElementById('tactics-text-content').value='';
-      document.getElementById('tactics-text-color').value='#ffffff';
-      document.getElementById('tactics-text-font-size').value=24;
-      document.getElementById('btn-delete-tactics-text').classList.add('hidden');
-      document.getElementById('tactics-text-modal-title').textContent='T Añadir texto a la pizarra';
-      document.getElementById('btn-confirm-tactics-text').textContent='Crear';
-      document.getElementById('modal-tactics-text').classList.remove('hidden');
+      clearTacticsTextSelection(); document.getElementById('tactics-text-edit-id').value=''; document.getElementById('tactics-text-content').value=''; document.getElementById('tactics-text-color').value='#ffffff'; document.getElementById('tactics-text-font-size').value=24; document.getElementById('btn-delete-tactics-text').classList.add('hidden'); document.getElementById('tactics-text-modal-title').textContent='T Añadir texto a la pizarra'; document.getElementById('btn-confirm-tactics-text').textContent='Crear'; document.getElementById('modal-tactics-text').classList.remove('hidden');
     });
     document.getElementById('btn-close-tactics-text')?.addEventListener('click',()=>document.getElementById('modal-tactics-text').classList.add('hidden'));
     document.getElementById('btn-confirm-tactics-text')?.addEventListener('click',()=>{
-      const text=document.getElementById('tactics-text-content').value.trim();if(!text)return alert('Escribe el texto.');
+      const text=document.getElementById('tactics-text-content').value; if(!text.trim())return alert('Escribe el texto.');
       const editId=document.getElementById('tactics-text-edit-id').value;
       if(editId){
         const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(editId));
-        if(el){const c=document.getElementById('tactics-text-color').value,fs=Number(document.getElementById('tactics-text-font-size').value)||24;el.dataset.text=text;el.dataset.color=c;el.dataset.baseSize=fs;el.textContent=text;el.style.color=c;el.style.fontSize=(fs*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.whiteSpace='pre-wrap';el.style.textAlign='center';el.style.maxWidth='70vw';el.style.minWidth='20px';el.style.overflowWrap='anywhere';el.style.lineHeight='1.15';if(el._dataObj){el._dataObj.text=text;el._dataObj.color=c;el._dataObj.fontSize=fs;}}
-      } else spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24);
+        if(el){const c=document.getElementById('tactics-text-color').value,fs=Number(document.getElementById('tactics-text-font-size').value)||24; el.dataset.text=text;el.dataset.color=c;el.dataset.baseSize=fs;el.textContent=text;el.style.color=c;el.style.fontSize=fs+'px'; if(el._dataObj){el._dataObj.text=text;el._dataObj.color=c;el._dataObj.fontSize=fs;} selectTacticsText(el);}
+      } else { const el=spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24); selectTacticsText(el); }
       document.getElementById('modal-tactics-text').classList.add('hidden');
     });
-
     document.getElementById('btn-delete-tactics-text')?.addEventListener('click',()=>{
-      const id=document.getElementById('tactics-text-edit-id').value;
-      if(!id)return;
-      const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(id));
-      if(el) el.remove();
-      document.getElementById('modal-tactics-text').classList.add('hidden');
+      const id=document.getElementById('tactics-text-edit-id').value; if(!id)return; const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(id)); if(el)el.remove(); if(selectedTacticsTextEl===el)clearTacticsTextSelection(); document.getElementById('modal-tactics-text').classList.add('hidden');
     });
 
     // Fondo de Tácticas Balón Parado
     function fullVerticalPitchSvg(){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1000"><rect width="600" height="1000" fill="#047857"/><g fill="none" stroke="white" stroke-width="5"><rect x="5" y="5" width="590" height="990"/><line x1="5" y1="500" x2="595" y2="500"/><circle cx="300" cy="500" r="90"/><circle cx="300" cy="500" r="5" fill="white"/><rect x="90" y="5" width="420" height="180"/><rect x="190" y="5" width="220" height="75"/><rect x="90" y="815" width="420" height="180"/><rect x="190" y="920" width="220" height="75"/><circle cx="300" cy="130" r="5" fill="white"/><circle cx="300" cy="870" r="5" fill="white"/><path d="M210 185 A90 90 0 0 0 390 185"/><path d="M210 815 A90 90 0 0 1 390 815"/></g></svg>`;}
+    function whiteVerticalPitchSvg(){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1000"><rect width="600" height="1000" fill="#ffffff"/><g fill="none" stroke="#111111" stroke-width="5"><rect x="5" y="5" width="590" height="990"/><line x1="5" y1="500" x2="595" y2="500"/><circle cx="300" cy="500" r="90"/><circle cx="300" cy="500" r="5" fill="#111111"/><rect x="90" y="5" width="420" height="180"/><rect x="190" y="5" width="220" height="75"/><rect x="90" y="815" width="420" height="180"/><rect x="190" y="920" width="220" height="75"/><circle cx="300" cy="130" r="5" fill="#111111"/><circle cx="300" cy="870" r="5" fill="#111111"/><path d="M210 185 A90 90 0 0 0 390 185"/><path d="M210 815 A90 90 0 0 1 390 815"/></g></svg>`;}
     function setTacticsBackground(type,image=''){
       tacticsBackground={type,image};localStorage.setItem('f11_tactics_background',JSON.stringify(tacticsBackground));
       const pitchEl=document.getElementById('tactics-pitch'); if(!pitchEl)return;
       const svg=pitchEl.querySelector('svg');
       if(type==='custom'&&image){pitchEl.style.backgroundImage=`url("${image}")`;pitchEl.style.backgroundSize='cover';pitchEl.style.backgroundPosition='center';if(svg)svg.style.visibility='hidden';}
       else if(type==='fullVertical'){pitchEl.style.backgroundImage=`url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(fullVerticalPitchSvg())}")`;pitchEl.style.backgroundSize='cover';pitchEl.style.backgroundPosition='center';if(svg)svg.style.visibility='hidden';}
+      else if(type==='whiteVertical'){pitchEl.style.backgroundImage=`url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(whiteVerticalPitchSvg())}")`;pitchEl.style.backgroundSize='cover';pitchEl.style.backgroundPosition='center';if(svg)svg.style.visibility='hidden';}
       else {pitchEl.style.backgroundImage='none';if(svg)svg.style.visibility='visible';}
     }
     document.getElementById('btn-tactics-bg-current')?.addEventListener('click',()=>setTacticsBackground('current'));
     document.getElementById('btn-tactics-bg-full')?.addEventListener('click',()=>setTacticsBackground('fullVertical'));
+    document.getElementById('btn-tactics-bg-white')?.addEventListener('click',()=>setTacticsBackground('whiteVertical'));
     document.getElementById('btn-tactics-bg-custom')?.addEventListener('click',()=>document.getElementById('tactics-bg-input')?.click());
     document.getElementById('tactics-bg-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{setTacticsBackground('custom',await readTacticsBackgroundAsDataURL(f));}catch(err){alert('No se pudo cargar la imagen de fondo.');}});
     setTacticsBackground(tacticsBackground.type,tacticsBackground.image);
