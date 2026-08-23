@@ -106,6 +106,26 @@
       }
     }
 </style>
+
+<style id="tactics-text-selection-style">
+.tactics-text-prop.tactics-text-selected {
+  outline: 2px dashed #facc15 !important;
+  outline-offset: 2px;
+}
+.tactics-text-resize-handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: #facc15;
+  border: 2px solid #111827;
+  cursor: nwse-resize;
+  z-index: 100;
+  touch-action: none;
+}
+</style>
 </head>
 <body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
 
@@ -3964,8 +3984,14 @@
       selectedTacticsTextEl=null;
     }
     function selectTacticsText(el){
-      if(selectedTacticsTextEl===el)return;
-      clearTacticsTextSelection(); selectedTacticsTextEl=el; el.classList.add('tactics-text-selected');
+      if(!el)return;
+      if(selectedTacticsTextEl!==el){
+        clearTacticsTextSelection();
+        selectedTacticsTextEl=el;
+      }
+      el.classList.add('tactics-text-selected');
+      const oldHandle=el.querySelector('.tactics-text-resize-handle');
+      if(oldHandle)oldHandle.remove();
       const handle=document.createElement('span'); handle.className='tactics-text-resize-handle'; handle.title='Arrastrar para cambiar el tamaño del cuadro';
       handle.addEventListener('pointerdown',(e)=>{
         e.preventDefault(); e.stopPropagation();
