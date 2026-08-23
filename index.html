@@ -977,9 +977,9 @@
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
       <input type="hidden" id="tactics-text-edit-id" value=""><div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><h3 id="tactics-text-modal-title" class="font-bold text-violet-400 text-sm">T Añadir texto a la pizarra</h3><button id="btn-close-tactics-text" class="text-slate-400">✕</button></div>
       <div class="space-y-3">
-        <input id="tactics-text-content" placeholder="Texto" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
+        <textarea id="tactics-text-content" rows="5" placeholder="Escribe el texto. Puedes usar saltos de línea." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm resize-y"></textarea>
         <div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] text-slate-400 mb-1">Color</label><input id="tactics-text-color" type="color" value="#ffffff" class="w-full h-9 bg-slate-900 border border-slate-600 rounded-lg"></div><div><label class="block text-[10px] text-slate-400 mb-1">Tamaño</label><input id="tactics-text-font-size" type="number" min="8" max="80" value="24" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm"></div></div>
-        <button id="btn-confirm-tactics-text" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-2 rounded-lg text-sm">Crear</button>
+        <div class="flex gap-2"><button id="btn-delete-tactics-text" class="hidden flex-1 bg-red-700 hover:bg-red-600 text-white font-bold py-2 rounded-lg text-sm">🗑️ Eliminar</button><button id="btn-confirm-tactics-text" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-bold py-2 rounded-lg text-sm">Crear</button></div>
       </div>
     </div>
   </div>
@@ -2343,7 +2343,7 @@
         if(p.type==='text'){
           ctx.fillStyle=p.color||'#fff';
           ctx.font=`bold ${Math.round(Number(p.fontSize||24)*Number(p.scale||1))}px sans-serif`;
-          ctx.fillText(p.text||'',px(p.x),py(p.y));
+          const lines=String(p.text||'').split('\n'); const lineH=Math.round(Number(p.fontSize||24)*Number(p.scale||1)*1.15); const startY=py(p.y)-((lines.length-1)*lineH)/2; lines.forEach((line,i)=>ctx.fillText(line,px(p.x),startY+i*lineH));
           return;
         }
         let icon = '⚪';
@@ -3741,6 +3741,7 @@
     function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)} · ${((x.goals||[]).length)} goles · ${((x.substitutions||[]).length)} cambios · ${((x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length)} tarjetas</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});renderPartidosScoreboards();}
 // --- FUNCIONES EXTRA: EQUIPOS, ANOTACIONES, SELECCIÓN Y CAPTURA ---
     function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=256,scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/png'));};img.onerror=reject;img.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
+    function readTacticsBackgroundAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=2048,scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,c.width,c.height);const mime=file.type==='image/png'?'image/png':'image/jpeg';resolve(c.toDataURL(mime,mime==='image/jpeg'?0.92:undefined));};img.onerror=reject;img.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
     function renderMyTeamLogo(){const p=document.getElementById('my-team-logo-preview');const b=document.getElementById('pitch-my-team-badge');if(b)b.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain" title="${esc(myTeam.name)}">`:'🛡️';if(p)p.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain">`:'🛡️';const n=document.getElementById('my-team-name');if(n)n.value=myTeam.name||'Mi Equipo';}
     function renderRivalLogoPreview(){const p=document.getElementById('rival-image-preview'),v=document.getElementById('rival-image-input')?.dataset.value||'';if(p)p.innerHTML=v?`<img src="${v}" class="w-full h-full object-contain">`:'🛡️';}
     document.getElementById('btn-my-team-image')?.addEventListener('click',()=>document.getElementById('my-team-image-input')?.click());
@@ -3959,6 +3960,7 @@
       document.getElementById('tactics-text-content').value=el.dataset.text||'';
       document.getElementById('tactics-text-color').value=el.dataset.color||'#ffffff';
       document.getElementById('tactics-text-font-size').value=Number(el.dataset.baseSize)||24;
+      document.getElementById('btn-delete-tactics-text').classList.remove('hidden');
       document.getElementById('tactics-text-modal-title').textContent='T Editar texto de la pizarra';
       document.getElementById('btn-confirm-tactics-text').textContent='Guardar cambios';
       modal.classList.remove('hidden');
@@ -3967,7 +3969,7 @@
       const container=document.getElementById('tactics-pitch');const el=document.createElement('div');
       el.className='tactics-prop tactics-text-prop absolute z-30 cursor-grab active:cursor-grabbing touch-none select-none font-black';
       el.dataset.type='text';el.dataset.text=text;el.dataset.color=color;el.dataset.baseSize=fontSize;el.dataset.id=id;el.dataset.allowOutside='true';
-      el.style.left=x+'%';el.style.top=y+'%';el.style.color=color;el.style.fontSize=(fontSize*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.transform='translate(-50%,-50%)';el.textContent=text;
+      el.style.left=x+'%';el.style.top=y+'%';el.style.color=color;el.style.fontSize=(fontSize*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.transform='translate(-50%,-50%)';el.style.whiteSpace='pre-wrap';el.style.textAlign='center';el.style.maxWidth='70vw';el.style.minWidth='20px';el.style.overflowWrap='anywhere';el.style.lineHeight='1.15';el.textContent=text;
       const data={x,y,type:'text',text,color,fontSize,id};makeDraggable(el,data,container);el._dataObj=data;
       el.addEventListener('dblclick',(e)=>{e.stopPropagation();openTacticsTextEditor(el);});
       el.addEventListener('pointerup',()=>{data.x=parseFloat(el.style.left);data.y=parseFloat(el.style.top);});
@@ -3981,6 +3983,7 @@
       document.getElementById('tactics-text-content').value='';
       document.getElementById('tactics-text-color').value='#ffffff';
       document.getElementById('tactics-text-font-size').value=24;
+      document.getElementById('btn-delete-tactics-text').classList.add('hidden');
       document.getElementById('tactics-text-modal-title').textContent='T Añadir texto a la pizarra';
       document.getElementById('btn-confirm-tactics-text').textContent='Crear';
       document.getElementById('modal-tactics-text').classList.remove('hidden');
@@ -3991,8 +3994,16 @@
       const editId=document.getElementById('tactics-text-edit-id').value;
       if(editId){
         const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(editId));
-        if(el){const c=document.getElementById('tactics-text-color').value,fs=Number(document.getElementById('tactics-text-font-size').value)||24;el.dataset.text=text;el.dataset.color=c;el.dataset.baseSize=fs;el.textContent=text;el.style.color=c;el.style.fontSize=(fs*Number(tacticsDisplaySettings.props.text||1))+'px';if(el._dataObj){el._dataObj.text=text;el._dataObj.color=c;el._dataObj.fontSize=fs;}}
+        if(el){const c=document.getElementById('tactics-text-color').value,fs=Number(document.getElementById('tactics-text-font-size').value)||24;el.dataset.text=text;el.dataset.color=c;el.dataset.baseSize=fs;el.textContent=text;el.style.color=c;el.style.fontSize=(fs*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.whiteSpace='pre-wrap';el.style.textAlign='center';el.style.maxWidth='70vw';el.style.minWidth='20px';el.style.overflowWrap='anywhere';el.style.lineHeight='1.15';if(el._dataObj){el._dataObj.text=text;el._dataObj.color=c;el._dataObj.fontSize=fs;}}
       } else spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24);
+      document.getElementById('modal-tactics-text').classList.add('hidden');
+    });
+
+    document.getElementById('btn-delete-tactics-text')?.addEventListener('click',()=>{
+      const id=document.getElementById('tactics-text-edit-id').value;
+      if(!id)return;
+      const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(id));
+      if(el) el.remove();
       document.getElementById('modal-tactics-text').classList.add('hidden');
     });
 
@@ -4009,7 +4020,7 @@
     document.getElementById('btn-tactics-bg-current')?.addEventListener('click',()=>setTacticsBackground('current'));
     document.getElementById('btn-tactics-bg-full')?.addEventListener('click',()=>setTacticsBackground('fullVertical'));
     document.getElementById('btn-tactics-bg-custom')?.addEventListener('click',()=>document.getElementById('tactics-bg-input')?.click());
-    document.getElementById('tactics-bg-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;setTacticsBackground('custom',await readFileAsDataURL(f));});
+    document.getElementById('tactics-bg-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{setTacticsBackground('custom',await readTacticsBackgroundAsDataURL(f));}catch(err){alert('No se pudo cargar la imagen de fondo.');}});
     setTacticsBackground(tacticsBackground.type,tacticsBackground.image);
 
 
