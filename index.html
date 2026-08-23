@@ -2360,9 +2360,35 @@
       propsList.forEach(p => {
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         if(p.type==='text'){
-          ctx.fillStyle=p.color||'#fff';
-          ctx.font=`bold ${Math.round(Number(p.fontSize||24)*Number(p.scale||1))}px sans-serif`;
-          const lines=String(p.text||'').split('\n'); const lineH=Math.round(Number(p.fontSize||24)*Number(p.scale||1)*1.15); const startY=py(p.y)-((lines.length-1)*lineH)/2; lines.forEach((line,i)=>ctx.fillText(line,px(p.x),startY+i*lineH));
+          // Renderizar el texto en el vídeo igual que en la pizarra: respetando
+          // saltos de línea y el cuadro delimitador independiente del tamaño de letra.
+          const baseFont = Math.max(8, Number(p.fontSize || 24));
+          const fontScale = fieldW / Math.max(1, document.getElementById('tactics-pitch')?.clientWidth || fieldW);
+          const fontPx = Math.max(8, baseFont * fontScale);
+          const boxW = Math.max(40, Number(p.boxWidth || 220) * fontScale);
+          const boxH = Math.max(24, Number(p.boxHeight || 80) * (fieldH / Math.max(1, document.getElementById('tactics-pitch')?.clientHeight || fieldH)));
+          const left = px(p.x) - boxW / 2;
+          const top = py(p.y) - boxH / 2;
+          const lineH = Math.max(12, fontPx * 1.15);
+          const maxLines = Math.max(1, Math.floor(boxH / lineH));
+          ctx.save();
+          ctx.fillStyle = p.color || '#fff';
+          ctx.font = `bold ${Math.round(fontPx)}px sans-serif`;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          const lines = [];
+          String(p.text || '').split('\n').forEach(raw => {
+            if (raw === '') { lines.push(''); return; }
+            let line = '';
+            raw.split(/\s+/).forEach(word => {
+              const candidate = line ? line + ' ' + word : word;
+              if (!line || ctx.measureText(candidate).width <= boxW) line = candidate;
+              else { lines.push(line); line = word; }
+            });
+            lines.push(line);
+          });
+          lines.slice(0, maxLines).forEach((line, i) => ctx.fillText(line, left, top + i * lineH));
+          ctx.restore();
           return;
         }
         let icon = '⚪';
@@ -2397,7 +2423,10 @@
       });
       let propsList;
       if (frameA.props.length === frameB.props.length) {
-        propsList = frameA.props.map((pA, idx) => { const pB=frameB.props[idx]; return {...pA,type:pA.type,x:lerp(pA.x,pB.x,t),y:lerp(pA.y,pB.y,t),text:t<0.5?pA.text:pB.text,color:t<0.5?pA.color:pB.color,fontSize:t<0.5?pA.fontSize:pB.fontSize,scale:t<0.5?pA.scale:pB.scale}; });
+        propsList = frameA.props.map((pA, idx) => {
+          const pB=frameB.props[idx] || pA;
+          return {...pA,type:pA.type,x:lerp(pA.x,pB.x,t),y:lerp(pA.y,pB.y,t),text:t<0.5?pA.text:pB.text,color:t<0.5?pA.color:pB.color,fontSize:t<0.5?pA.fontSize:pB.fontSize,scale:t<0.5?pA.scale:pB.scale,boxWidth:t<0.5?pA.boxWidth:pB.boxWidth,boxHeight:t<0.5?pA.boxHeight:pB.boxHeight};
+        });
       } else propsList = t<0.5?frameA.props:frameB.props;
       renderCompositeFrame(ctx,totalW,totalH,tokensList,propsList,drawingImgA,fieldX,fieldW,fieldH,bgImg);
     }
