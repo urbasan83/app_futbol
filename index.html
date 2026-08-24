@@ -106,26 +106,6 @@
       }
     }
 </style>
-
-<style id="tactics-text-selection-style">
-.tactics-text-prop.tactics-text-selected {
-  outline: 2px dashed #facc15 !important;
-  outline-offset: 2px;
-}
-.tactics-text-resize-handle {
-  position: absolute;
-  right: -6px;
-  bottom: -6px;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  background: #facc15;
-  border: 2px solid #111827;
-  cursor: nwse-resize;
-  z-index: 100;
-  touch-action: none;
-}
-</style>
 </head>
 <body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
 
@@ -306,8 +286,8 @@
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
       <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
         <!-- Media Cancha -->
-        <div class="flex-1 relative flex items-center justify-center overflow-visible h-full">
-          <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-visible">
+        <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
+          <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
             <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
             <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
               <line x1="0" y1="100%" x2="100%" y2="100%" />
@@ -340,16 +320,6 @@
               <button id="btn-tactic-annotations" class="w-full bg-violet-600/80 hover:bg-violet-500 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1">
                 📝 <span class="hidden sm:inline">Anotaciones</span>
               </button>
-              <div class="mt-2 border-t border-slate-700 pt-2 space-y-1.5">
-                <label class="text-[10px] text-slate-400">Fondo de la pizarra</label>
-                <div class="grid grid-cols-3 gap-1">
-                  <button id="btn-tactics-bg-current" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">Campo actual</button>
-                  <button id="btn-tactics-bg-full" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">11vs11 vertical</button>
-                  <button id="btn-tactics-bg-white" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">Campo blanco</button>
-                  <button id="btn-tactics-bg-custom" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] py-1.5 rounded-lg">🖼️ Propio</button>
-                </div>
-                <input id="tactics-bg-input" type="file" accept="image/*" class="hidden">
-              </div>
             </div>
 
             <!-- DIBUJAR -->
@@ -405,6 +375,7 @@
                 <label class="text-[10px] text-slate-400">Tamaño conos</label><input id="tactics-cone-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
                 <label class="text-[10px] text-slate-400">Tamaño barreras</label><input id="tactics-wall-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
                 <label class="text-[10px] text-slate-400">Tamaño balones</label><input id="tactics-ball-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
+                <label class="text-[10px] text-slate-400">Tamaño textos</label><input id="tactics-text-size" type="range" min="0.5" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
               </div>
             </div>
 
@@ -600,15 +571,6 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-lg p-2">
-                <div id="player-photo-preview" class="w-12 h-12 rounded-full bg-slate-800 border border-slate-600 overflow-hidden flex items-center justify-center text-lg">👤</div>
-                <div class="flex-1">
-                  <label class="block text-xs font-semibold text-slate-300 mb-1">Foto del jugador</label>
-                  <button type="button" id="btn-player-photo" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold px-2 py-1.5 rounded-lg">🖼️ Imagen</button>
-                  <input id="player-photo-input" type="file" accept="image/*" class="hidden">
-                </div>
-              </div>
-
               <div>
                 <label class="block text-xs font-semibold text-slate-400 mb-1">Características</label>
                 <div class="flex flex-wrap gap-1.5 text-[10px]">
@@ -664,6 +626,12 @@
     <!-- SECCIÓN 7: MARCADOR EN DIRECTO -->
     <section id="sec-marcador" class="flex-1 hidden h-full overflow-y-auto p-2 sm:p-4 w-full">
       <div class="max-w-6xl mx-auto space-y-3 pb-12">
+<div id="scoreboard-lobby" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg text-center space-y-4">
+          <div><div class="text-3xl">🏟️</div><h2 class="text-lg font-black text-emerald-400 mt-2">Marcador en Directo</h2><p class="text-xs text-slate-400 mt-1">Empieza un partido nuevo o carga uno guardado.</p></div>
+          <div class="flex flex-col sm:flex-row justify-center gap-2"><button id="btn-start-match" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-3 rounded-xl text-sm">▶️ Empezar Partido</button><button id="btn-load-match-lobby" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold px-5 py-3 rounded-xl text-sm border border-slate-600">📂 Cargar Partidos Guardados</button></div>
+          <div id="scoreboard-resume-box" class="hidden bg-slate-900/70 border border-amber-500/30 rounded-xl p-3 text-left"><div class="text-xs font-bold text-amber-300">🔴 Partido en curso</div><div id="scoreboard-resume-info" class="text-[11px] text-slate-300 mt-1"></div><button id="btn-resume-match" class="mt-2 bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-lg">Continuar partido</button></div>
+        </div>
+        <div id="scoreboard-live-content" class="hidden space-y-3">
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
           <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
             <div><h2 class="text-base font-bold text-emerald-400">🏟️ Marcador en Directo</h2><p class="text-[11px] text-slate-400">Resultado, reloj y todos los eventos del partido.</p></div>
@@ -696,14 +664,14 @@
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><h3 id="score-away-xi-title" class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">11 inicial Visitante</h3><div id="score-away-xi" class="space-y-1"></div></div>
         </div>
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><select id="match-half" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="1">Primera parte</option><option value="2">Segunda parte</option></select></div>
-          <div class="flex flex-col items-center gap-3 mt-4"><div id="match-clock" class="text-6xl sm:text-8xl font-black font-mono tabular-nums">00:00</div><div class="flex flex-wrap justify-center gap-2"><button id="btn-clock-pause" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⏸️ Pausar</button><button id="btn-clock-resume" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">▶️ Reanudar</button><button id="btn-clock-stop" class="bg-red-700 text-white font-bold px-4 py-2 rounded-lg text-xs">⏹️ Parar</button></div><span id="clock-status" class="text-[10px] text-slate-400">Detenido</span></div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><span id="match-phase-label" class="bg-slate-900 border border-slate-600 text-slate-300 text-xs rounded-lg px-3 py-2">Primera parte</span></div>
+          <div class="flex flex-col items-center gap-3 mt-4"><div id="match-clock" class="text-6xl sm:text-8xl font-black font-mono tabular-nums">00:00</div><div class="flex flex-wrap justify-center gap-2"><button id="btn-clock-pause" class="bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⏸️ Pausar</button><button id="btn-clock-resume" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">▶️ Reanudar</button></div><div id="match-phase-actions" class="flex flex-wrap justify-center gap-2"></div><span id="clock-status" class="text-[10px] text-slate-400">Detenido</span></div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⚽ Registrar gol</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-goal" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-lg text-xs">⚽ Gol</button></div>
             <div id="goal-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-goal-id"><input id="goal-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-2 gap-2"><select id="goal-team" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><input id="goal-number" type="number" min="1" max="99" placeholder="Nº" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"></div><input id="goal-player" placeholder="Nombre del jugador" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><textarea id="goal-note" rows="2" placeholder="Anotación opcional (no se mostrará en el marcador)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="goal-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-goal" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-goal" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-goal" class="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar gol</button></div></div></div>
           </div>
-          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">🔄 Registrar cambio</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-sub" class="bg-sky-600 text-white font-bold px-4 py-2 rounded-lg text-xs">🔄 Cambio</button></div>
+          <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">🔄 Registrar cambio</h3><p class="text-[10px] text-slate-400">Captura el minuto al pulsar el botón.</p></div><button id="btn-register-sub" class="bg-sky-600 text-white font-bold px-4 py-2 rounded-lg text-xs">🔄 Cambio</button><button id="btn-register-rest-sub" class="hidden bg-violet-600 text-white font-bold px-3 py-2 rounded-lg text-xs">🔄 Cambio en Descanso</button></div>
             <div id="sub-editor" class="bg-slate-900/70 rounded-xl border border-slate-700 p-3 space-y-2 hidden"><input type="hidden" id="edit-sub-id"><input id="sub-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs"><select id="sub-team" class="w-full bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"><option value="home">Local</option><option value="away">Visitante</option></select><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><select id="sub-out" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select><select id="sub-in" class="bg-slate-800 border border-slate-600 text-white text-xs rounded-lg p-2"></select></div><textarea id="sub-note" rows="2" placeholder="Anotación opcional (no se mostrará en el marcador)" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex items-center justify-between"><span class="text-[10px] text-slate-400">Minuto: <b id="sub-minute-label" class="text-white font-mono">00:00</b></span><div class="flex gap-2"><button id="btn-cancel-sub" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-sub" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-sub" class="bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar cambio</button></div></div></div>
           </div>
         </div>
@@ -714,6 +682,7 @@
         <div id="annotations-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-violet-400 uppercase tracking-wider">📝 Anotaciones del partido</h3><p class="text-[10px] text-slate-400">Notas internas con el minuto exacto. No aparecen en el marcador de equipos.</p></div><button id="btn-add-annotation" class="bg-violet-600 text-white font-bold px-3 py-2 rounded-lg text-xs">➕ Añadir anotación</button></div><div id="annotations-list" class="space-y-2"></div><p id="annotations-empty" class="text-[10px] text-slate-500 text-center py-3">No hay anotaciones.</p></div>
         <div id="annotation-editor" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><input type="hidden" id="edit-annotation-id"><input id="annotation-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><input id="annotation-title" placeholder="Título" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><span class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-xs text-slate-400">Minuto: <b id="annotation-minute-label" class="text-white font-mono">00:00</b></span></div><textarea id="annotation-description" rows="4" placeholder="Descripción" class="w-full mt-2 bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex justify-end gap-2 mt-2"><button id="btn-cancel-annotation" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-annotation" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-annotation" class="bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar anotación</button></div></div>
         <div id="saved-scoreboards-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">Marcadores guardados</h3><div id="saved-scoreboards-list" class="space-y-2"></div></div>
+        </div>
       </div>
     </section>
 
@@ -995,11 +964,11 @@
   <!-- MODAL: CREAR TEXTO DE TÁCTICA -->
   <div id="modal-tactics-text" class="fixed inset-0 bg-black/70 z-[90] flex items-center justify-center p-4 hidden">
     <div class="bg-slate-800 rounded-2xl border border-slate-700 max-w-sm w-full p-4 shadow-2xl">
-      <input type="hidden" id="tactics-text-edit-id" value=""><div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><h3 id="tactics-text-modal-title" class="font-bold text-violet-400 text-sm">T Añadir texto a la pizarra</h3><button id="btn-close-tactics-text" class="text-slate-400">✕</button></div>
+      <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-3"><h3 class="font-bold text-violet-400 text-sm">T Añadir texto a la pizarra</h3><button id="btn-close-tactics-text" class="text-slate-400">✕</button></div>
       <div class="space-y-3">
-        <textarea id="tactics-text-content" rows="5" placeholder="Escribe el texto. Puedes usar saltos de línea." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm resize-y"></textarea>
+        <input id="tactics-text-content" placeholder="Texto" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm">
         <div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] text-slate-400 mb-1">Color</label><input id="tactics-text-color" type="color" value="#ffffff" class="w-full h-9 bg-slate-900 border border-slate-600 rounded-lg"></div><div><label class="block text-[10px] text-slate-400 mb-1">Tamaño</label><input id="tactics-text-font-size" type="number" min="8" max="80" value="24" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-sm"></div></div>
-        <div class="flex gap-2"><button id="btn-delete-tactics-text" class="hidden flex-1 bg-red-700 hover:bg-red-600 text-white font-bold py-2 rounded-lg text-sm">🗑️ Eliminar</button><button id="btn-confirm-tactics-text" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-bold py-2 rounded-lg text-sm">Crear</button></div>
+        <button id="btn-confirm-tactics-text" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-2 rounded-lg text-sm">Crear</button>
       </div>
     </div>
   </div>
@@ -1459,7 +1428,6 @@
     let selectionModes = {pitch:false,tactics:false,confrontation:false};
     let selectedElements = {pitch:new Set(),tactics:new Set(),confrontation:new Set()};
     let currentTacticAnnotations = [];
-    let tacticsBackground = JSON.parse(localStorage.getItem('f11_tactics_background')) || {type:'current',image:''};
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.local)) teamColors.local='#1d4ed8';
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.visitante)) teamColors.visitante='#db2777';
     if(!/^#[0-9a-fA-F]{6}$/.test(teamColors.localPor)) teamColors.localPor='#fbbf24';
@@ -2074,7 +2042,7 @@
       element.addEventListener('pointermove', (e) => {
         if(!isDragging)return;
         const dx=e.clientX-startX,dy=e.clientY-startY; if(Math.abs(dx)+Math.abs(dy)>4)moved=true;
-        const rect=container.getBoundingClientRect(); let x=((e.clientX-rect.left)/rect.width)*100,y=((e.clientY-rect.top)/rect.height)*100; const outsideText=element.dataset.allowOutside==='true'; const minX=outsideText?-25:3,maxX=outsideText?125:97; const minY=3,maxY=97; x=Math.max(minX,Math.min(maxX,x));y=Math.max(minY,Math.min(maxY,y));
+        const rect=container.getBoundingClientRect(); let x=((e.clientX-rect.left)/rect.width)*100,y=((e.clientY-rect.top)/rect.height)*100;x=Math.max(3,Math.min(97,x));y=Math.max(3,Math.min(97,y));
         const startXData=parseFloat(element._groupStart?.x ?? element.style.left)||50,startYData=parseFloat(element._groupStart?.y ?? element.style.top)||50;
         if(key && selectionModes[key] && selectedElements[key].size>1){ const gx=Math.max(3,Math.min(97,startXData+(dx/rect.width)*100)); const gy=Math.max(3,Math.min(97,startYData+(dy/rect.height)*100)); element.style.left=gx+'%';element.style.top=gy+'%';if(dataObj){dataObj.x=gx;dataObj.y=gy;} updateGroupPositions(key,element,dx,dy,container); } else { element.style.left=x+'%';element.style.top=y+'%';if(dataObj){dataObj.x=x;dataObj.y=y;} }
       });
@@ -2096,6 +2064,7 @@
     function applyTacticsSizes(){
       document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>{const scale=Number(tacticsDisplaySettings.playerScale||1);el.style.width=(42*scale)+'px';el.style.height=(42*scale)+'px';});
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const type=el.dataset.type||'ball';const scale=tacticsPropScale(type);el.style.fontSize=(20*scale)+'px';});
+      document.querySelectorAll('#tactics-pitch .tactics-text-prop').forEach(el=>{el.style.fontSize=(Number(el.dataset.baseSize||24)*Number(tacticsDisplaySettings.props.text||1))+'px';});
     }
 
     function initTacticsView() {
@@ -2328,126 +2297,148 @@
     function drawPitchBackground(ctx, w, h) {
       ctx.fillStyle = '#047857';
       ctx.fillRect(0, 0, w, h);
+
       ctx.strokeStyle = 'rgba(255,255,255,0.85)';
       ctx.fillStyle = '#ffffff';
       ctx.lineWidth = Math.max(2, w * 0.006);
+
       const px = (v) => (v / 100) * w;
       const py = (v) => (v / 100) * h;
+
       ctx.strokeRect(1, 1, w - 2, h - 2);
-      ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(w, h); ctx.stroke();
-      ctx.beginPath(); ctx.arc(px(50), h, px(15), Math.PI, 2 * Math.PI); ctx.stroke();
-      ctx.beginPath(); ctx.arc(px(50), h, Math.max(2, w * 0.007), 0, 2 * Math.PI); ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      ctx.lineTo(w, h);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(px(50), h, px(15), Math.PI, 2 * Math.PI);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(px(50), h, Math.max(2, w * 0.007), 0, 2 * Math.PI);
+      ctx.fill();
+
       ctx.strokeRect(px(18), 0, px(64), py(32));
       ctx.strokeRect(px(33), 0, px(34), py(12));
-      ctx.beginPath(); ctx.arc(px(50), py(22), Math.max(2, w * 0.006), 0, 2 * Math.PI); ctx.fill();
-      ctx.beginPath(); ctx.arc(px(50), py(22), px(15), 0.30 * Math.PI, 0.70 * Math.PI); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(px(50), py(22), Math.max(2, w * 0.006), 0, 2 * Math.PI);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(px(50), py(22), px(15), 0.30 * Math.PI, 0.70 * Math.PI);
+      ctx.stroke();
     }
 
-    function renderCompositeFrame(ctx, totalW, totalH, tokensList, propsList, drawingImg, fieldX=0, fieldW=totalW, fieldH=totalH, bgImg=null) {
-      ctx.clearRect(0,0,totalW,totalH);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(0,0,totalW,totalH);
-      if(bgImg){
-        ctx.drawImage(bgImg, fieldX, 0, fieldW, fieldH);
-      } else {
-        drawPitchBackground(ctx, fieldW, fieldH);
-      }
-      if (drawingImg) ctx.drawImage(drawingImg, fieldX, 0, fieldW, fieldH);
+    function renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImg) {
+      drawPitchBackground(ctx, w, h);
 
-      const px = (v) => fieldX + (v / 100) * fieldW;
-      const py = (v) => (v / 100) * fieldH;
+      if (drawingImg) {
+        ctx.drawImage(drawingImg, 0, 0, w, h);
+      }
+
+      const px = (v) => (v / 100) * w;
+      const py = (v) => (v / 100) * h;
 
       propsList.forEach(p => {
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         if(p.type==='text'){
-          // El vídeo debe representar exactamente el mismo cuadro de texto que la pizarra:
-          // posición centrada, ancho/alto independientes del tamaño de letra, saltos de línea
-          // explícitos y ajuste automático de palabras dentro del ancho disponible.
-          const pitchEl=document.getElementById('tactics-pitch');
-          const domW=Math.max(1,pitchEl?.clientWidth||1000);
-          const domH=Math.max(1,pitchEl?.clientHeight||domW);
-          const sx=fieldW/domW, sy=fieldH/domH;
-          const baseFont=Math.max(8,Number(p.fontSize||24));
-          const fontPx=Math.max(8,baseFont*sx);
-          const boxW=Math.max(1,Number(p.boxWidth||220)*sx);
-          const boxH=Math.max(1,Number(p.boxHeight||80)*sy);
-          const centerX=px(Number(p.x)||0), centerY=py(Number(p.y)||0);
-          const left=centerX-boxW/2, top=centerY-boxH/2;
-          const lineH=Math.max(10,fontPx*1.15);
-          ctx.save();
-          ctx.beginPath(); ctx.rect(left,top,boxW,boxH); ctx.clip();
           ctx.fillStyle=p.color||'#fff';
-          ctx.font=`bold ${Math.round(fontPx)}px sans-serif`;
-          ctx.textAlign='left'; ctx.textBaseline='top';
-          const lines=[];
-          String(p.text||'').replace(/\r\n/g,'\n').split('\n').forEach(raw=>{
-            if(raw===''){lines.push('');return;}
-            let line='';
-            for(const word of raw.split(/\s+/)){
-              if(!word)continue;
-              // Si una palabra aislada supera el ancho, se parte por caracteres para
-              // que nunca vuelva a aparecer una línea que desborde el cuadro.
-              let candidate=line?line+' '+word:word;
-              if(ctx.measureText(candidate).width<=boxW){line=candidate;continue;}
-              if(line){lines.push(line);line='';}
-              if(ctx.measureText(word).width<=boxW){line=word;continue;}
-              let chunk='';
-              for(const ch of word){
-                const test=chunk+ch;
-                if(ctx.measureText(test).width<=boxW) chunk=test;
-                else {if(chunk)lines.push(chunk);chunk=ch;}
-              }
-              line=chunk;
-            }
-            lines.push(line);
-          });
-          const maxLines=Math.max(1,Math.floor(boxH/lineH));
-          lines.slice(0,maxLines).forEach((line,i)=>ctx.fillText(line,left,top+i*lineH));
-          ctx.restore();
+          ctx.font=`bold ${Math.round(Number(p.fontSize||24)*Number(p.scale||1))}px sans-serif`;
+          ctx.fillText(p.text||'',px(p.x),py(p.y));
           return;
         }
         let icon = '⚪';
-        if (p.type === 'cone') icon = '🟠'; else if (p.type === 'wall') icon = '🧱'; else if (p.type === 'ball') icon = '⚽';
+        if (p.type === 'cone') icon = '🟠';
+        else if (p.type === 'wall') icon = '🧱';
+        else if (p.type === 'ball') icon = '⚽';
         const scale=Number(p.scale||1);
-        ctx.font = `${Math.round(fieldW * 0.05 * scale)}px sans-serif`;
-        ctx.fillStyle='#fff'; ctx.fillText(icon, px(p.x), py(p.y));
+        ctx.font = `${Math.round(w * 0.05 * scale)}px sans-serif`;
+        ctx.fillStyle='#fff';
+        ctx.fillText(icon, px(p.x), py(p.y));
       });
 
-      const radius = fieldW * 0.045 * Number(tacticsDisplaySettings.playerScale||1);
+      const radius = w * 0.045 * Number(tacticsDisplaySettings.playerScale||1);
       tokensList.forEach(tok => {
         const assignedPlayer = squad.find(p => p.id === tok.playerId);
         let bg = '#1e3a8a', fg = '#ffffff';
-        if (currentKit === 'local') { if (tok.role === 'POR') { bg = '#fbbf24'; fg = '#0f172a'; } }
-        else { if (tok.role === 'POR') { bg = '#22d3ee'; fg = '#0f172a'; } else { bg = '#db2777'; } }
+        if (currentKit === 'local') {
+          if (tok.role === 'POR') { bg = '#fbbf24'; fg = '#0f172a'; }
+          else { bg = '#1e3a8a'; fg = '#ffffff'; }
+        } else {
+          if (tok.role === 'POR') { bg = '#22d3ee'; fg = '#0f172a'; }
+          else { bg = '#db2777'; fg = '#ffffff'; }
+        }
+
         const cx = px(tok.x), cy = py(tok.y);
-        ctx.beginPath(); ctx.arc(cx, cy, radius, 0, 2 * Math.PI); ctx.fillStyle = bg; ctx.fill();
-        ctx.lineWidth = Math.max(2, fieldW * 0.006); ctx.strokeStyle = '#ffffff'; ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = bg;
+        ctx.fill();
+        ctx.lineWidth = Math.max(2, w * 0.006);
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
         const displayNum = assignedPlayer ? assignedPlayer.num : tok.slot;
         const displayName = assignedPlayer ? assignedPlayer.name : tok.role;
-        ctx.fillStyle = fg; ctx.font = `bold ${Math.round(radius * 0.75)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+        ctx.fillStyle = fg;
+        ctx.font = `bold ${Math.round(radius * 0.75)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         ctx.fillText(displayNum, cx, cy - radius * 0.28);
-        let name = String(displayName); if (name.length > 10) name = name.slice(0, 9) + '…';
-        ctx.font = `${Math.round(radius * 0.34)}px sans-serif`; ctx.fillText(name, cx, cy + radius * 0.42);
+
+        let name = String(displayName);
+        if (name.length > 10) name = name.slice(0, 9) + '…';
+        ctx.font = `${Math.round(radius * 0.34)}px sans-serif`;
+        ctx.fillText(name, cx, cy + radius * 0.42);
       });
     }
 
-    function drawInterpolatedFrame(ctx, totalW, totalH, frameA, frameB, t, drawingImgA, fieldX=0, fieldW=totalW, fieldH=totalH, bgImg=null) {
+    function drawInterpolatedFrame(ctx, w, h, frameA, frameB, t, drawingImgA) {
       const tokensList = frameA.tokens.map(tokA => {
         const tokB = frameB.tokens.find(tb => tb.slot === tokA.slot) || tokA;
-        return {slot:tokA.slot,role:tokA.role,playerId:t<0.5?tokA.playerId:tokB.playerId,x:lerp(tokA.x,tokB.x,t),y:lerp(tokA.y,tokB.y,t)};
+        return {
+          slot: tokA.slot,
+          role: tokA.role,
+          playerId: t < 0.5 ? tokA.playerId : tokB.playerId,
+          x: lerp(tokA.x, tokB.x, t),
+          y: lerp(tokA.y, tokB.y, t)
+        };
       });
+
       let propsList;
       if (frameA.props.length === frameB.props.length) {
         propsList = frameA.props.map((pA, idx) => {
-          const pB=frameB.props[idx] || pA;
-          return {...pA,type:pA.type,x:lerp(pA.x,pB.x,t),y:lerp(pA.y,pB.y,t),text:t<0.5?pA.text:pB.text,color:t<0.5?pA.color:pB.color,fontSize:t<0.5?pA.fontSize:pB.fontSize,scale:t<0.5?pA.scale:pB.scale,boxWidth:t<0.5?pA.boxWidth:pB.boxWidth,boxHeight:t<0.5?pA.boxHeight:pB.boxHeight};
+          const pB = frameB.props[idx];
+          return { ...pA, type:pA.type, x: lerp(pA.x, pB.x, t), y: lerp(pA.y, pB.y, t), text:t<0.5?pA.text:pB.text, color:t<0.5?pA.color:pB.color, fontSize:t<0.5?pA.fontSize:pB.fontSize, scale:t<0.5?pA.scale:pB.scale };
         });
-      } else propsList = t<0.5?frameA.props:frameB.props;
-      renderCompositeFrame(ctx,totalW,totalH,tokensList,propsList,drawingImgA,fieldX,fieldW,fieldH,bgImg);
+      } else {
+        propsList = t < 0.5 ? frameA.props : frameB.props;
+      }
+
+      renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImgA);
     }
 
-    function animateSegment(ctx,w,h,frameA,frameB,drawingImgA,durationMs,fieldX,fieldW,fieldH,bgImg){
-      return new Promise(resolve=>{const start=performance.now();function step(now){const elapsed=now-start;const t=Math.min(1,elapsed/durationMs);const et=easeInOutQuad(t);drawInterpolatedFrame(ctx,w,h,frameA,frameB,et,drawingImgA,fieldX,fieldW,fieldH,bgImg);if(t<1)requestAnimationFrame(step);else resolve();}requestAnimationFrame(step);});
+    function animateSegment(ctx, w, h, frameA, frameB, drawingImgA, durationMs) {
+      return new Promise(resolve => {
+        const start = performance.now();
+        function step(now) {
+          const elapsed = now - start;
+          const t = Math.min(1, elapsed / durationMs);
+          const et = easeInOutQuad(t);
+          drawInterpolatedFrame(ctx, w, h, frameA, frameB, et, drawingImgA);
+          if (t < 1) {
+            requestAnimationFrame(step);
+          } else {
+            resolve();
+          }
+        }
+        requestAnimationFrame(step);
+      });
     }
 
     function pickSupportedMimeType() {
@@ -2484,12 +2475,8 @@
       const pitchEl = document.getElementById('tactics-pitch');
       const rect = pitchEl.getBoundingClientRect();
       const scale = 2;
-      const sideMarginCss = 180;
-      const fieldW = Math.round(rect.width * scale);
-      const fieldH = Math.round(rect.height * scale);
-      const fieldX = Math.round(sideMarginCss * scale);
-      const outW = fieldW + fieldX * 2;
-      const outH = fieldH;
+      const outW = Math.round(rect.width * scale);
+      const outH = Math.round(rect.height * scale);
 
       const renderCanvas = document.createElement('canvas');
       renderCanvas.width = outW;
@@ -2504,13 +2491,9 @@
 
       try {
         const drawingImages = await Promise.all(animFrames.map(f => loadImageSafe(f.drawing)));
-        let bgImg = null;
-        if(tacticsBackground.type==='custom' && tacticsBackground.image) bgImg = await loadImageSafe(tacticsBackground.image);
-        if(tacticsBackground.type==='fullVertical') bgImg = await loadImageSafe('data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(fullVerticalPitchSvg()));
-        if(tacticsBackground.type==='whiteVertical') bgImg = await loadImageSafe('data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(whiteVerticalPitchSvg()));
 
         // Fotograma inicial estático antes de empezar a grabar
-        drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0], fieldX, fieldW, fieldH, bgImg);
+        drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0]);
 
         const stream = renderCanvas.captureStream(30);
         const recorder = new MediaRecorder(stream, { mimeType });
@@ -2523,10 +2506,10 @@
         const totalSegments = animFrames.length - 1;
         for (let i = 0; i < totalSegments; i++) {
           statusEl.innerText = `Grabando movimiento ${i + 1}/${totalSegments}...`;
-          await animateSegment(ctx, outW, outH, animFrames[i], animFrames[i + 1], drawingImages[i], transitionMs, fieldX, fieldW, fieldH, bgImg);
+          await animateSegment(ctx, outW, outH, animFrames[i], animFrames[i + 1], drawingImages[i], transitionMs);
         }
 
-        drawInterpolatedFrame(ctx, outW, outH, animFrames[animFrames.length - 1], animFrames[animFrames.length - 1], 0, drawingImages[drawingImages.length - 1], fieldX, fieldW, fieldH, bgImg);
+        drawInterpolatedFrame(ctx, outW, outH, animFrames[animFrames.length - 1], animFrames[animFrames.length - 1], 0, drawingImages[drawingImages.length - 1]);
         await sleep(700);
 
         recorder.stop();
@@ -2589,7 +2572,7 @@
         tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
         props: propsList,
         canvasData: tacticsCanvas.toDataURL(),
-        annotations: JSON.parse(JSON.stringify(currentTacticAnnotations)), background: JSON.parse(JSON.stringify(tacticsBackground)), displaySettings: JSON.parse(JSON.stringify(tacticsDisplaySettings))
+        annotations: JSON.parse(JSON.stringify(currentTacticAnnotations)), displaySettings: JSON.parse(JSON.stringify(tacticsDisplaySettings))
       };
 
       savedTactics.unshift(newTactic);
@@ -2648,8 +2631,7 @@
       if (!tac) return;
 
       // Limpiar canvas y props
-      if(tac.background){setTacticsBackground(tac.background.type,tac.background.image||'');}
-      if(tac.displaySettings){tacticsDisplaySettings={...tacticsDisplaySettings,...tac.displaySettings,props:{...tacticsDisplaySettings.props,...(tac.displaySettings.props||{})}};saveTacticsDisplaySettings();['player','cone','wall','ball'].forEach(k=>{const el=document.getElementById('tactics-'+k+'-size');if(el)el.value=k==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[k]||1;});}
+      if(tac.displaySettings){tacticsDisplaySettings={...tacticsDisplaySettings,...tac.displaySettings,props:{...tacticsDisplaySettings.props,...(tac.displaySettings.props||{})}};saveTacticsDisplaySettings();['player','cone','wall','ball','text'].forEach(k=>{const el=document.getElementById('tactics-'+k+'-size');if(el)el.value=k==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[k]||1;});}
       clearTacticsCanvas();
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(e => e.remove());
 
@@ -2665,7 +2647,7 @@
       // Restaurar Objetos
       if (tac.props) {
         tac.props.forEach(p => {
-          if(p.type==='text') spawnTextProp(p.text||'',p.color||'#fff',Number(p.fontSize)||24,p.x,p.y,p.id||Date.now(),Number(p.boxWidth)||220,Number(p.boxHeight)||80);
+          if(p.type==='text') spawnTextProp(p.text||'',p.color||'#fff',Number(p.fontSize)||24,p.x,p.y,p.id||Date.now());
           else {
             spawnProp(p.type,p.x,p.y);
             const el=[...document.querySelectorAll('#tactics-pitch .tactics-prop')].filter(e=>e.dataset.type===p.type).pop();
@@ -3471,7 +3453,6 @@
               ${players.length
                 ? players.map(player => `
                     <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5">
-                      ${player.photo?`<img src="${player.photo}" class="w-7 h-7 rounded-full object-cover border border-slate-600 flex-shrink-0" alt="">`:''}
                       <span class="text-[10px] font-bold text-emerald-400 w-5">${player.num}</span>
                       <span class="text-xs text-slate-200 truncate">${player.name}</span><span class="ml-auto flex gap-1 shrink-0">${player.traits?.juvenil?'<span class="bg-yellow-500 text-slate-950 text-[8px] font-black px-1.5 py-0.5 rounded">JUV</span>':''}${player.traits?.pruebas?'<span class="bg-green-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded">PRU</span>':''}${player.traits?.out?'<span class="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded">OUT</span>':''}</span>
                     </div>
@@ -3484,9 +3465,6 @@
       }).join('');
     }
 
-    document.getElementById('btn-player-photo')?.addEventListener('click',()=>document.getElementById('player-photo-input')?.click());
-    document.getElementById('player-photo-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const data=await readFileAsDataURL(f);const pp=document.getElementById('player-photo-preview');if(pp){pp.dataset.image=data;pp.innerHTML=`<img src="${data}" class="w-full h-full object-cover">`;}});
-
     formAddPlayer.addEventListener('submit', (e) => {
       e.preventDefault();
       const editId = editPlayerIdInput.value;
@@ -3494,7 +3472,6 @@
       const name = document.getElementById('player-name').value.trim();
       const selectedRoles = Array.from(document.querySelectorAll('input[name="pos"]:checked')).map(cb => cb.value);
       const traits = {juvenil:document.getElementById('player-trait-juvenil')?.checked||false, pruebas:document.getElementById('player-trait-pruebas')?.checked||false, out:document.getElementById('player-trait-out')?.checked||false};
-      const photo = document.getElementById('player-photo-preview')?.dataset.image || '';
 
       if (selectedRoles.length === 0) {
         alert("Selecciona al menos una posición para el jugador.");
@@ -3504,10 +3481,10 @@
       if (editId) {
         const index = squad.findIndex(p => p.id === parseInt(editId));
         if (index !== -1) {
-          squad[index] = { ...squad[index], id: parseInt(editId), num, name, roles: selectedRoles, traits, photo };
+          squad[index] = { ...squad[index], id: parseInt(editId), num, name, roles: selectedRoles, traits };
         }
       } else {
-        squad.push({ id: Date.now(), num, name, roles: selectedRoles, traits, photo });
+        squad.push({ id: Date.now(), num, name, roles: selectedRoles, traits });
       }
 
       sortSquad();
@@ -3528,7 +3505,7 @@
       document.querySelectorAll('input[name="pos"]').forEach(cb => {
         cb.checked = player.roles.includes(cb.value);
       });
-      const photoPreview=document.getElementById('player-photo-preview'); if(photoPreview){photoPreview.dataset.image=player.photo||''; photoPreview.innerHTML=player.photo?`<img src="${player.photo}" class="w-full h-full object-cover">`:'👤';} const tr=player.traits||{}; if(document.getElementById('player-trait-juvenil'))document.getElementById('player-trait-juvenil').checked=!!tr.juvenil; if(document.getElementById('player-trait-pruebas'))document.getElementById('player-trait-pruebas').checked=!!tr.pruebas; if(document.getElementById('player-trait-out'))document.getElementById('player-trait-out').checked=!!tr.out;
+      const tr=player.traits||{}; if(document.getElementById('player-trait-juvenil'))document.getElementById('player-trait-juvenil').checked=!!tr.juvenil; if(document.getElementById('player-trait-pruebas'))document.getElementById('player-trait-pruebas').checked=!!tr.pruebas; if(document.getElementById('player-trait-out'))document.getElementById('player-trait-out').checked=!!tr.out;
 
       formTitle.innerText = "Editar Jugador";
       btnSavePlayer.innerText = "Actualizar Jugador";
@@ -3538,7 +3515,6 @@
     function resetPlayerForm() {
       editPlayerIdInput.value = '';
       formAddPlayer.reset();
-      const pp=document.getElementById('player-photo-preview'); if(pp){pp.dataset.image='';pp.innerHTML='👤';}
       formTitle.innerText = "Añadir Jugador a Mi Equipo";
       btnSavePlayer.innerText = "Guardar Jugador";
       btnCancelEdit.classList.add('hidden');
@@ -3713,7 +3689,7 @@
       savedPanel:document.getElementById('saved-scoreboards-panel'), savedList:document.getElementById('saved-scoreboards-list')
     };
     function normalizeScoreboard(sb){
-      const base={homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0};
+      const base={homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,matchStatus:'lobby',part1Elapsed:0,part2Elapsed:0,startedAt:null,finishedAt:null,homeXI:[],awayXI:[],homeBench:[],awayBench:[],goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],updatedAt:0,editingSavedId:null};
       const x={...base,...(sb||{})};
       ['goals','substitutions','yellowCards','doubleYellowCards','redCards','annotations'].forEach(k=>{x[k]=Array.isArray(x[k])?x[k]:[];});
       return x;
@@ -3741,7 +3717,7 @@
       return minutes*60+seconds;
     }
 
-    function renderClock(){const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);se.clock.textContent=fmt(shownSeconds);se.half.value=String(scoreboard.half);se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';if(scoreboard.running&&!scoreboardTimer)scoreboardTimer=setInterval(renderClock,250);if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}}
+    function renderClock(){const shownSeconds=elapsed()+(Number(scoreboard.half)===2?2700:0);se.clock.textContent=fmt(shownSeconds);if(se.half)se.half.value=String(scoreboard.half);se.status.textContent=scoreboard.running?'En marcha':'Pausado / detenido';if(scoreboard.running&&!scoreboardTimer)scoreboardTimer=setInterval(renderClock,250);if(!scoreboard.running&&scoreboardTimer){clearInterval(scoreboardTimer);scoreboardTimer=null;}}
     function cardTypeLabel(type){return type==='yellow'?'🟨 Amarilla':type==='doubleYellow'?'🟨🟨 Doble amarilla':'🟥 Roja';}
     function renderSB(){
       se.hn.value=scoreboard.homeName||'Local';se.an.value=scoreboard.awayName||'Visitante';se.hs.textContent=String(Number(scoreboard.homeScore)||0);se.as.textContent=String(Number(scoreboard.awayScore)||0);const hlogo=document.getElementById('score-home-logo'),alogo=document.getElementById('score-away-logo');if(hlogo)hlogo.innerHTML=scoreboard.homeLogo?`<img src="${scoreboard.homeLogo}" class="w-full h-full object-contain">`:'🛡️';if(alogo)alogo.innerHTML=scoreboard.awayLogo?`<img src="${scoreboard.awayLogo}" class="w-full h-full object-contain">`:'🛡️';se.hn.style.borderColor=getTeamColor('local');se.hn.style.color=getTeamColor('local');se.an.style.borderColor=getTeamColor('visitante');se.an.style.color=getTeamColor('visitante');se.hs.style.color=getTeamColor('local');se.as.style.color=getTeamColor('visitante');renderClock();
@@ -3755,7 +3731,7 @@
       });
       renderAnnotations();renderScoreStartingXIs();
     }
-    function players(team){if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));const r=rivalTeams.find(x=>String(x.id)===String(selectedRivalId));return r&&Array.isArray(r.squad)?r.squad.map(p=>({num:p.num,name:p.name})):[];}
+    function players(team){if(scoreboard&&scoreboard.matchStatus&&scoreboard.matchStatus!=='lobby'){const list=team==='home'?[...(scoreboard.homeXI||[]),...(scoreboard.homeBench||[])]:[...(scoreboard.awayXI||[]),...(scoreboard.awayBench||[])];const seen=new Set();return list.filter(p=>p&&p.id!=null&&!seen.has(String(p.id))&&seen.add(String(p.id))).map(p=>({num:p.num,name:p.name}));}if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));const r=rivalTeams.find(x=>String(x.id)===String(selectedRivalId));return r&&Array.isArray(r.squad)?r.squad.map(p=>({num:p.num,name:p.name})):[];}
     function fillPlayers(){const opts='<option value="">— Seleccionar —</option>'+players(se.st.value).map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');se.so.innerHTML=opts;se.si.innerHTML=opts;}
     function openGoal(id=null){const g=id?scoreboard.goals.find(x=>x.id===id):null,sec=g?g.minuteSeconds:absoluteTime();se.geid.value=g?g.id:'';document.getElementById('btn-delete-goal').classList.toggle('hidden',!g);se.gt.value=g?g.team:'home';se.gn.value=g?.number??'';se.gp.value=g?.player??'';se.gnote.value=g?.note??'';se.gm.value=eventMinute(sec);se.gml.textContent=eventMinute(sec);se.ge.classList.remove('hidden');}
     function openSub(id=null){const x=id?scoreboard.substitutions.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.seid.value=x?x.id:'';document.getElementById('btn-delete-sub').classList.toggle('hidden',!x);se.st.value=x?x.team:'home';fillPlayers();se.so.value=x?.out||'';se.si.value=x?.in||'';se.snote.value=x?.note??'';se.sm.value=eventMinute(sec);se.sml.textContent=eventMinute(sec);se.sue.classList.remove('hidden');}
@@ -3771,7 +3747,7 @@
         document.getElementById('btn-clock-pause').onclick=()=>{if(!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         document.getElementById('btn-clock-resume').onclick=()=>{if(scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderClock();};
         document.getElementById('btn-clock-stop').onclick=()=>{scoreboard.elapsed=0;scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
-        se.half.onchange=()=>{scoreboard.elapsed=0;scoreboard.half=Number(se.half.value);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        if(se.half)se.half.onchange=()=>{scoreboard.elapsed=0;scoreboard.half=Number(se.half.value);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;document.getElementById('btn-delete-goal').onclick=()=>{const id=Number(se.geid.value);if(id&&confirm('¿Eliminar este gol?')){scoreboard.goals=scoreboard.goals.filter(x=>x.id!==id);saveSB();closeGoal();renderSB();}};
         document.getElementById('btn-save-goal').onclick=()=>{const p=se.gp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const id=se.geid.value?Number(se.geid.value):Date.now(),sec=parseEventTimeInput(se.gm.value,absoluteTime()),d={id,team:se.gt.value,player:p,number:String(se.gn.value||'').trim(),note:se.gnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.goals.findIndex(x=>x.id===id);if(i>=0)scoreboard.goals[i]=d;else scoreboard.goals.push(d);saveSB();closeGoal();renderSB();};
         document.getElementById('btn-register-sub').onclick=()=>openSub();document.getElementById('btn-cancel-sub').onclick=closeSub;se.st.onchange=fillPlayers;document.getElementById('btn-delete-sub').onclick=()=>{const id=Number(se.seid.value);if(id&&confirm('¿Eliminar este cambio?')){scoreboard.substitutions=scoreboard.substitutions.filter(x=>x.id!==id);saveSB();closeSub();renderSB();}};
@@ -3781,7 +3757,7 @@
         document.getElementById('btn-save-card').onclick=()=>{const p=se.cp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const type=se.ctype.value,arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards,id=se.ceid.value?Number(se.ceid.value):Date.now(),sec=parseEventTimeInput(se.cm.value,absoluteTime()),d={id,team:se.ct.value,player:p,number:String(se.cn.value||'').trim(),note:se.cnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=arr.findIndex(x=>x.id===id);if(i>=0)arr[i]=d;else arr.push(d);saveSB();closeCard();renderSB();};
         document.getElementById('btn-show-annotations').onclick=()=>{se.ap.classList.toggle('hidden');if(!se.ap.classList.contains('hidden'))renderAnnotations();};document.getElementById('btn-add-annotation').onclick=()=>openAnnotation();document.getElementById('btn-cancel-annotation').onclick=closeAnnotation;document.getElementById('btn-delete-annotation').onclick=()=>{const id=Number(se.aeid.value);if(id&&confirm('¿Eliminar esta anotación?')){scoreboard.annotations=scoreboard.annotations.filter(x=>x.id!==id);saveSB();closeAnnotation();renderAnnotations();}};
         document.getElementById('btn-save-annotation').onclick=()=>{const title=se.atitle.value.trim();if(!title)return alert('Escribe un título.');const id=se.aeid.value?Number(se.aeid.value):Date.now(),sec=parseEventTimeInput(se.amin.value,absoluteTime()),d={id,title,description:se.adesc.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.annotations.findIndex(x=>x.id===id);if(i>=0)scoreboard.annotations[i]=d;else scoreboard.annotations.push(d);saveSB();closeAnnotation();se.ap.classList.remove('hidden');renderAnnotations();};
-        document.getElementById('btn-save-scoreboard').onclick=()=>{scoreboard.elapsed=elapsed();saveSB();const name=prompt('Nombre para este marcador:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;savedScoreboards.unshift({id:Date.now(),name:name.trim(),date:new Date().toISOString().split('T')[0],homeTeamId:scoreboard.homeTeamId||'',awayTeamId:scoreboard.awayTeamId||'',homeLogo:scoreboard.homeLogo||'',awayLogo:scoreboard.awayLogo||'',homeName:scoreboard.homeName,awayName:scoreboard.awayName,homeScore:scoreboard.homeScore,awayScore:scoreboard.awayScore,half:scoreboard.half,elapsed:scoreboard.elapsed,running:false,lastStartedAt:null,goals:JSON.parse(JSON.stringify(scoreboard.goals)),substitutions:JSON.parse(JSON.stringify(scoreboard.substitutions)),yellowCards:JSON.parse(JSON.stringify(scoreboard.yellowCards)),doubleYellowCards:JSON.parse(JSON.stringify(scoreboard.doubleYellowCards)),redCards:JSON.parse(JSON.stringify(scoreboard.redCards)),annotations:JSON.parse(JSON.stringify(scoreboard.annotations)),homeXI:JSON.parse(JSON.stringify(scoreboard.homeXI||[])),awayXI:JSON.parse(JSON.stringify(scoreboard.awayXI||[]))});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();alert('¡Marcador guardado!');};
+        document.getElementById('btn-save-scoreboard').onclick=()=>{};
         document.getElementById('btn-load-scoreboard').onclick=()=>{se.savedPanel.classList.toggle('hidden');if(!se.savedPanel.classList.contains('hidden'))renderSaved();};
         document.getElementById('btn-refresh-saved-scoreboards-partidos')?.addEventListener('click',renderPartidosScoreboards);
       }fillPlayers();renderSB();
@@ -3796,16 +3772,15 @@
         c.className='bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 shadow-md';
         const cards=(x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length;
         c.innerHTML=`<div class="flex justify-between items-start gap-3"><div><h4 class="font-bold text-indigo-300 text-sm">${esc(x.name)}</h4><p class="text-xs text-slate-300 mt-1">${esc(x.homeName)} <b>${Number(x.homeScore)||0}</b> — <b>${Number(x.awayScore)||0}</b> ${esc(x.awayName)}</p><p class="text-[10px] text-slate-500 mt-1">${esc(x.date||'')} · ${(x.goals||[]).length} goles · ${(x.substitutions||[]).length} cambios · ${cards} tarjetas · ${(x.annotations||[]).length} anotaciones</p></div><span class="text-lg">🏟️</span></div><div class="flex flex-wrap gap-2"><button class="edit bg-indigo-600/30 border border-indigo-500/50 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-lg">✏️ Abrir y editar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;
-        c.querySelector('.edit').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();switchView('marcador');};
+        c.querySelector('.edit').onclick=()=>openSavedMatchForEdit(x.id);
         c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};
         list.appendChild(c);
       });
     }
 
-    function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)} · ${((x.goals||[]).length)} goles · ${((x.substitutions||[]).length)} cambios · ${((x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length)} tarjetas</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>{scoreboard=normalizeScoreboard({...x,running:false,lastStartedAt:null});saveSB();renderSB();se.savedPanel.classList.add('hidden');};c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});renderPartidosScoreboards();}
+    function renderSaved(){se.savedList.innerHTML='';if(!savedScoreboards.length){se.savedList.innerHTML='<p class="text-xs text-slate-500 text-center py-4">No hay marcadores guardados.</p>';return;}savedScoreboards.forEach(x=>{const c=document.createElement('div');c.className='bg-slate-900/80 border border-slate-700 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center gap-2 justify-between';c.innerHTML=`<div><div class="font-bold text-sm">${esc(x.name)}</div><div class="text-[10px] text-slate-400">${esc(x.homeName)} <b>${x.homeScore}</b> — <b>${x.awayScore}</b> ${esc(x.awayName)} · ${esc(x.date)} · ${((x.goals||[]).length)} goles · ${((x.substitutions||[]).length)} cambios · ${((x.yellowCards||[]).length+(x.doubleYellowCards||[]).length+(x.redCards||[]).length)} tarjetas</div></div><div class="flex gap-2"><button class="load bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-lg">Cargar</button><button class="del bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">🗑️</button></div>`;c.querySelector('.load').onclick=()=>openSavedMatchForEdit(x.id);c.querySelector('.del').onclick=()=>{if(confirm('¿Eliminar este marcador guardado?')){savedScoreboards=savedScoreboards.filter(y=>y.id!==x.id);localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();}};se.savedList.appendChild(c);});renderPartidosScoreboards();}
 // --- FUNCIONES EXTRA: EQUIPOS, ANOTACIONES, SELECCIÓN Y CAPTURA ---
     function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=256,scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/png'));};img.onerror=reject;img.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
-    function readTacticsBackgroundAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=2048,scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,c.width,c.height);const mime=file.type==='image/png'?'image/png':'image/jpeg';resolve(c.toDataURL(mime,mime==='image/jpeg'?0.92:undefined));};img.onerror=reject;img.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});}
     function renderMyTeamLogo(){const p=document.getElementById('my-team-logo-preview');const b=document.getElementById('pitch-my-team-badge');if(b)b.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain" title="${esc(myTeam.name)}">`:'🛡️';if(p)p.innerHTML=myTeam.image?`<img src="${myTeam.image}" class="w-full h-full object-contain">`:'🛡️';const n=document.getElementById('my-team-name');if(n)n.value=myTeam.name||'Mi Equipo';}
     function renderRivalLogoPreview(){const p=document.getElementById('rival-image-preview'),v=document.getElementById('rival-image-input')?.dataset.value||'';if(p)p.innerHTML=v?`<img src="${v}" class="w-full h-full object-contain">`:'🛡️';}
     document.getElementById('btn-my-team-image')?.addEventListener('click',()=>document.getElementById('my-team-image-input')?.click());
@@ -3912,6 +3887,55 @@
     }
     document.getElementById('btn-capture-scoreboard')?.addEventListener('click',openScoreboardCapture);document.getElementById('btn-close-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));document.getElementById('btn-cancel-scoreboard-capture')?.addEventListener('click',()=>document.getElementById('modal-scoreboard-capture').classList.add('hidden'));['scorecap-title','scorecap-subtitle'].forEach(id=>document.getElementById(id)?.addEventListener('input',renderScoreboardCapture));document.getElementById('btn-download-scoreboard-capture')?.addEventListener('click',async()=>{await renderScoreboardCapture();const a=document.createElement('a');a.download='marcador.png';a.href=document.getElementById('scoreboard-capture-canvas').toDataURL('image/png',1);a.click();});
 
+
+// --- FLUJO DE PARTIDO: ESTADOS Y PARTIDOS INDEPENDIENTES ---
+let matchWorkflowReady=false;
+function matchIsActive(){return ['first','halftime','second','secondEnded'].includes(scoreboard.matchStatus);}
+function currentPhaseLabel(){return scoreboard.matchStatus==='first'?'Primera parte':scoreboard.matchStatus==='halftime'?'Descanso':scoreboard.matchStatus==='second'?'Segunda parte':scoreboard.matchStatus==='secondEnded'?'Final 2ª parte':'Partido finalizado';}
+function matchTeamOptions(){const opts='<option value="">Seleccionar equipo</option><option value="my">'+esc(myTeam.name||'Mi Equipo')+'</option>'+rivalTeams.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');return opts;}
+function openStartMatchModal(){const m=document.getElementById('modal-start-match'),h=document.getElementById('start-home-team'),a=document.getElementById('start-away-team');h.innerHTML=matchTeamOptions();a.innerHTML=matchTeamOptions();h.value='';a.value='';m.classList.remove('hidden');m.classList.add('flex');}
+function closeStartMatchModal(){const m=document.getElementById('modal-start-match');m.classList.add('hidden');m.classList.remove('flex');}
+function selectedTeamSnapshot(id){const t=getSelectedScoreTeam(id);return t?{id:t.id,name:t.name,logo:t.logo,players:JSON.parse(JSON.stringify(t.players||[])),bench:JSON.parse(JSON.stringify(t.bench||[]))}:null;}
+function startNewMatch(){const h=document.getElementById('start-home-team').value,a=document.getElementById('start-away-team').value;if(!h||!a)return alert('Selecciona el equipo local y el visitante.');if(h===a)return alert('El local y el visitante no pueden ser el mismo equipo.');const ht=selectedTeamSnapshot(h),at=selectedTeamSnapshot(a);if(!ht||!at)return alert('No se pudieron cargar los equipos.');
+  scoreboard=normalizeScoreboard({homeTeamId:ht.id,awayTeamId:at.id,homeLogo:ht.logo,awayLogo:at.logo,homeName:ht.name,awayName:at.name,homeScore:0,awayScore:0,half:1,elapsed:0,running:true,lastStartedAt:Date.now(),matchStatus:'first',part1Elapsed:0,part2Elapsed:0,startedAt:Date.now(),finishedAt:null,homeXI:ht.players,awayXI:at.players,homeBench:ht.bench,awayBench:at.bench,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],editingSavedId:null});saveSB();closeStartMatchModal();renderMatchWorkflow();renderSB();}
+function workflowPhaseButton(id,text,cls,handler){const b=document.createElement('button');b.id=id;b.className=cls+' text-xs font-bold px-4 py-2 rounded-lg';b.textContent=text;b.onclick=handler;return b;}
+function showAllLiveChildren(){const live=document.getElementById('scoreboard-live-content');live.querySelectorAll(':scope > *').forEach(el=>el.classList.remove('hidden'));}
+function showSavedBrowser(){const lobby=document.getElementById('scoreboard-lobby'),live=document.getElementById('scoreboard-live-content'),panel=document.getElementById('saved-scoreboards-panel');lobby.classList.add('hidden');live.classList.remove('hidden');live.querySelectorAll(':scope > *').forEach(el=>el.classList.add('hidden'));panel.classList.remove('hidden');renderSaved();}
+function renderMatchWorkflow(){const lobby=document.getElementById('scoreboard-lobby'),live=document.getElementById('scoreboard-live-content'),actions=document.getElementById('match-phase-actions'),phase=document.getElementById('match-phase-label'),resume=document.getElementById('scoreboard-resume-box'),info=document.getElementById('scoreboard-resume-info'),stop=document.getElementById('btn-clock-stop'),half=document.getElementById('match-half'),saveBtn=document.getElementById('btn-save-scoreboard'),restBtn=document.getElementById('btn-register-rest-sub');
+  if(half)half.classList.add('hidden'); if(stop)stop.classList.add('hidden'); if(saveBtn)saveBtn.classList.add('hidden'); actions.innerHTML='';
+  const active=matchIsActive(); lobby.classList.toggle('hidden',active || scoreboard.matchStatus==='finished'); live.classList.toggle('hidden',!active && scoreboard.matchStatus!=='finished'); if(active || scoreboard.matchStatus==='finished')showAllLiveChildren();
+  if(scoreboard.matchStatus==='lobby'){resume.classList.add('hidden');return;}
+  if(scoreboard.matchStatus==='finished'){live.classList.remove('hidden');lobby.classList.add('hidden');phase.textContent='Partido finalizado — edición';document.getElementById('clock-status').textContent='Partido finalizado';['btn-register-goal','btn-register-sub','btn-register-yellow','btn-register-double-yellow','btn-register-red','btn-show-annotations'].forEach(id=>document.getElementById(id)?.classList.remove('hidden'));if(restBtn)restBtn.classList.add('hidden');const b=workflowPhaseButton('btn-save-final-edit','💾 Guardar cambios','bg-emerald-600 hover:bg-emerald-500 text-white',saveEditedSavedMatch);actions.appendChild(b);return;}
+  phase.textContent=currentPhaseLabel();
+  if(scoreboard.matchStatus==='first'){actions.appendChild(workflowPhaseButton('btn-final-first','🏁 Final 1ª Parte','bg-indigo-600 hover:bg-indigo-500 text-white',finishFirstHalf));}
+  const canCreateEvents=scoreboard.matchStatus==='first'||scoreboard.matchStatus==='second';
+  const canReviewAnnotations=canCreateEvents||scoreboard.matchStatus==='secondEnded'||scoreboard.matchStatus==='finished';
+  ['btn-register-goal','btn-register-sub','btn-register-yellow','btn-register-double-yellow','btn-register-red'].forEach(id=>document.getElementById(id)?.classList.toggle('hidden',!canCreateEvents));
+  document.getElementById('btn-show-annotations')?.classList.toggle('hidden',!canReviewAnnotations);
+  if(scoreboard.matchStatus==='halftime'){actions.appendChild(workflowPhaseButton('btn-start-second','▶️ Comienzo 2ª Parte','bg-emerald-600 hover:bg-emerald-500 text-white',startSecondHalf));if(restBtn)restBtn.classList.remove('hidden');}
+  else if(restBtn)restBtn.classList.add('hidden');
+  if(scoreboard.matchStatus==='second'){actions.appendChild(workflowPhaseButton('btn-final-second','🏁 Final 2ª Parte','bg-indigo-600 hover:bg-indigo-500 text-white',finishSecondHalf));}
+  if(scoreboard.matchStatus==='secondEnded'){actions.appendChild(workflowPhaseButton('btn-finish-match','🏁 Partido Finalizado','bg-red-700 hover:bg-red-600 text-white',finalizeMatch));}
+  resume.classList.add('hidden');
+  document.getElementById('btn-clock-pause').classList.toggle('hidden',!active||!scoreboard.running);
+  document.getElementById('btn-clock-resume').classList.toggle('hidden',!active||scoreboard.running);
+  document.getElementById('clock-status').textContent=scoreboard.running?'En marcha':(scoreboard.matchStatus==='halftime'?'Descanso':scoreboard.matchStatus==='secondEnded'?'2ª parte finalizada':'Pausado');
+  if(info)info.textContent=`${scoreboard.homeName} ${scoreboard.homeScore} — ${scoreboard.awayScore} ${scoreboard.awayName}`;
+}
+function freezeElapsed(){scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;}
+function finishFirstHalf(){if(scoreboard.matchStatus!=='first')return;freezeElapsed();scoreboard.part1Elapsed=scoreboard.elapsed;scoreboard.matchStatus='halftime';scoreboard.half=1;saveSB();renderMatchWorkflow();renderSB();}
+function startSecondHalf(){if(scoreboard.matchStatus!=='halftime')return;scoreboard.half=2;scoreboard.elapsed=0;scoreboard.part2Elapsed=0;scoreboard.running=true;scoreboard.lastStartedAt=Date.now();scoreboard.matchStatus='second';saveSB();renderMatchWorkflow();renderSB();}
+function finishSecondHalf(){if(scoreboard.matchStatus!=='second')return;freezeElapsed();scoreboard.part2Elapsed=scoreboard.elapsed;scoreboard.matchStatus='secondEnded';saveSB();renderMatchWorkflow();renderSB();}
+function savedMatchPayload(){const copy=JSON.parse(JSON.stringify(scoreboard));copy.running=false;copy.lastStartedAt=null;copy.updatedAt=Date.now();return copy;}
+function finalizeMatch(){if(scoreboard.matchStatus!=='secondEnded')return;const name=prompt('Nombre para este partido:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;scoreboard.finishedAt=Date.now();scoreboard.matchStatus='finished';scoreboard.matchName=name.trim();scoreboard.date=new Date().toISOString().split('T')[0];const payload=savedMatchPayload();payload.name=scoreboard.matchName;payload.date=scoreboard.date;if(scoreboard.editingSavedId){const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i>=0)savedScoreboards[i]={...savedScoreboards[i],...payload};else savedScoreboards.unshift({id:scoreboard.editingSavedId,...payload});}else savedScoreboards.unshift({id:Date.now(),...payload});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));saveSB();renderMatchWorkflow();renderSB();renderSaved();renderPartidosScoreboards();alert('¡Partido guardado!');}
+function saveEditedSavedMatch(){if(!scoreboard.editingSavedId)return;const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i<0)return;const payload=savedMatchPayload();payload.name=scoreboard.matchName||savedScoreboards[i].name;payload.date=scoreboard.date||savedScoreboards[i].date;savedScoreboards[i]={...savedScoreboards[i],...payload};localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();renderPartidosScoreboards();alert('Cambios guardados.');}
+function openRestSub(){if(scoreboard.matchStatus!=='halftime')return;openSub();se.sm.value='45:00';se.sml.textContent='45:00';}
+function resumeCurrentMatch(){if(!matchIsActive())return;renderMatchWorkflow();renderSB();}
+function openSavedMatchForEdit(id){const x=savedScoreboards.find(y=>y.id===id);if(!x)return;scoreboard=normalizeScoreboard({...x,matchStatus:'finished',running:false,lastStartedAt:null,editingSavedId:x.id});saveSB();renderMatchWorkflow();renderSB();se.savedPanel.classList.add('hidden');switchView('marcador');}
+function setupMatchWorkflow(){if(matchWorkflowReady)return;matchWorkflowReady=true;document.getElementById('btn-start-match')?.addEventListener('click',openStartMatchModal);document.getElementById('btn-load-match-lobby')?.addEventListener('click',showSavedBrowser);document.getElementById('btn-cancel-start-match')?.addEventListener('click',closeStartMatchModal);document.getElementById('btn-confirm-start-match')?.addEventListener('click',startNewMatch);document.getElementById('btn-resume-match')?.addEventListener('click',resumeCurrentMatch);document.getElementById('btn-clock-pause')?.addEventListener('click',()=>{if(!matchIsActive()||!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderMatchWorkflow();renderClock();});document.getElementById('btn-clock-resume')?.addEventListener('click',()=>{if(!matchIsActive()||scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderMatchWorkflow();renderClock();});document.getElementById('btn-register-rest-sub')?.addEventListener('click',openRestSub);renderMatchWorkflow();}
+// Los registros antiguos se consideran datos cargados, no un partido nuevo.
+function initWorkflowOnScoreboard(){scoreboard=normalizeScoreboard(scoreboard);if(!scoreboard.matchStatus)scoreboard.matchStatus='lobby';setupMatchWorkflow();}
+// Sobrescribimos la carga de marcadores para que abra un partido editable.
 // PALETA DE COLORES COMPARTIDA
     document.getElementById('btn-team-colors')?.addEventListener('click',e=>{e.stopPropagation();document.getElementById('team-colors-panel')?.classList.toggle('hidden');renderTeamColorControls();});
     document.getElementById('team-color-local')?.addEventListener('input',e=>setTeamColor('local',e.target.value));
@@ -4011,145 +4035,33 @@
 
     // Tamaños de Tácticas Balón Parado
     function initTacticsDisplayControls(){
-      const map=[['tactics-player-size',v=>tacticsDisplaySettings.playerScale=Number(v)],['tactics-cone-size',v=>tacticsDisplaySettings.props.cone=Number(v)],['tactics-wall-size',v=>tacticsDisplaySettings.props.wall=Number(v)],['tactics-ball-size',v=>tacticsDisplaySettings.props.ball=Number(v)]];
+      const map=[['tactics-player-size',v=>tacticsDisplaySettings.playerScale=Number(v)],['tactics-cone-size',v=>tacticsDisplaySettings.props.cone=Number(v)],['tactics-wall-size',v=>tacticsDisplaySettings.props.wall=Number(v)],['tactics-ball-size',v=>tacticsDisplaySettings.props.ball=Number(v)],['tactics-text-size',v=>tacticsDisplaySettings.props.text=Number(v)]];
       map.forEach(([id,fn])=>{const el=document.getElementById(id);if(!el)return;const key=id.replace('tactics-','').replace('-size','');let value=key==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[key]??1;el.value=value;el.addEventListener('input',e=>{fn(e.target.value);saveTacticsDisplaySettings();applyTacticsSizes();});});
       applyTacticsSizes();
     }
     initTacticsDisplayControls();
 
-    // Texto editable, redimensionable y colocable fuera del campo
-    let selectedTacticsTextEl = null;
-    let resizingTacticsText = null;
-    function clearTacticsTextSelection(){
-      if(selectedTacticsTextEl){
-        selectedTacticsTextEl.classList.remove('tactics-text-selected');
-        const h=selectedTacticsTextEl.querySelector('.tactics-text-resize-handle'); if(h)h.remove();
-      }
-      selectedTacticsTextEl=null;
-    }
-    function selectTacticsText(el){
-      if(!el)return;
-      if(selectedTacticsTextEl!==el){
-        clearTacticsTextSelection();
-        selectedTacticsTextEl=el;
-      }
-      el.classList.add('tactics-text-selected');
-      const oldHandle=el.querySelector('.tactics-text-resize-handle');
-      if(oldHandle)oldHandle.remove();
-      const handle=document.createElement('span'); handle.className='tactics-text-resize-handle'; handle.title='Arrastrar para cambiar el tamaño del cuadro';
-      handle.addEventListener('pointerdown',(e)=>{
-        e.preventDefault(); e.stopPropagation();
-        const rect=el.getBoundingClientRect();
-        resizingTacticsText={el,startX:e.clientX,startY:e.clientY,startW:rect.width,startH:rect.height};
-        handle.setPointerCapture?.(e.pointerId);
-      });
-      handle.addEventListener('pointermove',(e)=>{
-        if(!resizingTacticsText||resizingTacticsText.el!==el)return;
-        const nw=Math.max(60,resizingTacticsText.startW+(e.clientX-resizingTacticsText.startX));
-        const nh=Math.max(32,resizingTacticsText.startH+(e.clientY-resizingTacticsText.startY));
-        el.style.width=nw+'px'; el.style.height=nh+'px'; el.dataset.boxWidth=nw; el.dataset.boxHeight=nh;
-        if(el._dataObj){el._dataObj.boxWidth=nw;el._dataObj.boxHeight=nh;}
-      });
-      const stopResize=(e)=>{if(!resizingTacticsText||resizingTacticsText.el!==el)return;resizingTacticsText=null;handle.releasePointerCapture?.(e.pointerId);};
-      handle.addEventListener('pointerup',stopResize); handle.addEventListener('pointercancel',stopResize);
-      el.appendChild(handle);
-    }
-    function openTacticsTextEditor(el){
-      const modal=document.getElementById('modal-tactics-text');
-      document.getElementById('tactics-text-edit-id').value=el.dataset.id||'';
-      document.getElementById('tactics-text-content').value=el.dataset.text||'';
-      document.getElementById('tactics-text-color').value=el.dataset.color||'#ffffff';
-      document.getElementById('tactics-text-font-size').value=Number(el.dataset.baseSize)||24;
-      document.getElementById('btn-delete-tactics-text').classList.remove('hidden');
-      document.getElementById('tactics-text-modal-title').textContent='T Editar texto de la pizarra';
-      document.getElementById('btn-confirm-tactics-text').textContent='Guardar cambios';
-      modal.classList.remove('hidden');
-    }
-    function spawnTextProp(text,color='#fff',fontSize=24,x=50,y=50,id=Date.now(),boxWidth=220,boxHeight=80){
-      const container=document.getElementById('tactics-pitch'); const el=document.createElement('div');
+    // Texto editable en la pizarra y guardado en animaciones/tácticas
+    function spawnTextProp(text,color='#fff',fontSize=24,x=50,y=50,id=Date.now()){
+      const container=document.getElementById('tactics-pitch');const el=document.createElement('div');
       el.className='tactics-prop tactics-text-prop absolute z-30 cursor-grab active:cursor-grabbing touch-none select-none font-black';
-      el.dataset.type='text'; el.dataset.text=text; el.dataset.color=color; el.dataset.baseSize=fontSize; el.dataset.id=id; el.dataset.allowOutside='true'; el.dataset.boxWidth=boxWidth; el.dataset.boxHeight=boxHeight;
-      el.style.left=x+'%'; el.style.top=y+'%'; el.style.width=boxWidth+'px'; el.style.height=boxHeight+'px'; el.style.color=color; el.style.fontSize=fontSize+'px'; el.style.transform='translate(-50%,-50%)'; el.style.whiteSpace='pre-wrap'; el.style.textAlign='center'; el.style.overflow='hidden'; el.style.overflowWrap='anywhere'; el.style.lineHeight='1.15'; el.style.boxSizing='border-box'; el.textContent=text;
-      const data={x,y,type:'text',text,color,fontSize,id,boxWidth:Number(boxWidth),boxHeight:Number(boxHeight)}; el._dataObj=data;
-      // Los textos tienen interacción propia: un toque/clic selecciona, doble clic edita,
-      // y arrastrar mueve el cuadro. No usamos makeDraggable aquí porque su captura de
-      // pointer puede impedir que click/dblclick lleguen al texto en algunos móviles.
-      let textDragging=false, textMoved=false, textStartX=0, textStartY=0, textStartLeft=0, textStartTop=0;
-      el.addEventListener('pointerdown',(e)=>{
-        if(e.target.classList.contains('tactics-text-resize-handle')) return;
-        e.stopPropagation();
-        selectTacticsText(el);
-        textDragging=true; textMoved=false; textStartX=e.clientX; textStartY=e.clientY;
-        textStartLeft=parseFloat(el.style.left)||50; textStartTop=parseFloat(el.style.top)||50;
-        el.setPointerCapture?.(e.pointerId);
-      });
-      el.addEventListener('pointermove',(e)=>{
-        if(!textDragging)return;
-        const dx=e.clientX-textStartX,dy=e.clientY-textStartY;
-        if(Math.abs(dx)+Math.abs(dy)>3) textMoved=true;
-        const rect=container.getBoundingClientRect();
-        const nx=Math.max(-25,Math.min(125,textStartLeft+(dx/rect.width)*100));
-        const ny=Math.max(3,Math.min(97,textStartTop+(dy/rect.height)*100));
-        el.style.left=nx+'%'; el.style.top=ny+'%'; data.x=nx; data.y=ny;
-      });
-      el.addEventListener('pointerup',(e)=>{
-        if(!textDragging)return; textDragging=false; el.releasePointerCapture?.(e.pointerId);
-        data.x=parseFloat(el.style.left)||50; data.y=parseFloat(el.style.top)||50;
-      });
-      el.addEventListener('pointercancel',()=>{textDragging=false;});
-      el.addEventListener('click',(e)=>{if(e.target.classList.contains('tactics-text-resize-handle'))return;e.stopPropagation();selectTacticsText(el);});
-      el.addEventListener('dblclick',(e)=>{if(e.target.classList.contains('tactics-text-resize-handle'))return;e.stopPropagation();openTacticsTextEditor(el);});
-      container.appendChild(el); return el;
+      el.dataset.type='text';el.dataset.text=text;el.dataset.color=color;el.dataset.baseSize=fontSize;el.dataset.id=id;
+      el.style.left=x+'%';el.style.top=y+'%';el.style.color=color;el.style.fontSize=(fontSize*Number(tacticsDisplaySettings.props.text||1))+'px';el.style.transform='translate(-50%,-50%)';el.textContent=text;
+      const data={x,y,type:'text',text,color,fontSize,id};makeDraggable(el,data,container);el._dataObj=data;
+      el.addEventListener('dblclick',()=>{const nuevo=prompt('Editar texto:',el.dataset.text||text);if(nuevo!==null){el.dataset.text=nuevo;el.textContent=nuevo;data.text=nuevo;}});
+      el.addEventListener('pointerup',()=>{data.x=parseFloat(el.style.left);data.y=parseFloat(el.style.top);});
+      container.appendChild(el);return el;
     }
     function readAllTacticsProps(){
-      const props=[]; document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const d=el._dataObj||{};props.push({type:el.dataset.type,x:parseFloat(el.style.left),y:parseFloat(el.style.top),scale:tacticsPropScale(el.dataset.type),text:el.dataset.text||'',color:el.dataset.color||'',fontSize:Number(el.dataset.baseSize)||24,id:el.dataset.id||Date.now(),boxWidth:Number(el.dataset.boxWidth)||220,boxHeight:Number(el.dataset.boxHeight)||80});}); return props;
+      const props=[];document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const d=el._dataObj||{};props.push({type:el.dataset.type,x:parseFloat(el.style.left),y:parseFloat(el.style.top),scale:tacticsPropScale(el.dataset.type),text:el.dataset.text||'',color:el.dataset.color||'',fontSize:Number(el.dataset.baseSize)||24,id:el.dataset.id||Date.now()});});return props;
     }
-    // La caja delimitadora solo se muestra mientras el texto está seleccionado.
-    document.addEventListener('pointerdown',(e)=>{
-      if(!selectedTacticsTextEl)return;
-      const clickedText=e.target.closest?.('.tactics-text-prop');
-      const clickedModal=e.target.closest?.('#modal-tactics-text');
-      if(!clickedText && !clickedModal) clearTacticsTextSelection();
-    },true);
-
-    document.getElementById('btn-create-tactics-text')?.addEventListener('click',()=>{
-      clearTacticsTextSelection(); document.getElementById('tactics-text-edit-id').value=''; document.getElementById('tactics-text-content').value=''; document.getElementById('tactics-text-color').value='#ffffff'; document.getElementById('tactics-text-font-size').value=24; document.getElementById('btn-delete-tactics-text').classList.add('hidden'); document.getElementById('tactics-text-modal-title').textContent='T Añadir texto a la pizarra'; document.getElementById('btn-confirm-tactics-text').textContent='Crear'; document.getElementById('modal-tactics-text').classList.remove('hidden');
-    });
+    document.getElementById('btn-create-tactics-text')?.addEventListener('click',()=>document.getElementById('modal-tactics-text').classList.remove('hidden'));
     document.getElementById('btn-close-tactics-text')?.addEventListener('click',()=>document.getElementById('modal-tactics-text').classList.add('hidden'));
     document.getElementById('btn-confirm-tactics-text')?.addEventListener('click',()=>{
-      const text=document.getElementById('tactics-text-content').value; if(!text.trim())return alert('Escribe el texto.');
-      const editId=document.getElementById('tactics-text-edit-id').value;
-      if(editId){
-        const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(editId));
-        if(el){const c=document.getElementById('tactics-text-color').value,fs=Number(document.getElementById('tactics-text-font-size').value)||24; el.dataset.text=text;el.dataset.color=c;el.dataset.baseSize=fs;el.textContent=text;el.style.color=c;el.style.fontSize=fs+'px'; if(el._dataObj){el._dataObj.text=text;el._dataObj.color=c;el._dataObj.fontSize=fs;} selectTacticsText(el);}
-      } else { const el=spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24); selectTacticsText(el); }
-      document.getElementById('modal-tactics-text').classList.add('hidden');
-      // Tras guardar, el texto queda visible pero sin caja delimitadora hasta volver a seleccionarlo.
-      clearTacticsTextSelection();
+      const text=document.getElementById('tactics-text-content').value.trim();if(!text)return alert('Escribe el texto.');
+      spawnTextProp(text,document.getElementById('tactics-text-color').value,Number(document.getElementById('tactics-text-font-size').value)||24);
+      document.getElementById('tactics-text-content').value='';document.getElementById('modal-tactics-text').classList.add('hidden');
     });
-    document.getElementById('btn-delete-tactics-text')?.addEventListener('click',()=>{
-      const id=document.getElementById('tactics-text-edit-id').value; if(!id)return; const el=[...document.querySelectorAll('#tactics-pitch .tactics-text-prop')].find(x=>String(x.dataset.id)===String(id)); if(el)el.remove(); if(selectedTacticsTextEl===el)clearTacticsTextSelection(); document.getElementById('modal-tactics-text').classList.add('hidden');
-    });
-
-    // Fondo de Tácticas Balón Parado
-    function fullVerticalPitchSvg(){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1000"><rect width="600" height="1000" fill="#047857"/><g fill="none" stroke="white" stroke-width="5"><rect x="5" y="5" width="590" height="990"/><line x1="5" y1="500" x2="595" y2="500"/><circle cx="300" cy="500" r="90"/><circle cx="300" cy="500" r="5" fill="white"/><rect x="90" y="5" width="420" height="180"/><rect x="190" y="5" width="220" height="75"/><rect x="90" y="815" width="420" height="180"/><rect x="190" y="920" width="220" height="75"/><circle cx="300" cy="130" r="5" fill="white"/><circle cx="300" cy="870" r="5" fill="white"/><path d="M210 185 A90 90 0 0 0 390 185"/><path d="M210 815 A90 90 0 0 1 390 815"/></g></svg>`;}
-    function whiteVerticalPitchSvg(){return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1000"><rect width="600" height="1000" fill="#ffffff"/><g fill="none" stroke="#111111" stroke-width="5"><rect x="5" y="5" width="590" height="990"/><line x1="5" y1="500" x2="595" y2="500"/><circle cx="300" cy="500" r="90"/><circle cx="300" cy="500" r="5" fill="#111111"/><rect x="90" y="5" width="420" height="180"/><rect x="190" y="5" width="220" height="75"/><rect x="90" y="815" width="420" height="180"/><rect x="190" y="920" width="220" height="75"/><circle cx="300" cy="130" r="5" fill="#111111"/><circle cx="300" cy="870" r="5" fill="#111111"/><path d="M210 185 A90 90 0 0 0 390 185"/><path d="M210 815 A90 90 0 0 1 390 815"/></g></svg>`;}
-    function setTacticsBackground(type,image=''){
-      tacticsBackground={type,image};localStorage.setItem('f11_tactics_background',JSON.stringify(tacticsBackground));
-      const pitchEl=document.getElementById('tactics-pitch'); if(!pitchEl)return;
-      const svg=pitchEl.querySelector('svg');
-      if(type==='custom'&&image){pitchEl.style.backgroundImage=`url("${image}")`;pitchEl.style.backgroundSize='cover';pitchEl.style.backgroundPosition='center';if(svg)svg.style.visibility='hidden';}
-      else if(type==='fullVertical'){pitchEl.style.backgroundImage=`url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(fullVerticalPitchSvg())}")`;pitchEl.style.backgroundSize='cover';pitchEl.style.backgroundPosition='center';if(svg)svg.style.visibility='hidden';}
-      else if(type==='whiteVertical'){pitchEl.style.backgroundImage=`url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(whiteVerticalPitchSvg())}")`;pitchEl.style.backgroundSize='cover';pitchEl.style.backgroundPosition='center';if(svg)svg.style.visibility='hidden';}
-      else {pitchEl.style.backgroundImage='none';if(svg)svg.style.visibility='visible';}
-    }
-    document.getElementById('btn-tactics-bg-current')?.addEventListener('click',()=>setTacticsBackground('current'));
-    document.getElementById('btn-tactics-bg-full')?.addEventListener('click',()=>setTacticsBackground('fullVertical'));
-    document.getElementById('btn-tactics-bg-white')?.addEventListener('click',()=>setTacticsBackground('whiteVertical'));
-    document.getElementById('btn-tactics-bg-custom')?.addEventListener('click',()=>document.getElementById('tactics-bg-input')?.click());
-    document.getElementById('tactics-bg-input')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{setTacticsBackground('custom',await readTacticsBackgroundAsDataURL(f));}catch(err){alert('No se pudo cargar la imagen de fondo.');}});
-    setTacticsBackground(tacticsBackground.type,tacticsBackground.image);
-
 
     // Guardar textos y tamaños de objetos junto a la táctica
     const originalTacticSaveHandler = null;
@@ -4167,5 +4079,13 @@
       });
     }
   </script>
+
+<div id="modal-start-match" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+  <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-md shadow-2xl">
+    <h3 class="text-lg font-black text-emerald-400">▶️ Empezar Partido</h3><p class="text-xs text-slate-400 mt-1 mb-4">Selecciona los dos equipos para este partido.</p>
+    <div class="space-y-3"><label class="block text-xs text-slate-300">Local<select id="start-home-team" class="mt-1 w-full bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"></select></label><label class="block text-xs text-slate-300">Visitante<select id="start-away-team" class="mt-1 w-full bg-slate-900 border border-slate-600 text-white text-xs rounded-lg p-2"></select></label></div>
+    <div class="flex justify-end gap-2 mt-5"><button id="btn-cancel-start-match" class="bg-slate-700 text-slate-300 text-xs px-3 py-2 rounded-lg">Cancelar</button><button id="btn-confirm-start-match" class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg">Empezar</button></div>
+  </div>
+</div>
 </body>
 </html>
