@@ -112,9 +112,28 @@
     border: 1.5px solid #000 !important;
   }
 </style>
-  #tactics-pitch .tactics-text-prop{box-sizing:border-box;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;}
-  #tactics-pitch .tactics-text-prop.tactics-text-selected{outline:1px dashed rgba(250,204,21,.95);outline-offset:2px;}
-  #tactics-pitch .tactics-text-prop.tactics-text-selected::after{content:"";position:absolute;right:-5px;bottom:-5px;width:9px;height:9px;background:#facc15;border:1px solid #111;border-radius:2px;}
+<style id="tactics-text-interaction">
+  #tactics-pitch .tactics-text-prop {
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  #tactics-pitch .tactics-text-prop.tactics-text-selected {
+    outline: 1px dashed rgba(250,204,21,.95);
+    outline-offset: 2px;
+  }
+  #tactics-pitch .tactics-text-prop.tactics-text-selected::after {
+    content: "";
+    position: absolute;
+    right: -5px;
+    bottom: -5px;
+    width: 9px;
+    height: 9px;
+    background: #facc15;
+    border: 1px solid #111;
+    border-radius: 2px;
+  }
 </style>
 </head>
 <body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
