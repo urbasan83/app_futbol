@@ -105,6 +105,13 @@
         white-space: normal;
       }
     }
+
+<style id="tactics-thin-player-border">
+  /* Tácticas Balón Parado: borde fino negro para jugadores */
+  #tactics-pitch .tactics-token {
+    border: 1.5px solid #000 !important;
+  }
+</style>
 </style>
 </head>
 <body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
@@ -2294,74 +2301,141 @@
     function lerp(a, b, t) { return a + (b - a) * t; }
     function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
 
-    function drawPitchBackground(ctx, w, h) {
-      ctx.fillStyle = '#047857';
+    function drawPitchBackground(ctx, w, h, ox=0, oy=0, pw=w, ph=h) {
+      // El vídeo tiene una zona lateral a cada lado del campo para que los textos
+      // colocados fuera del terreno sigan siendo visibles.
+      ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, w, h);
 
+      ctx.save();
+      ctx.translate(ox, oy);
       ctx.strokeStyle = 'rgba(255,255,255,0.85)';
       ctx.fillStyle = '#ffffff';
-      ctx.lineWidth = Math.max(2, w * 0.006);
+      ctx.lineWidth = Math.max(1.5, pw * 0.0025);
 
-      const px = (v) => (v / 100) * w;
-      const py = (v) => (v / 100) * h;
+      const px = (v) => (v / 100) * pw;
+      const py = (v) => (v / 100) * ph;
 
-      ctx.strokeRect(1, 1, w - 2, h - 2);
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(0, 0, pw, ph);
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+      ctx.strokeRect(1, 1, pw - 2, ph - 2);
 
       ctx.beginPath();
-      ctx.moveTo(0, h);
-      ctx.lineTo(w, h);
+      ctx.moveTo(0, ph);
+      ctx.lineTo(pw, ph);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.arc(px(50), h, px(15), Math.PI, 2 * Math.PI);
+      ctx.arc(px(50), ph, px(15), Math.PI, 2 * Math.PI);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.arc(px(50), h, Math.max(2, w * 0.007), 0, 2 * Math.PI);
+      ctx.arc(px(50), ph, Math.max(2, pw * 0.007), 0, 2 * Math.PI);
       ctx.fill();
 
       ctx.strokeRect(px(18), 0, px(64), py(32));
       ctx.strokeRect(px(33), 0, px(34), py(12));
 
       ctx.beginPath();
-      ctx.arc(px(50), py(22), Math.max(2, w * 0.006), 0, 2 * Math.PI);
+      ctx.arc(px(50), py(22), Math.max(2, pw * 0.006), 0, 2 * Math.PI);
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(px(50), py(22), px(15), 0.30 * Math.PI, 0.70 * Math.PI);
       ctx.stroke();
+      ctx.restore();
+
+      // Límites visuales de las zonas exteriores disponibles para textos.
+      ctx.save();
+      ctx.setLineDash([Math.max(4, pw * 0.008), Math.max(5, pw * 0.012)]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = Math.max(1, pw * 0.0015);
+      ctx.beginPath();
+      ctx.moveTo(ox, 0); ctx.lineTo(ox, h);
+      ctx.moveTo(ox + pw, 0); ctx.lineTo(ox + pw, h);
+      ctx.stroke();
+      ctx.restore();
     }
 
     function renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImg) {
-      drawPitchBackground(ctx, w, h);
+      // Mantiene el mismo tamaño/proporción del campo, pero añade espacio lateral.
+      const fieldAspect = Number(ctx.canvas._fieldAspect || 0);
+      const fieldW = Math.min(w, fieldAspect > 0 ? h * fieldAspect : w * 0.62);
+      const fieldH = h;
+      const fieldX = Math.round((w - fieldW) / 2);
+      const fieldY = 0;
+
+      drawPitchBackground(ctx, w, h, fieldX, fieldY, fieldW, fieldH);
 
       if (drawingImg) {
-        ctx.drawImage(drawingImg, 0, 0, w, h);
+        ctx.drawImage(drawingImg, fieldX, fieldY, fieldW, fieldH);
       }
 
-      const px = (v) => (v / 100) * w;
-      const py = (v) => (v / 100) * h;
+      // Las coordenadas de jugadores/objetos siguen estando expresadas respecto al campo.
+      const px = (v) => fieldX + (Number(v) / 100) * fieldW;
+      const py = (v) => fieldY + (Number(v) / 100) * fieldH;
 
       propsList.forEach(p => {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        if(p.type==='text'){
-          ctx.fillStyle=p.color||'#fff';
-          ctx.font=`bold ${Math.round(Number(p.fontSize||24)*Number(p.scale||1))}px sans-serif`;
-          ctx.fillText(p.text||'',px(p.x),py(p.y));
+        if (p.type === 'text') {
+          const scale = Number(p.scale || 1);
+          const fontSize = Math.max(1, Number(p.fontSize || 24) * scale);
+          ctx.fillStyle = p.color || '#fff';
+          ctx.font = `bold ${Math.round(fontSize)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Los textos pueden tener un cuadro delimitador y saltos de línea.
+          const boxW = Math.max(20, Number(p.width || 180) / 100 * fieldW);
+          const boxH = Math.max(fontSize * 1.2, Number(p.height || 80) / 100 * fieldH);
+          const centerX = px(p.x);
+          const centerY = py(p.y);
+          const lineHeight = fontSize * 1.2;
+          const raw = String(p.text || '');
+          const paragraphs = raw.split(/\r?\n/);
+          const lines = [];
+          const maxWidth = boxW;
+
+          paragraphs.forEach(paragraph => {
+            if (!paragraph) { lines.push(''); return; }
+            const words = paragraph.split(/\s+/);
+            let line = '';
+            words.forEach(word => {
+              const candidate = line ? `${line} ${word}` : word;
+              if (ctx.measureText(candidate).width <= maxWidth || !line) {
+                line = candidate;
+              } else {
+                lines.push(line);
+                line = word;
+              }
+            });
+            if (line) lines.push(line);
+          });
+
+          const maxLines = Math.max(1, Math.floor(boxH / lineHeight));
+          const visibleLines = lines.slice(0, maxLines);
+          const totalH = visibleLines.length * lineHeight;
+          let lineY = centerY - totalH / 2 + lineHeight / 2;
+          visibleLines.forEach(line => {
+            ctx.fillText(line, centerX, lineY);
+            lineY += lineHeight;
+          });
           return;
         }
+
         let icon = '⚪';
         if (p.type === 'cone') icon = '🟠';
         else if (p.type === 'wall') icon = '🧱';
         else if (p.type === 'ball') icon = '⚽';
-        const scale=Number(p.scale||1);
-        ctx.font = `${Math.round(w * 0.05 * scale)}px sans-serif`;
-        ctx.fillStyle='#fff';
+        const scale = Number(p.scale || 1);
+        ctx.font = `${Math.round(fieldW * 0.05 * scale)}px sans-serif`;
+        ctx.fillStyle = '#fff';
         ctx.fillText(icon, px(p.x), py(p.y));
       });
 
-      const radius = w * 0.045 * Number(tacticsDisplaySettings.playerScale||1);
+      const radius = fieldW * 0.045 * Number(tacticsDisplaySettings.playerScale || 1);
       tokensList.forEach(tok => {
         const assignedPlayer = squad.find(p => p.id === tok.playerId);
         let bg = '#1e3a8a', fg = '#ffffff';
@@ -2378,8 +2452,9 @@
         ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
         ctx.fillStyle = bg;
         ctx.fill();
-        ctx.lineWidth = Math.max(2, w * 0.006);
-        ctx.strokeStyle = '#ffffff';
+        // Borde negro fino (1-2 px), también en el vídeo.
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#000000';
         ctx.stroke();
 
         const displayNum = assignedPlayer ? assignedPlayer.num : tok.slot;
@@ -2475,13 +2550,17 @@
       const pitchEl = document.getElementById('tactics-pitch');
       const rect = pitchEl.getBoundingClientRect();
       const scale = 2;
-      const outW = Math.round(rect.width * scale);
+      // El campo conserva su proporción original y el vídeo añade un 70% de ancho
+      // extra para incluir las zonas laterales donde pueden colocarse textos.
+      const fieldW = Math.round(rect.width * scale);
       const outH = Math.round(rect.height * scale);
+      const outW = Math.round(fieldW * 1.70);
 
       const renderCanvas = document.createElement('canvas');
       renderCanvas.width = outW;
       renderCanvas.height = outH;
       const ctx = renderCanvas.getContext('2d');
+      ctx.canvas._fieldAspect = rect.width / Math.max(1, rect.height);
 
       const btnGen = document.getElementById('btn-generate-video');
       const statusEl = document.getElementById('anim-status');
