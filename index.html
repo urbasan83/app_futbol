@@ -118,7 +118,12 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
+    max-width: none !important;
+    pointer-events: auto;
   }
+  /* Los textos pueden ocupar las zonas laterales al estar fuera del campo. */
+  #tactics-pitch { overflow: visible !important; }
+  #tactics-pitch .tactics-text-prop { overflow: visible; }
   #tactics-pitch .tactics-text-prop.tactics-text-selected {
     outline: 1px dashed rgba(250,204,21,.95);
     outline-offset: 2px;
@@ -313,10 +318,10 @@
 
     <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS Y GUARDADO) -->
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
-      <div class="flex-1 flex gap-2 overflow-hidden min-h-0 relative">
+      <div class="flex-1 flex gap-2 overflow-visible min-h-0 relative">
         <!-- Media Cancha -->
-        <div class="flex-1 relative flex items-center justify-center overflow-hidden h-full">
-          <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-hidden">
+        <div class="flex-1 relative flex items-center justify-center overflow-visible h-full">
+          <div id="tactics-pitch" class="touch-none-pitch relative w-full h-full max-w-lg bg-emerald-700 rounded-2xl border-4 border-white/90 shadow-2xl overflow-visible">
             <canvas id="tactics-canvas" class="absolute inset-0 z-10 touch-none"></canvas>
             <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-white/80 fill-none" stroke-width="2.5">
               <line x1="0" y1="100%" x2="100%" y2="100%" />
@@ -4202,7 +4207,10 @@ function initWorkflowOnScoreboard(){scoreboard=normalizeScoreboard(scoreboard);i
         const r=container.getBoundingClientRect();
         const dx=(e.clientX-sx)/r.width*100, dy=(e.clientY-sy)/r.height*100;
         if(Math.abs(dx)+Math.abs(dy)>3)moved=true;
-        data.x=ox+dx; data.y=oy+dy;
+        // Los textos pueden salir del campo por ambos laterales.
+        // Permitimos un margen suficiente para que sigan siendo totalmente visibles.
+        data.x=Math.max(-35,Math.min(135,ox+dx));
+        data.y=Math.max(2,Math.min(98,oy+dy));
         el.style.left=data.x+'%'; el.style.top=data.y+'%';
       };
       const end=(e)=>{
