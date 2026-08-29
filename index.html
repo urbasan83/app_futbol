@@ -781,6 +781,10 @@
       </div>
       <p class="text-xs text-slate-400 mb-2" id="modal-subtitle">Mostrando jugadores:</p>
       <div id="modal-player-list" class="flex-1 overflow-y-auto space-y-2 my-2"></div>
+      <div id="bench-multi-footer" class="hidden flex justify-end gap-2 mt-3 pt-3 border-t border-slate-700">
+        <button type="button" id="btn-cancel-bench-multi" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs font-semibold">Cancelar</button>
+        <button type="button" id="btn-accept-bench-multi" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-bold">Añadir</button>
+      </div>
     </div>
   </div>
 
@@ -3373,6 +3377,7 @@
 
     // --- SECCIÓN PLANTILLA MI EQUIPO ---
     function openAssignPlayerModal(slotId, role) {
+      document.getElementById('bench-multi-footer')?.classList.add('hidden');
       selectedSlotId = slotId;
       selectedBenchIndex = null;
       const modalList = document.getElementById('modal-player-list');
@@ -3412,6 +3417,7 @@
     }
 
     function openAssignBenchModal(benchIndex = null) {
+      document.getElementById('bench-multi-footer')?.classList.add('hidden');
       selectedBenchIndex = benchIndex;
       selectedSlotId = null;
 
@@ -3474,7 +3480,7 @@
     }
 
     btnAddBenchPlayer.addEventListener('click', () => openAssignBenchModal(null));
-    document.getElementById('btn-close-modal').onclick = () => modalSelectPlayer.classList.add('hidden');
+    document.getElementById('btn-close-modal').onclick = () => { modalSelectPlayer.classList.add('hidden'); document.getElementById('bench-multi-footer')?.classList.add('hidden'); };
 
     selectFormation.value = currentFormationKey;
     selectKit.value = currentKit;
