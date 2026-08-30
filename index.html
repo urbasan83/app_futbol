@@ -4076,7 +4076,7 @@
         se.hn.oninput=()=>{scoreboard.homeName=se.hn.value;saveSB();};se.an.oninput=()=>{scoreboard.awayName=se.an.value;saveSB();};
         document.getElementById('btn-clock-pause').onclick=()=>{if(!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         document.getElementById('btn-clock-resume').onclick=()=>{if(scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderClock();};
-        document.getElementById('btn-clock-stop').onclick=()=>{scoreboard.elapsed=0;scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
+        
         if(se.half)se.half.onchange=()=>{scoreboard.elapsed=0;scoreboard.half=Number(se.half.value);scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderClock();};
         document.getElementById('btn-register-goal').onclick=()=>openGoal();document.getElementById('btn-cancel-goal').onclick=closeGoal;document.getElementById('btn-delete-goal').onclick=()=>{const id=Number(se.geid.value);if(id&&confirm('¿Eliminar este gol?')){scoreboard.goals=scoreboard.goals.filter(x=>x.id!==id);saveSB();closeGoal();renderSB();}};
         document.getElementById('btn-save-goal').onclick=()=>{const p=se.gp.value.trim();if(!p)return alert('Escribe el nombre del jugador.');const id=se.geid.value?Number(se.geid.value):Date.now(),sec=parseEventTimeInput(se.gm.value,absoluteTime()),d={id,team:se.gt.value,player:p,number:String(se.gn.value||'').trim(),note:se.gnote.value.trim(),minuteSeconds:sec,minute:eventMinute(sec)},i=scoreboard.goals.findIndex(x=>x.id===id);if(i>=0)scoreboard.goals[i]=d;else scoreboard.goals.push(d);saveSB();closeGoal();renderSB();};
