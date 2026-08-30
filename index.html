@@ -365,6 +365,20 @@
               </button>
             </div>
 
+            <!-- FONDO DE LA PIZARRA -->
+            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
+              <div class="font-bold text-xs text-slate-200 mb-2">🏟️ Fondo de la pizarra</div>
+              <select id="tactics-field-background" class="w-full bg-slate-800 border border-slate-600 text-white text-[10px] rounded-lg p-1.5">
+                <option value="full">Campo Entero</option>
+                <option value="top">Medio Campo Arriba</option>
+                <option value="bottom">Medio Campo Abajo</option>
+                <option value="white">Campo Entero Blanco</option>
+                <option value="custom">Imagen propia</option>
+              </select>
+              <input id="tactics-field-background-input" type="file" accept="image/*" class="hidden">
+              <button id="btn-upload-tactics-field" type="button" class="w-full mt-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[10px] font-semibold py-1.5 rounded-lg border border-slate-600">🖼️ Subir mi propia imagen</button>
+            </div>
+
             <!-- DIBUJAR -->
             <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
               <button id="btn-tool-draw" onclick="setActiveTool('draw')" class="w-full text-left font-bold text-xs flex items-center justify-between text-slate-200 hover:text-emerald-400">
@@ -420,19 +434,6 @@
                 <label class="text-[10px] text-slate-400">Tamaño balones</label><input id="tactics-ball-size" type="range" min="0.4" max="1" step="0.05" value="1" class="w-full accent-emerald-500">
                 
               </div>
-            </div>
-
-            <!-- FONDO DE LA PIZARRA -->
-            <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700">
-              <div class="font-bold text-xs text-slate-200 mb-2">🏟️ Fondo de la pizarra</div>
-              <select id="tactics-field-background" class="w-full bg-slate-800 border border-slate-600 text-white text-[10px] rounded-lg p-1.5">
-                <option value="current">Campo actual</option>
-                <option value="vertical">11vs11 vertical</option>
-                <option value="white">Campo blanco</option>
-                <option value="custom">Imagen propia</option>
-              </select>
-              <input id="tactics-field-background-input" type="file" accept="image/*" class="hidden">
-              <button id="btn-upload-tactics-field" type="button" class="w-full mt-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[10px] font-semibold py-1.5 rounded-lg border border-slate-600">🖼️ Subir mi propia imagen</button>
             </div>
 
             <!-- ANIMACIÓN / VÍDEO DE MOVIMIENTOS -->
@@ -2119,7 +2120,7 @@
     let currentTacticsTokens = [];
     let animFrames = [];
     let tacticsDisplaySettings = JSON.parse(localStorage.getItem('f11_tactics_display_settings')) || {playerScale:1,props:{cone:1,wall:1,ball:1,text:1}};
-    let tacticsFieldBackground = JSON.parse(localStorage.getItem('f11_tactics_field_background')) || {type:'current',image:''};
+    let tacticsFieldBackground = JSON.parse(localStorage.getItem('f11_tactics_field_background')) || {type:'full',image:''};
     function saveTacticsDisplaySettings(){localStorage.setItem('f11_tactics_display_settings',JSON.stringify(tacticsDisplaySettings));}
     function tacticsPropScale(type){return Number(tacticsDisplaySettings.props?.[type]||1);}
     function applyTacticsSizes(){
@@ -2130,34 +2131,19 @@
 
     function tacticsSvgData(svg){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);}
     function getTacticsFieldSvg(type){
-      // Todos los campos predeterminados usan el campo COMPLETO. Esto evita
-      // que las líneas se queden en media cancha y hace que ocupen toda la
-      // superficie verde/blanca visible.
-      const bg = type === 'white' ? 'white' : '#047857';
-      const stroke = type === 'white' ? '#111' : 'white';
-      const dot = stroke;
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <rect width="100" height="100" fill="${bg}"/>
-        <g fill="none" stroke="${stroke}" stroke-width="0.8">
-          <rect x="1" y="1" width="98" height="98"/>
-          <line x1="1" y1="50" x2="99" y2="50"/>
-          <circle cx="50" cy="50" r="9"/>
-          <circle cx="50" cy="50" r="1" fill="${dot}"/>
-          <rect x="18" y="1" width="64" height="18"/>
-          <rect x="33" y="1" width="34" height="7"/>
-          <circle cx="50" cy="10" r="1" fill="${dot}"/>
-          <path d="M38 19 A15 15 0 0 0 62 19"/>
-          <rect x="18" y="81" width="64" height="18"/>
-          <rect x="33" y="92" width="34" height="7"/>
-          <circle cx="50" cy="90" r="1" fill="${dot}"/>
-          <path d="M38 81 A15 15 0 0 1 62 81"/>
-        </g>
-      </svg>`;
+      // El Campo Entero reproduce exactamente el diseño del campo de Pizarra Táctica.
+      const fullField = `<rect width="100" height="100" fill="#047857"/><g fill="none" stroke="white" stroke-width="0.8"><rect x="1" y="1" width="98" height="98"/><line x1="1" y1="50" x2="99" y2="50"/><circle cx="50" cy="50" r="15"/><circle cx="50" cy="50" r="1.5" fill="white"/><rect x="20" y="1" width="60" height="16"/><rect x="35" y="1" width="30" height="6"/><circle cx="50" cy="11" r="1.5" fill="white"/><rect x="20" y="83" width="60" height="16"/><rect x="35" y="93" width="30" height="6"/><circle cx="50" cy="89" r="1.5" fill="white"/></g>`;
+      if(type==='white') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${fullField.replace('#047857','#ffffff').replaceAll('stroke="white"','stroke="#111111"').replaceAll('fill="white"','fill="#111111"')}</svg>`;
+      if(type==='top') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none">${fullField}</svg>`;
+      if(type==='bottom') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 50 100 50" preserveAspectRatio="none">${fullField}</svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${fullField}</svg>`;
     }
     function applyTacticsFieldBackground(){
       const layer=document.getElementById('tactics-bg-layer'), sel=document.getElementById('tactics-field-background');
       if(!layer)return;
-      const type=tacticsFieldBackground?.type||'current';
+      let type=tacticsFieldBackground?.type||'full';
+      if(type==='current' || type==='vertical') type='full';
+      tacticsFieldBackground.type=type;
       if(sel)sel.value=type;
       if(type==='custom' && tacticsFieldBackground.image){layer.style.backgroundImage=`url("${tacticsFieldBackground.image}")`;layer.style.backgroundColor='#047857';layer.style.backgroundSize='cover';}
       else {layer.style.backgroundImage=`url("${tacticsSvgData(getTacticsFieldSvg(type))}")`;layer.style.backgroundSize='100% 100%';layer.style.backgroundColor=type==='white'?'#fff':'#047857';}
@@ -2342,10 +2328,13 @@
 
     function captureAnimFrame() {
       if (!tacticsCanvas) return;
+      const bgLayer = document.getElementById('tactics-bg-layer');
       const frame = {
         tokens: JSON.parse(JSON.stringify(currentTacticsTokens)),
         props: readCurrentPropsFromDom(),
-        drawing: tacticsCanvas.toDataURL()
+        drawing: tacticsCanvas.toDataURL(),
+        background: JSON.parse(JSON.stringify(tacticsFieldBackground)),
+        playerScale: Number(tacticsDisplaySettings.playerScale || 1)
       };
       animFrames.push(frame);
       updateAnimUI();
@@ -2410,7 +2399,7 @@
         return;
       }
       ctx.save();
-      const bgType=tacticsFieldBackground?.type||'current';
+      const bgType=tacticsFieldBackground?.type||'full';
       if(bgType==='white'){
         ctx.fillStyle='#fff';ctx.fillRect(ox,oy,pw,ph);ctx.strokeStyle='#111';ctx.lineWidth=Math.max(1,pw*0.0025);
         const px=(v)=>(v/100)*pw, py=(v)=>(v/100)*ph;
@@ -2473,7 +2462,7 @@
       ctx.restore();
     }
 
-    function renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImg, customBgImg=null) {
+    function renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImg, customBgImg=null, frameBgImg=null) {
       // Mantiene el mismo tamaño/proporción del campo, pero añade espacio lateral.
       const fieldAspect = Number(ctx.canvas._fieldAspect || 0);
       const fieldW = Math.min(w, fieldAspect > 0 ? h * fieldAspect : w * 0.62);
@@ -2481,7 +2470,7 @@
       const fieldX = Math.round((w - fieldW) / 2);
       const fieldY = 0;
 
-      drawPitchBackground(ctx, w, h, fieldX, fieldY, fieldW, fieldH, customBgImg);
+      if (frameBgImg) { ctx.drawImage(frameBgImg, fieldX, fieldY, fieldW, fieldH); } else { drawPitchBackground(ctx, w, h, fieldX, fieldY, fieldW, fieldH, customBgImg); }
 
       if (drawingImg) {
         ctx.drawImage(drawingImg, fieldX, fieldY, fieldW, fieldH);
@@ -2583,7 +2572,7 @@
       });
     }
 
-    function drawInterpolatedFrame(ctx, w, h, frameA, frameB, t, drawingImgA, customBgImg=null) {
+    function drawInterpolatedFrame(ctx, w, h, frameA, frameB, t, drawingImgA, customBgImg=null, frameBgImg=null) {
       const tokensList = frameA.tokens.map(tokA => {
         const tokB = frameB.tokens.find(tb => tb.slot === tokA.slot) || tokA;
         return {
@@ -2605,17 +2594,17 @@
         propsList = t < 0.5 ? frameA.props : frameB.props;
       }
 
-      renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImgA, customBgImg);
+      renderCompositeFrame(ctx, w, h, tokensList, propsList, drawingImgA, customBgImg, frameBgImg);
     }
 
-    function animateSegment(ctx, w, h, frameA, frameB, drawingImgA, durationMs, customBgImg=null) {
+    function animateSegment(ctx, w, h, frameA, frameB, drawingImgA, durationMs, customBgImg=null, frameBgImg=null) {
       return new Promise(resolve => {
         const start = performance.now();
         function step(now) {
           const elapsed = now - start;
           const t = Math.min(1, elapsed / durationMs);
           const et = easeInOutQuad(t);
-          drawInterpolatedFrame(ctx, w, h, frameA, frameB, et, drawingImgA, customBgImg);
+          drawInterpolatedFrame(ctx, w, h, frameA, frameB, et, drawingImgA, customBgImg, frameBgImg);
           if (t < 1) {
             requestAnimationFrame(step);
           } else {
@@ -2680,10 +2669,14 @@
 
       try {
         const drawingImages = await Promise.all(animFrames.map(f => loadImageSafe(f.drawing)));
-        const customBgImg = (tacticsFieldBackground?.type==='custom' && tacticsFieldBackground.image) ? await loadImageSafe(tacticsFieldBackground.image) : null;
+        const backgroundImages = await Promise.all(animFrames.map(async f => {
+          const bg = f.background || tacticsFieldBackground;
+          if (bg?.type === 'custom' && bg.image) return loadImageSafe(bg.image);
+          return loadImageSafe(tacticsSvgData(getTacticsFieldSvg(bg?.type || 'full')));
+        }));
 
-        // Fotograma inicial estático antes de empezar a grabar
-        drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0], customBgImg);
+        // El vídeo usa exactamente el fondo que tenía cada fotograma al capturarlo.
+        drawInterpolatedFrame(ctx, outW, outH, animFrames[0], animFrames[0], 0, drawingImages[0], null, backgroundImages[0]);
 
         const stream = renderCanvas.captureStream(30);
         const recorder = new MediaRecorder(stream, { mimeType });
@@ -2696,10 +2689,10 @@
         const totalSegments = animFrames.length - 1;
         for (let i = 0; i < totalSegments; i++) {
           statusEl.innerText = `Grabando movimiento ${i + 1}/${totalSegments}...`;
-          await animateSegment(ctx, outW, outH, animFrames[i], animFrames[i + 1], drawingImages[i], transitionMs, customBgImg);
+          await animateSegment(ctx, outW, outH, animFrames[i], animFrames[i + 1], drawingImages[i], transitionMs, null, backgroundImages[i]);
         }
 
-        drawInterpolatedFrame(ctx, outW, outH, animFrames[animFrames.length - 1], animFrames[animFrames.length - 1], 0, drawingImages[drawingImages.length - 1], customBgImg);
+        drawInterpolatedFrame(ctx, outW, outH, animFrames[animFrames.length - 1], animFrames[animFrames.length - 1], 0, drawingImages[drawingImages.length - 1], null, backgroundImages[backgroundImages.length - 1]);
         await sleep(700);
 
         recorder.stop();
