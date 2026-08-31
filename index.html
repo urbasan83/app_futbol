@@ -1336,9 +1336,9 @@
       f11CloudPollTimer = null;
     }
 
-    function f11QueueCloudSave() {
+    function f11QueueCloudSave(delay=150) {
       clearTimeout(f11CloudTimer);
-      f11CloudTimer = setTimeout(() => f11SaveCloudState(), 600);
+      f11CloudTimer = setTimeout(() => f11SaveCloudState(), delay);
     }
 
     function f11SetAuthMessage(message) {
@@ -1559,12 +1559,17 @@
     let savedConfrontations = JSON.parse(localStorage.getItem('f11_confrontations')) || [];
     let savedScoreboards = (JSON.parse(localStorage.getItem('f11_scoreboards')) || []).map(x => ({...x, goals:Array.isArray(x.goals)?x.goals:[], substitutions:Array.isArray(x.substitutions)?x.substitutions:[], yellowCards:Array.isArray(x.yellowCards)?x.yellowCards:[], doubleYellowCards:Array.isArray(x.doubleYellowCards)?x.doubleYellowCards:[], redCards:Array.isArray(x.redCards)?x.redCards:[], annotations:Array.isArray(x.annotations)?x.annotations:[]}));
     const F11_LIVE_BACKUP_KEY = 'f11_live_scoreboard_backup';
+    const F11_LIVE_PERSISTENT_KEY = 'f11_live_match_persistent';
     function readBestLocalLiveScoreboard(){
       const candidates=[];
-      ['f11_live_scoreboard',F11_LIVE_BACKUP_KEY].forEach(key=>{try{const raw=localStorage.getItem(key);if(raw){const v=JSON.parse(raw);if(v&&typeof v==='object')candidates.push(v);}}catch(e){}});
+      [F11_LIVE_PERSISTENT_KEY,'f11_live_scoreboard',F11_LIVE_BACKUP_KEY].forEach(key=>{try{const raw=localStorage.getItem(key);if(raw){const v=JSON.parse(raw);if(v&&typeof v==='object')candidates.push(v);}}catch(e){}});
       if(!candidates.length)return null;
-      candidates.sort((a,b)=>Number(b?.updatedAt||0)-Number(a?.updatedAt||0));
-      return candidates[0];
+      // Un partido activo tiene prioridad sobre una copia antigua terminada.
+      const active=new Set(['first','halftime','second','secondEnded']);
+      const activeCandidates=candidates.filter(v=>active.has(v?.matchStatus));
+      const pool=activeCandidates.length?activeCandidates:candidates;
+      pool.sort((a,b)=>Math.max(Number(b?.updatedAt||0),Number(b?.lastStartedAt||0),Number(b?.startedAt||0))-Math.max(Number(a?.updatedAt||0),Number(a?.lastStartedAt||0),Number(a?.startedAt||0)));
+      return pool[0];
     }
     let scoreboard = readBestLocalLiveScoreboard() || {homeTeamId:'',awayTeamId:'',homeLogo:'',awayLogo:'',homeName:'Local',awayName:'Visitante',homeScore:0,awayScore:0,half:1,elapsed:0,running:false,lastStartedAt:null,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],homeXI:[],awayXI:[],updatedAt:0};
     let teamColors = JSON.parse(localStorage.getItem('f11_team_colors')) || {local:'#1d4ed8', visitante:'#db2777', localPor:'#fbbf24', visitantePor:'#22d3ee'};
@@ -4085,14 +4090,31 @@
     }
     scoreboard=normalizeScoreboard(scoreboard);
     function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-    function saveSB(){scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);localStorage.setItem('f11_live_scoreboard',raw);localStorage.setItem(F11_LIVE_BACKUP_KEY,raw);}
+    function persistLiveScoreboardRaw(raw){
+      // Tres copias locales del partido en curso. La tercera clave se mantiene
+      // separada de las demás para que una sincronización general no la sustituya.
+      localStorage.setItem('f11_live_scoreboard',raw);
+      localStorage.setItem(F11_LIVE_BACKUP_KEY,raw);
+      localStorage.setItem(F11_LIVE_PERSISTENT_KEY,raw);
+    }
+    function saveSB(){scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);persistLiveScoreboardRaw(raw);}
     let scoreboardLeaveCheckpointed=false;
-    function persistScoreboardBeforeLeaving(){if(scoreboardLeaveCheckpointed)return;scoreboardLeaveCheckpointed=true;try{if(scoreboard.running){scoreboard.elapsed=elapsed();scoreboard.lastStartedAt=Date.now();}scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);localStorage.setItem('f11_live_scoreboard',raw);localStorage.setItem(F11_LIVE_BACKUP_KEY,raw);}catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}}
+    function persistScoreboardBeforeLeaving(){
+      try{
+        if(scoreboard.matchStatus==='lobby'||scoreboard.matchStatus==='finished')return;
+        if(scoreboard.running){scoreboard.elapsed=elapsed();scoreboard.lastStartedAt=Date.now();}
+        scoreboard.updatedAt=Date.now();
+        persistLiveScoreboardRaw(JSON.stringify(scoreboard));
+        // La petición cloud normal puede no terminar durante unload; dejamos la
+        // copia local preparada para que el siguiente arranque la sincronice.
+        if(f11CloudUser && f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');}
+      }catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}
+    }
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistScoreboardBeforeLeaving();else scoreboardLeaveCheckpointed=false;});
     window.addEventListener('pagehide',persistScoreboardBeforeLeaving);
     window.addEventListener('beforeunload',persistScoreboardBeforeLeaving);
     window.addEventListener('freeze',persistScoreboardBeforeLeaving);
-    window.addEventListener('pageshow',()=>{scoreboardLeaveCheckpointed=false;const localLive=readBestLocalLiveScoreboard();if(localLive&&Number(localLive.updatedAt||0)>Number(scoreboard.updatedAt||0)){scoreboard=normalizeScoreboard(localLive);renderSB();}});
+    window.addEventListener('pageshow',()=>{scoreboardLeaveCheckpointed=false;const localLive=readBestLocalLiveScoreboard();if(localLive){const active=new Set(['first','halftime','second','secondEnded']);const localActive=active.has(localLive.matchStatus);const currentActive=active.has(scoreboard.matchStatus);if((localActive&&!currentActive)||Number(localLive.updatedAt||0)>Number(scoreboard.updatedAt||0)){scoreboard=normalizeScoreboard(localLive);renderMatchWorkflow?.();renderSB();renderClock?.();}}});
     function elapsed(){return scoreboard.running&&scoreboard.lastStartedAt?Math.max(0,(Number(scoreboard.elapsed)||0)+(Date.now()-Number(scoreboard.lastStartedAt))/1000):Math.max(0,Number(scoreboard.elapsed)||0);}
     function fmt(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
     function eventMinute(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;}
@@ -4288,7 +4310,7 @@ function openStartMatchModal(){const m=document.getElementById('modal-start-matc
 function closeStartMatchModal(){const m=document.getElementById('modal-start-match');m.classList.add('hidden');m.classList.remove('flex');}
 function selectedTeamSnapshot(id){const t=getSelectedScoreTeam(id);return t?{id:t.id,name:t.name,logo:t.logo,players:JSON.parse(JSON.stringify(t.players||[])),bench:JSON.parse(JSON.stringify(t.bench||[]))}:null;}
 function startNewMatch(){const h=document.getElementById('start-home-team').value,a=document.getElementById('start-away-team').value;if(!h||!a)return alert('Selecciona el equipo local y el visitante.');if(h===a)return alert('El local y el visitante no pueden ser el mismo equipo.');const ht=selectedTeamSnapshot(h),at=selectedTeamSnapshot(a);if(!ht||!at)return alert('No se pudieron cargar los equipos.');
-  scoreboard=normalizeScoreboard({homeTeamId:ht.id,awayTeamId:at.id,homeLogo:ht.logo,awayLogo:at.logo,homeName:ht.name,awayName:at.name,homeScore:0,awayScore:0,half:1,elapsed:0,running:true,lastStartedAt:Date.now(),matchStatus:'first',part1Elapsed:0,part2Elapsed:0,startedAt:Date.now(),finishedAt:null,homeXI:ht.players,awayXI:at.players,homeBench:ht.bench,awayBench:at.bench,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],editingSavedId:null});saveSB();if(f11CloudUser&&f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11QueueCloudSave();}closeStartMatchModal();renderMatchWorkflow();renderSB();}
+  scoreboard=normalizeScoreboard({homeTeamId:ht.id,awayTeamId:at.id,homeLogo:ht.logo,awayLogo:at.logo,homeName:ht.name,awayName:at.name,homeScore:0,awayScore:0,half:1,elapsed:0,running:true,lastStartedAt:Date.now(),matchStatus:'first',part1Elapsed:0,part2Elapsed:0,startedAt:Date.now(),finishedAt:null,homeXI:ht.players,awayXI:at.players,homeBench:ht.bench,awayBench:at.bench,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],editingSavedId:null});saveSB();if(f11CloudUser&&f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11QueueCloudSave(50);}closeStartMatchModal();renderMatchWorkflow();renderSB();}
 function workflowPhaseButton(id,text,cls,handler){const b=document.createElement('button');b.id=id;b.className=cls+' text-xs font-bold px-4 py-2 rounded-lg';b.textContent=text;b.onclick=handler;return b;}
 function showAllLiveChildren(){const live=document.getElementById('scoreboard-live-content');live.querySelectorAll(':scope > *').forEach(el=>el.classList.remove('hidden'));}
 function showSavedBrowser(){const lobby=document.getElementById('scoreboard-lobby'),live=document.getElementById('scoreboard-live-content'),panel=document.getElementById('saved-scoreboards-panel');lobby.classList.add('hidden');live.classList.remove('hidden');live.querySelectorAll(':scope > *').forEach(el=>el.classList.add('hidden'));panel.classList.remove('hidden');renderSaved();}
