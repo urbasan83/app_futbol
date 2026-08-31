@@ -731,20 +731,6 @@
             <div class="mt-3 pt-2 border-t border-slate-700/60"><h4 class="text-[10px] uppercase tracking-wider text-amber-400 mb-2">🟨 Tarjetas</h4><div id="score-away-cards" class="space-y-1"></div><p id="score-away-cards-empty" class="text-[10px] text-slate-500">Sin tarjetas registradas.</p></div>
           </div>
         </div>
-          </div>
-          <!-- VISITANTE: 11 INICIAL Y SUPLENTES -->
-          <div class="space-y-3">
-            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
-              <h3 id="score-away-xi-title" class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">11 inicial Visitante</h3>
-              <div id="score-away-xi" class="space-y-1"></div>
-            </div>
-            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
-              <h3 id="score-away-bench-title" class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-2">Suplentes Visitante</h3>
-              <div id="score-away-bench" class="space-y-1"></div>
-            </div>
-          </div>
-
-        </div>
 
         <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⏱️ Tiempo de partido</h3><p class="text-[10px] text-slate-400">El reloj continúa con la hora real aunque cierres o apagues el móvil.</p></div><span id="match-phase-label" class="bg-slate-900 border border-slate-600 text-slate-300 text-xs rounded-lg px-3 py-2">Primera parte</span></div>
@@ -764,7 +750,20 @@
         </div>
         <div id="annotations-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><div class="flex items-center justify-between mb-3"><div><h3 class="text-xs font-bold text-violet-400 uppercase tracking-wider">📝 Anotaciones del partido</h3><p class="text-[10px] text-slate-400">Notas internas con el minuto exacto. No aparecen en el marcador de equipos.</p></div><button id="btn-add-annotation" class="bg-violet-600 text-white font-bold px-3 py-2 rounded-lg text-xs">➕ Añadir anotación</button></div><div id="annotations-list" class="space-y-2"></div><p id="annotations-empty" class="text-[10px] text-slate-500 text-center py-3">No hay anotaciones.</p></div>
         <div id="annotation-editor" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><input type="hidden" id="edit-annotation-id"><input id="annotation-minute" type="text" inputmode="numeric" placeholder="Minuto (mm:ss)" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><div class="grid grid-cols-1 sm:grid-cols-2 gap-2"><input id="annotation-title" placeholder="Título" class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs"><span class="bg-slate-900 border border-slate-600 rounded-lg p-2 text-xs text-slate-400">Minuto: <b id="annotation-minute-label" class="text-white font-mono">00:00</b></span></div><textarea id="annotation-description" rows="4" placeholder="Descripción" class="w-full mt-2 bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-xs resize-none"></textarea><div class="flex justify-end gap-2 mt-2"><button id="btn-cancel-annotation" class="bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg">Cancelar</button><button id="btn-delete-annotation" class="hidden bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Eliminar</button><button id="btn-save-annotation" class="bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Guardar anotación</button></div></div>
-        <div id="saved-scoreboards-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">Marcadores guardados</h3><div id="saved-scoreboards-list" class="space-y-2"></div></div>
+          </div>
+          <!-- VISITANTE: 11 INICIAL Y SUPLENTES -->
+          <div class="space-y-3">
+            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
+              <h3 id="score-away-xi-title" class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">11 inicial Visitante</h3>
+              <div id="score-away-xi" class="space-y-1"></div>
+            </div>
+            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg">
+              <h3 id="score-away-bench-title" class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-2">Suplentes Visitante</h3>
+              <div id="score-away-bench" class="space-y-1"></div>
+            </div>
+          </div>
+
+        </div><div id="saved-scoreboards-panel" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 shadow-lg hidden"><h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-3">Marcadores guardados</h3><div id="saved-scoreboards-list" class="space-y-2"></div></div>
         </div>
       </div>
     </section>
