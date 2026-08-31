@@ -1530,9 +1530,17 @@
         f11SetAuthMessage('Sesión cerrada.');
       });
 
+      // Recuperamos primero el partido persistente. Esto cubre el caso en que el
+      // navegador/app cierre completamente y el almacenamiento local de la página
+      // no esté disponible al siguiente arranque.
+      try { await f11RestoreLiveFromIDB(); } catch(e) { console.warn(e); }
       const { data } = await f11Supabase.auth.getSession();
       if (data?.session?.user) await f11HandleAuthenticated(data.session.user);
-      else f11UpdateAccountUI();
+      else {
+        const recovered=readBestLocalLiveScoreboard();
+        if(recovered) { scoreboard=normalizeScoreboard(recovered); }
+        f11UpdateAccountUI();
+      }
 
       f11Supabase.auth.onAuthStateChange(async (_event, session) => {
         if (session?.user && (!f11CloudUser || f11CloudUser.id !== session.user.id)) {
@@ -1560,6 +1568,38 @@
     let savedScoreboards = (JSON.parse(localStorage.getItem('f11_scoreboards')) || []).map(x => ({...x, goals:Array.isArray(x.goals)?x.goals:[], substitutions:Array.isArray(x.substitutions)?x.substitutions:[], yellowCards:Array.isArray(x.yellowCards)?x.yellowCards:[], doubleYellowCards:Array.isArray(x.doubleYellowCards)?x.doubleYellowCards:[], redCards:Array.isArray(x.redCards)?x.redCards:[], annotations:Array.isArray(x.annotations)?x.annotations:[]}));
     const F11_LIVE_BACKUP_KEY = 'f11_live_scoreboard_backup';
     const F11_LIVE_PERSISTENT_KEY = 'f11_live_match_persistent';
+    const F11_LIVE_IDB_NAME = 'f11_match_persistence';
+    const F11_LIVE_IDB_STORE = 'live';
+    function f11OpenLiveIDB(){
+      return new Promise((resolve,reject)=>{
+        if(!('indexedDB' in window)) return reject(new Error('IndexedDB no disponible'));
+        const req=indexedDB.open(F11_LIVE_IDB_NAME,1);
+        req.onupgradeneeded=()=>{try{req.result.createObjectStore(F11_LIVE_IDB_STORE);}catch(e){}};
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error||new Error('Error IndexedDB'));
+      });
+    }
+    async function f11IDBPutLive(sb){
+      try{const db=await f11OpenLiveIDB();await new Promise((resolve,reject)=>{const tx=db.transaction(F11_LIVE_IDB_STORE,'readwrite');tx.objectStore(F11_LIVE_IDB_STORE).put(sb,'current');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('abort'));});db.close();}catch(e){console.warn('No se pudo guardar el partido en almacenamiento persistente',e);}
+    }
+    async function f11IDBGetLive(){
+      try{const db=await f11OpenLiveIDB();const v=await new Promise((resolve,reject)=>{const tx=db.transaction(F11_LIVE_IDB_STORE,'readonly');const req=tx.objectStore(F11_LIVE_IDB_STORE).get('current');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});db.close();return v;}catch(e){return null;}
+    }
+    async function f11RestoreLiveFromIDB(){
+      const v=await f11IDBGetLive();
+      if(!v||typeof v!=='object') return null;
+      const active=new Set(['first','halftime','second','secondEnded']);
+      if(!active.has(v.matchStatus)) return null;
+      const current=readBestLocalLiveScoreboard();
+      const vStamp=Math.max(Number(v.updatedAt||0),Number(v.lastStartedAt||0),Number(v.startedAt||0));
+      const cStamp=Math.max(Number(current?.updatedAt||0),Number(current?.lastStartedAt||0),Number(current?.startedAt||0));
+      if(!current || vStamp>=cStamp){
+        persistLiveScoreboardRaw(JSON.stringify(v));
+        scoreboard=normalizeScoreboard(v);
+        return v;
+      }
+      return current;
+    }
     function readBestLocalLiveScoreboard(){
       const candidates=[];
       [F11_LIVE_PERSISTENT_KEY,'f11_live_scoreboard',F11_LIVE_BACKUP_KEY].forEach(key=>{try{const raw=localStorage.getItem(key);if(raw){const v=JSON.parse(raw);if(v&&typeof v==='object')candidates.push(v);}}catch(e){}});
@@ -4096,6 +4136,7 @@
       localStorage.setItem('f11_live_scoreboard',raw);
       localStorage.setItem(F11_LIVE_BACKUP_KEY,raw);
       localStorage.setItem(F11_LIVE_PERSISTENT_KEY,raw);
+      try{f11IDBPutLive(JSON.parse(raw));}catch(e){}
     }
     function saveSB(){scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);persistLiveScoreboardRaw(raw);}
     let scoreboardLeaveCheckpointed=false;
@@ -4310,7 +4351,7 @@ function openStartMatchModal(){const m=document.getElementById('modal-start-matc
 function closeStartMatchModal(){const m=document.getElementById('modal-start-match');m.classList.add('hidden');m.classList.remove('flex');}
 function selectedTeamSnapshot(id){const t=getSelectedScoreTeam(id);return t?{id:t.id,name:t.name,logo:t.logo,players:JSON.parse(JSON.stringify(t.players||[])),bench:JSON.parse(JSON.stringify(t.bench||[]))}:null;}
 function startNewMatch(){const h=document.getElementById('start-home-team').value,a=document.getElementById('start-away-team').value;if(!h||!a)return alert('Selecciona el equipo local y el visitante.');if(h===a)return alert('El local y el visitante no pueden ser el mismo equipo.');const ht=selectedTeamSnapshot(h),at=selectedTeamSnapshot(a);if(!ht||!at)return alert('No se pudieron cargar los equipos.');
-  scoreboard=normalizeScoreboard({homeTeamId:ht.id,awayTeamId:at.id,homeLogo:ht.logo,awayLogo:at.logo,homeName:ht.name,awayName:at.name,homeScore:0,awayScore:0,half:1,elapsed:0,running:true,lastStartedAt:Date.now(),matchStatus:'first',part1Elapsed:0,part2Elapsed:0,startedAt:Date.now(),finishedAt:null,homeXI:ht.players,awayXI:at.players,homeBench:ht.bench,awayBench:at.bench,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],editingSavedId:null});saveSB();if(f11CloudUser&&f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11QueueCloudSave(50);}closeStartMatchModal();renderMatchWorkflow();renderSB();}
+  scoreboard=normalizeScoreboard({homeTeamId:ht.id,awayTeamId:at.id,homeLogo:ht.logo,awayLogo:at.logo,homeName:ht.name,awayName:at.name,homeScore:0,awayScore:0,half:1,elapsed:0,running:true,lastStartedAt:Date.now(),matchStatus:'first',part1Elapsed:0,part2Elapsed:0,startedAt:Date.now(),finishedAt:null,homeXI:ht.players,awayXI:at.players,goals:[],substitutions:[],yellowCards:[],doubleYellowCards:[],redCards:[],annotations:[],editingSavedId:null});saveSB();f11IDBPutLive(scoreboard);if(f11CloudUser&&f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11QueueCloudSave(50);}closeStartMatchModal();renderMatchWorkflow();renderSB();}
 function workflowPhaseButton(id,text,cls,handler){const b=document.createElement('button');b.id=id;b.className=cls+' text-xs font-bold px-4 py-2 rounded-lg';b.textContent=text;b.onclick=handler;return b;}
 function showAllLiveChildren(){const live=document.getElementById('scoreboard-live-content');live.querySelectorAll(':scope > *').forEach(el=>el.classList.remove('hidden'));}
 function showSavedBrowser(){const lobby=document.getElementById('scoreboard-lobby'),live=document.getElementById('scoreboard-live-content'),panel=document.getElementById('saved-scoreboards-panel');lobby.classList.add('hidden');live.classList.remove('hidden');live.querySelectorAll(':scope > *').forEach(el=>el.classList.add('hidden'));panel.classList.remove('hidden');renderSaved();}
