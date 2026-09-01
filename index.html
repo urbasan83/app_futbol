@@ -1228,7 +1228,7 @@
 
     async function f11SaveCloudState(force = false) {
       if (!f11CloudUser || !f11CloudReady) return;
-      if (f11CloudSaveInFlight) { if (force) { f11CloudDirty = true; } return; }
+      if (f11CloudSaveInFlight) { f11CloudDirty = true; if (force) f11CloudDirtyKeys.add('f11_live_scoreboard'); return; }
 
       // Si no hay cambios locales, una sincronización manual solo comprueba la nube.
       if (!force && !f11CloudDirty) return;
@@ -1345,6 +1345,19 @@
       f11CloudTimer = setTimeout(() => f11SaveCloudState(), delay);
     }
 
+
+    async function f11ForceLiveMatchCloudSync(){
+      try{
+        if(!f11CloudUser||!f11CloudReady)return;
+        const live=readBestLocalLiveScoreboard();
+        const active=new Set(['first','halftime','second','secondEnded']);
+        if(!live||!active.has(live.matchStatus))return;
+        localStorage.setItem('f11_live_scoreboard',JSON.stringify(live));
+        f11CloudDirty=true;
+        f11CloudDirtyKeys.add('f11_live_scoreboard');
+        await f11SaveCloudState(true);
+      }catch(e){console.warn('No se pudo sincronizar el partido activo recuperado',e);}
+    }
     function f11SetAuthMessage(message) {
       const el = document.getElementById('cloud-auth-message');
       if (el) el.textContent = message || '';
@@ -1486,6 +1499,9 @@
         f11CloudUpdatedAt = data.updated_at || null;
         f11CloudReady = true;
         f11StartCloudPolling();
+        // Si había un partido activo recuperado localmente, súbelo ahora que la sesión
+        // de Supabase ya está disponible. Esto evita perderlo al cerrar/reabrir la app.
+        await f11ForceLiveMatchCloudSync();
         if (cleanedRemote.changed || localLiveIsNewer) {
           f11CloudDirty = true;
           if (localLiveIsNewer) f11CloudDirtyKeys.add('f11_live_scoreboard');
@@ -4146,7 +4162,19 @@
       localStorage.setItem(F11_LIVE_PERSISTENT_KEY,raw);
       try{f11IDBPutLive(JSON.parse(raw));}catch(e){}
     }
-    function saveSB(){scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);persistLiveScoreboardRaw(raw);}
+    function saveSB(){
+      scoreboard.updatedAt=Date.now();
+      const raw=JSON.stringify(scoreboard);
+      persistLiveScoreboardRaw(raw);
+      // Un partido en curso es un dato crítico: no esperamos al debounce general.
+      // Se marca explícitamente para nube y se inicia una subida inmediata si es posible.
+      if(f11CloudUser&&f11CloudReady&&scoreboard.matchStatus&&scoreboard.matchStatus!=='lobby'&&scoreboard.matchStatus!=='finished'){
+        f11CloudDirty=true;
+        f11CloudDirtyKeys.add('f11_live_scoreboard');
+        clearTimeout(f11CloudTimer);
+        f11SaveCloudState(true).catch(e=>console.warn('Error guardando partido en nube',e));
+      }
+    }
     let scoreboardLeaveCheckpointed=false;
     function persistScoreboardBeforeLeaving(){
       try{
@@ -4156,7 +4184,13 @@
         persistLiveScoreboardRaw(JSON.stringify(scoreboard));
         // La petición cloud normal puede no terminar durante unload; dejamos la
         // copia local preparada para que el siguiente arranque la sincronice.
-        if(f11CloudUser && f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');}
+        if(f11CloudUser && f11CloudReady){
+          f11CloudDirty=true;
+          f11CloudDirtyKeys.add('f11_live_scoreboard');
+          // Intento inmediato de subida. Si el navegador corta la ejecución al cerrar,
+          // el siguiente arranque recuperará la copia local y volverá a sincronizarla.
+          f11SaveCloudState(true).catch(e=>console.warn('No se pudo subir el checkpoint al cerrar',e));
+        }
       }catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}
     }
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistScoreboardBeforeLeaving();else scoreboardLeaveCheckpointed=false;});
