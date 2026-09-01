@@ -1228,7 +1228,7 @@
 
     async function f11SaveCloudState(force = false) {
       if (!f11CloudUser || !f11CloudReady) return;
-      if (f11CloudSaveInFlight) return;
+      if (f11CloudSaveInFlight) { if (force) { setTimeout(()=>f11SaveCloudState(true), 250); } return; }
 
       // Si no hay cambios locales, una sincronización manual solo comprueba la nube.
       if (!force && !f11CloudDirty) return;
@@ -1450,8 +1450,6 @@
         f11SetAuthMessage('Error leyendo tus datos de la nube: ' + error.message);
         return;
       }
-
-      try { await f11RestoreLiveFromIDB(); } catch(e) { console.warn('No se pudo recuperar el partido persistente',e); }
 
       if (data && data.state && Object.keys(data.state).length > 0) {
         const cleanedRemote = f11CleanDemoDefaults(data.state);
@@ -4140,8 +4138,9 @@
       localStorage.setItem(F11_LIVE_PERSISTENT_KEY,raw);
       try{f11IDBPutLive(JSON.parse(raw));}catch(e){}
     }
-    function saveSB(){scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);persistLiveScoreboardRaw(raw);try{if(f11CloudUser&&f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11QueueCloudSave(0);}}catch(e){console.warn('No se pudo encolar la sincronizacion del marcador',e);}}
+    function saveSB(){scoreboard.updatedAt=Date.now();const raw=JSON.stringify(scoreboard);persistLiveScoreboardRaw(raw);if(f11CloudUser&&f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11QueueCloudSave(80);}}
     let scoreboardLeaveCheckpointed=false;
+    async function f11KeepaliveLiveCloudSave(){try{if(!f11CloudUser||!f11CloudReady)return;const session=(await f11Supabase.auth.getSession()).data?.session;if(!session?.access_token)return;const state=f11ReadLocalState();const url=SUPABASE_URL+'/rest/v1/user_app_state?on_conflict=user_id';fetch(url,{method:'POST',keepalive:true,headers:{'apikey':SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:f11CloudUser.id,state,updated_at:new Date().toISOString()})}).catch(()=>{});}catch(e){}}
     function persistScoreboardBeforeLeaving(){
       try{
         if(scoreboard.matchStatus==='lobby'||scoreboard.matchStatus==='finished')return;
@@ -4150,7 +4149,7 @@
         persistLiveScoreboardRaw(JSON.stringify(scoreboard));
         // La petición cloud normal puede no terminar durante unload; dejamos la
         // copia local preparada para que el siguiente arranque la sincronice.
-        if(f11CloudUser && f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');}
+        if(f11CloudUser && f11CloudReady){f11CloudDirty=true;f11CloudDirtyKeys.add('f11_live_scoreboard');f11KeepaliveLiveCloudSave();}
       }catch(e){console.error('No se pudo persistir el marcador antes de salir',e);}
     }
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistScoreboardBeforeLeaving();else scoreboardLeaveCheckpointed=false;});
@@ -4188,9 +4187,7 @@
       renderAnnotations();renderScoreStartingXIs();
     }
     function players(team){if(scoreboard&&scoreboard.matchStatus&&scoreboard.matchStatus!=='lobby'){const list=team==='home'?[...(scoreboard.homeXI||[]),...(scoreboard.homeBench||[])]:[...(scoreboard.awayXI||[]),...(scoreboard.awayBench||[])];const seen=new Set();return list.filter(p=>p&&p.id!=null&&!seen.has(String(p.id))&&seen.add(String(p.id))).map(p=>({num:p.num,name:p.name}));}if(team==='home')return squad.map(p=>({num:p.num,name:p.name}));const r=rivalTeams.find(x=>String(x.id)===String(selectedRivalId));return r&&Array.isArray(r.squad)?r.squad.map(p=>({num:p.num,name:p.name})):[];}
-    function matchXIPlayers(team){const list=team==='home'?(scoreboard.homeXI||[]):(scoreboard.awayXI||[]);return list.filter(p=>p&&p.id!=null).map(p=>({num:p.num,name:p.name}));}
-    function matchBenchPlayers(team){const list=team==='home'?(scoreboard.homeBench||[]):(scoreboard.awayBench||[]);return list.filter(p=>p&&p.id!=null).map(p=>({num:p.num,name:p.name}));}
-    function fillPlayers(){const team=se.st.value;const outList=(scoreboard&&scoreboard.matchStatus&&scoreboard.matchStatus!=='lobby'&&scoreboard.matchStatus!=='finished')?matchXIPlayers(team):players(team);const inList=(scoreboard&&scoreboard.matchStatus&&scoreboard.matchStatus!=='lobby'&&scoreboard.matchStatus!=='finished')?matchBenchPlayers(team):players(team);se.so.innerHTML='<option value="">— Jugador que sale —</option>'+outList.map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');se.si.innerHTML='<option value="">— Jugador que entra —</option>'+inList.map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');}
+    function fillPlayers(){const team=se.st.value;let outList=[],inList=[];if(matchIsActive()){outList=(team==='home'?scoreboard.homeXI:scoreboard.awayXI)||[];inList=(team==='home'?scoreboard.homeBench:scoreboard.awayBench)||[];}else{outList=players(team);inList=players(team);}const normalizeList=list=>list.filter(p=>p).map(p=>({id:p.id,num:p.num,name:p.name}));outList=normalizeList(outList);inList=normalizeList(inList);se.so.innerHTML='<option value="">— Jugador que sale —</option>'+outList.map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');se.si.innerHTML='<option value="">— Jugador que entra —</option>'+inList.map(p=>`<option value="${esc(p.name)}">${esc(p.num)} — ${esc(p.name)}</option>`).join('');}
     function openGoal(id=null){const g=id?scoreboard.goals.find(x=>x.id===id):null,sec=g?g.minuteSeconds:absoluteTime();se.geid.value=g?g.id:'';document.getElementById('btn-delete-goal').classList.toggle('hidden',!g);se.gt.value=g?g.team:'home';se.gn.value=g?.number??'';se.gp.value=g?.player??'';se.gnote.value=g?.note??'';se.gm.value=eventMinute(sec);se.gml.textContent=eventMinute(sec);se.ge.classList.remove('hidden');}
     function openSub(id=null){const x=id?scoreboard.substitutions.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.seid.value=x?x.id:'';document.getElementById('btn-delete-sub').classList.toggle('hidden',!x);se.st.value=x?x.team:'home';fillPlayers();se.so.value=x?.out||'';se.si.value=x?.in||'';se.snote.value=x?.note??'';se.sm.value=eventMinute(sec);se.sml.textContent=eventMinute(sec);se.sue.classList.remove('hidden');}
     function openCard(type,id=null){let arr=type==='yellow'?scoreboard.yellowCards:type==='doubleYellow'?scoreboard.doubleYellowCards:scoreboard.redCards;const x=id?arr.find(y=>y.id===id):null,sec=x?x.minuteSeconds:absoluteTime();se.ceid.value=x?x.id:'';document.getElementById('btn-delete-card').classList.toggle('hidden',!x);se.ctype.value=type;se.ct.value=x?.team||'home';se.cn.value=x?.number??'';se.cp.value=x?.player??'';se.cnote.value=x?.note??'';se.cm.value=eventMinute(sec);se.cml.textContent=eventMinute(sec);se.ce.classList.remove('hidden');}
