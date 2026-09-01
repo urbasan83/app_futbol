@@ -696,7 +696,7 @@
               <select id="score-home-team-select" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg p-2"><option value="">Local: elegir equipo</option></select>
               <select id="score-away-team-select" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg p-2"><option value="">Visitante: elegir rival</option></select>
             </div>
-            <div class="flex flex-wrap gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button><button id="btn-capture-scoreboard" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg">📸 Captura</button><button id="btn-show-annotations" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📝 Anotaciones</button></div>
+            <div class="flex flex-wrap gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button><button id="btn-capture-scoreboard" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg">📸 Captura</button><button id="btn-close-live-scoreboard" class="hidden flex-1 sm:flex-none bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-2 rounded-lg border border-red-500/50">✖️ Cerrar marcador</button><button id="btn-show-annotations" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📝 Anotaciones</button></div>
           </div>
         </div>
         <!-- DISTRIBUCIÓN DEL MARCADOR: 11 + SUPLENTES A LOS LADOS Y MARCADOR PRINCIPAL EN EL CENTRO -->
@@ -1604,6 +1604,9 @@
     }
     async function f11IDBGetLive(){
       try{const db=await f11OpenLiveIDB();const v=await new Promise((resolve,reject)=>{const tx=db.transaction(F11_LIVE_IDB_STORE,'readonly');const req=tx.objectStore(F11_LIVE_IDB_STORE).get('current');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});db.close();return v;}catch(e){return null;}
+    }
+    async function f11IDBDeleteLive(){
+      try{const db=await f11OpenLiveIDB();await new Promise((resolve,reject)=>{const tx=db.transaction(F11_LIVE_IDB_STORE,'readwrite');tx.objectStore(F11_LIVE_IDB_STORE).delete('current');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('abort'));});db.close();}catch(e){console.warn('No se pudo limpiar el partido persistente',e);}
     }
     async function f11RestoreLiveFromIDB(){
       const v=await f11IDBGetLive();
@@ -4377,7 +4380,7 @@ function showAllLiveChildren(){const live=document.getElementById('scoreboard-li
 function showSavedBrowser(){const lobby=document.getElementById('scoreboard-lobby'),live=document.getElementById('scoreboard-live-content'),panel=document.getElementById('saved-scoreboards-panel');lobby.classList.add('hidden');live.classList.remove('hidden');live.querySelectorAll(':scope > *').forEach(el=>el.classList.add('hidden'));panel.classList.remove('hidden');renderSaved();}
 function renderMatchWorkflow(){const lobby=document.getElementById('scoreboard-lobby'),live=document.getElementById('scoreboard-live-content'),actions=document.getElementById('match-phase-actions'),phase=document.getElementById('match-phase-label'),resume=document.getElementById('scoreboard-resume-box'),info=document.getElementById('scoreboard-resume-info'),stop=document.getElementById('btn-clock-stop'),half=document.getElementById('match-half'),saveBtn=document.getElementById('btn-save-scoreboard'),restBtn=document.getElementById('btn-register-rest-sub');
   if(half)half.classList.add('hidden'); if(stop)stop.classList.add('hidden'); if(saveBtn)saveBtn.classList.add('hidden'); actions.innerHTML='';
-  const active=matchIsActive(); lobby.classList.toggle('hidden',active || scoreboard.matchStatus==='finished'); live.classList.toggle('hidden',!active && scoreboard.matchStatus!=='finished'); if(active || scoreboard.matchStatus==='finished')showAllLiveChildren();
+  const active=matchIsActive(); lobby.classList.toggle('hidden',active || scoreboard.matchStatus==='finished'); live.classList.toggle('hidden',!active && scoreboard.matchStatus!=='finished'); if(active || scoreboard.matchStatus==='finished')showAllLiveChildren(); document.getElementById('btn-close-live-scoreboard')?.classList.toggle('hidden',!active);
   if(scoreboard.matchStatus==='lobby'){resume.classList.add('hidden');return;}
   if(scoreboard.matchStatus==='finished'){live.classList.remove('hidden');lobby.classList.add('hidden');phase.textContent='Partido finalizado — edición';document.getElementById('clock-status').textContent='Partido finalizado';['btn-register-goal','btn-register-sub','btn-register-yellow','btn-register-double-yellow','btn-register-red','btn-show-annotations'].forEach(id=>document.getElementById(id)?.classList.remove('hidden'));if(restBtn)restBtn.classList.add('hidden');const b=workflowPhaseButton('btn-save-final-edit','💾 Guardar cambios','bg-emerald-600 hover:bg-emerald-500 text-white',saveEditedSavedMatch);actions.appendChild(b);return;}
   phase.textContent=currentPhaseLabel();
@@ -4403,10 +4406,36 @@ function finishSecondHalf(){if(scoreboard.matchStatus!=='second')return;freezeEl
 function savedMatchPayload(){const copy=JSON.parse(JSON.stringify(scoreboard));copy.running=false;copy.lastStartedAt=null;copy.updatedAt=Date.now();return copy;}
 function finalizeMatch(){if(scoreboard.matchStatus!=='secondEnded')return;const name=prompt('Nombre para este partido:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;scoreboard.finishedAt=Date.now();scoreboard.matchStatus='finished';scoreboard.matchName=name.trim();scoreboard.date=new Date().toISOString().split('T')[0];const payload=savedMatchPayload();payload.name=scoreboard.matchName;payload.date=scoreboard.date;if(scoreboard.editingSavedId){const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i>=0)savedScoreboards[i]={...savedScoreboards[i],...payload};else savedScoreboards.unshift({id:scoreboard.editingSavedId,...payload});}else savedScoreboards.unshift({id:Date.now(),...payload});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));saveSB();renderMatchWorkflow();renderSB();renderSaved();renderPartidosScoreboards();alert('¡Partido guardado!');}
 function saveEditedSavedMatch(){if(!scoreboard.editingSavedId)return;const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i<0)return;const payload=savedMatchPayload();payload.name=scoreboard.matchName||savedScoreboards[i].name;payload.date=scoreboard.date||savedScoreboards[i].date;savedScoreboards[i]={...savedScoreboards[i],...payload};localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();renderPartidosScoreboards();alert('Cambios guardados.');}
+async function closeLiveScoreboard(){
+  if(!matchIsActive())return;
+  if(!confirm('¿Cerrar el marcador actual?\n\nSe guardará el partido tal y como está ahora en «Partidos Guardados» y podrás abrirlo y editarlo después. Después podrás empezar un partido nuevo.'))return;
+  try{
+    f11StopLivePersistence();
+    if(scoreboard.running){scoreboard.elapsed=elapsed();scoreboard.lastStartedAt=null;scoreboard.running=false;}
+    scoreboard.updatedAt=Date.now();
+    const payload=savedMatchPayload();
+    payload.name=scoreboard.matchName||(`${scoreboard.homeName||'Local'} - ${scoreboard.awayName||'Visitante'}`);
+    payload.date=scoreboard.date||new Date(scoreboard.startedAt||Date.now()).toISOString().split('T')[0];
+    payload.closedWithoutFinalizing=true;
+    if(scoreboard.editingSavedId){
+      const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);
+      if(i>=0)savedScoreboards[i]={...savedScoreboards[i],...payload};
+      else savedScoreboards.unshift({id:scoreboard.editingSavedId,...payload});
+    }else savedScoreboards.unshift({id:Date.now(),...payload});
+    localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));
+    localStorage.removeItem('f11_live_scoreboard');
+    localStorage.removeItem(F11_LIVE_BACKUP_KEY);
+    localStorage.removeItem(F11_LIVE_PERSISTENT_KEY);
+    await f11IDBDeleteLive();
+    scoreboard=normalizeScoreboard({matchStatus:'lobby'});
+    renderMatchWorkflow();renderSB();renderSaved();renderPartidosScoreboards();
+    if(f11CloudUser&&f11CloudReady)f11QueueCloudSave(50);
+  }catch(e){console.error('No se pudo cerrar el marcador',e);alert('No se pudo cerrar el marcador correctamente. El partido actual sigue disponible.');}
+}
 function openRestSub(){if(scoreboard.matchStatus!=='halftime')return;openSub();se.sm.value='45:00';se.sml.textContent='45:00';}
 function resumeCurrentMatch(){if(!matchIsActive())return;renderMatchWorkflow();renderSB();}
 function openSavedMatchForEdit(id){const x=savedScoreboards.find(y=>y.id===id);if(!x)return;scoreboard=normalizeScoreboard({...x,matchStatus:'finished',running:false,lastStartedAt:null,editingSavedId:x.id});saveSB();renderMatchWorkflow();renderSB();se.savedPanel.classList.add('hidden');switchView('marcador');}
-function setupMatchWorkflow(){if(matchWorkflowReady)return;matchWorkflowReady=true;document.getElementById('btn-start-match')?.addEventListener('click',openStartMatchModal);document.getElementById('btn-load-match-lobby')?.addEventListener('click',showSavedBrowser);document.getElementById('btn-cancel-start-match')?.addEventListener('click',closeStartMatchModal);document.getElementById('btn-confirm-start-match')?.addEventListener('click',startNewMatch);document.getElementById('btn-resume-match')?.addEventListener('click',resumeCurrentMatch);document.getElementById('btn-clock-pause')?.addEventListener('click',()=>{if(!matchIsActive()||!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderMatchWorkflow();renderClock();});document.getElementById('btn-clock-resume')?.addEventListener('click',()=>{if(!matchIsActive()||scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderMatchWorkflow();renderClock();});document.getElementById('btn-register-rest-sub')?.addEventListener('click',openRestSub);renderMatchWorkflow();}
+function setupMatchWorkflow(){if(matchWorkflowReady)return;matchWorkflowReady=true;document.getElementById('btn-start-match')?.addEventListener('click',openStartMatchModal);document.getElementById('btn-load-match-lobby')?.addEventListener('click',showSavedBrowser);document.getElementById('btn-cancel-start-match')?.addEventListener('click',closeStartMatchModal);document.getElementById('btn-confirm-start-match')?.addEventListener('click',startNewMatch);document.getElementById('btn-resume-match')?.addEventListener('click',resumeCurrentMatch);document.getElementById('btn-close-live-scoreboard')?.addEventListener('click',closeLiveScoreboard);document.getElementById('btn-clock-pause')?.addEventListener('click',()=>{if(!matchIsActive()||!scoreboard.running)return;scoreboard.elapsed=elapsed();scoreboard.running=false;scoreboard.lastStartedAt=null;saveSB();renderMatchWorkflow();renderClock();});document.getElementById('btn-clock-resume')?.addEventListener('click',()=>{if(!matchIsActive()||scoreboard.running)return;scoreboard.lastStartedAt=Date.now();scoreboard.running=true;saveSB();renderMatchWorkflow();renderClock();});document.getElementById('btn-register-rest-sub')?.addEventListener('click',openRestSub);renderMatchWorkflow();}
 // Los registros antiguos se consideran datos cargados, no un partido nuevo.
 function initWorkflowOnScoreboard(){scoreboard=normalizeScoreboard(scoreboard);if(!scoreboard.matchStatus)scoreboard.matchStatus='lobby';setupMatchWorkflow();}
 // Sobrescribimos la carga de marcadores para que abra un partido editable.
