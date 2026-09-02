@@ -2676,6 +2676,12 @@
       }
     });
 
+    function tacticsSvgData(svg) {
+      // Convierte el SVG vectorial del campo en una fuente que Image puede cargar
+      // de forma fiable tanto en escritorio como en móvil.
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
     function loadImageSafe(dataUrl) {
       return new Promise((resolve) => {
         if (!dataUrl) { resolve(null); return; }
