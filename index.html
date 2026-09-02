@@ -4409,28 +4409,15 @@ function finalizeMatch(){if(scoreboard.matchStatus!=='secondEnded')return;const 
 function saveEditedSavedMatch(){if(!scoreboard.editingSavedId)return;const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i<0)return;const payload=savedMatchPayload();payload.name=scoreboard.matchName||savedScoreboards[i].name;payload.date=scoreboard.date||savedScoreboards[i].date;savedScoreboards[i]={...savedScoreboards[i],...payload};localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();renderPartidosScoreboards();alert('Cambios guardados.');}
 function closeLiveScoreboard(){
   if(!matchIsActive() && scoreboard.matchStatus!=='finished'){alert('No hay un partido activo para cerrar.');return;}
-  if(!confirm('¿Cerrar el marcador actual?\n\nSe guardará el partido tal y como está ahora en «Partidos Guardados» y podrás abrirlo y editarlo después. Después podrás empezar un partido nuevo.'))return;
+  if(!confirm('¿Cerrar el marcador actual?\n\nEl partido NO se guardará en «Partidos Guardados». Si quieres conservarlo, debes pulsar «Terminar partido» antes de cerrar.'))return;
   try{
     f11StopLivePersistence();
-    if(scoreboard.running){scoreboard.elapsed=elapsed();scoreboard.lastStartedAt=null;scoreboard.running=false;}
-    scoreboard.updatedAt=Date.now();
-    const payload=savedMatchPayload();
-    payload.name=scoreboard.matchName||(`${scoreboard.homeName||'Local'} - ${scoreboard.awayName||'Visitante'}`);
-    payload.date=scoreboard.date||new Date(scoreboard.startedAt||Date.now()).toISOString().split('T')[0];
-    payload.closedWithoutFinalizing=true;
-    if(scoreboard.editingSavedId){
-      const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);
-      if(i>=0)savedScoreboards[i]={...savedScoreboards[i],...payload};
-      else savedScoreboards.unshift({id:scoreboard.editingSavedId,...payload});
-    }else savedScoreboards.unshift({id:Date.now(),...payload});
-    localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));
     localStorage.removeItem('f11_live_scoreboard');
     localStorage.removeItem(F11_LIVE_BACKUP_KEY);
     localStorage.removeItem(F11_LIVE_PERSISTENT_KEY);
     f11IDBDeleteLive();
     scoreboard=normalizeScoreboard({matchStatus:'lobby'});
     renderMatchWorkflow();renderSB();renderSaved();renderPartidosScoreboards();
-    if(f11CloudUser&&f11CloudReady)f11QueueCloudSave(50);
   }catch(e){console.error('No se pudo cerrar el marcador',e);alert('No se pudo cerrar el marcador correctamente. El partido actual sigue disponible.');}
 }
 window.closeLiveScoreboard=closeLiveScoreboard;
