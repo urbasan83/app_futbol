@@ -2282,15 +2282,63 @@
       document.querySelectorAll('#tactics-pitch .tactics-text-prop').forEach(el=>{el.style.fontSize=(Number(el.dataset.baseSize||24))+'px';});
     }
 
-    function tacticsSvgData(svg){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);}
     function getTacticsFieldSvg(type){
-      // El Campo Entero reproduce exactamente el diseño del campo de 11 Inicial.
-      const fullField = `<rect width="100" height="100" fill="#047857"/><g fill="none" stroke="white" stroke-width="0.8"><rect x="1" y="1" width="98" height="98"/><line x1="1" y1="50" x2="99" y2="50"/><circle cx="50" cy="50" r="15"/><circle cx="50" cy="50" r="1.5" fill="white"/><rect x="20" y="1" width="60" height="16"/><rect x="35" y="1" width="30" height="6"/><circle cx="50" cy="11" r="1.5" fill="white"/><rect x="20" y="83" width="60" height="16"/><rect x="35" y="93" width="30" height="6"/><circle cx="50" cy="89" r="1.5" fill="white"/></g>`;
-      if(type==='white') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${fullField.replace('#047857','#ffffff').replaceAll('stroke="white"','stroke="#111111"').replaceAll('fill="white"','fill="#111111"')}</svg>`;
-      if(type==='top') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none">${fullField}</svg>`;
-      if(type==='bottom') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 50 100 50" preserveAspectRatio="none">${fullField}</svg>`;
-      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${fullField}</svg>`;
+      const green = '#047857';
+      const white = '#ffffff';
+      const black = '#111111';
+      const line = type === 'white' ? black : white;
+      const grass = type === 'white' ? white : green;
+      const stroke = `stroke="${line}"`;
+      const fill = `fill="${line}"`;
+
+      // Campos predefinidos dibujados íntegramente como vectores: no se usa ninguna imagen rasterizada.
+      const full = `
+        <rect width="100" height="100" fill="${grass}"/>
+        <g fill="none" ${stroke} stroke-width="0.8">
+          <rect x="1" y="1" width="98" height="98"/>
+          <line x1="1" y1="50" x2="99" y2="50"/>
+          <circle cx="50" cy="50" r="15"/>
+          <circle cx="50" cy="50" r="1.5" fill="${line}"/>
+          <rect x="20" y="1" width="60" height="16"/>
+          <rect x="35" y="1" width="30" height="6"/>
+          <circle cx="50" cy="11" r="1.5" fill="${line}"/>
+          <path d="M35 17 A15 15 0 0 0 65 17"/>
+          <rect x="20" y="83" width="60" height="16"/>
+          <rect x="35" y="93" width="30" height="6"/>
+          <circle cx="50" cy="89" r="1.5" fill="${line}"/>
+          <path d="M35 83 A15 15 0 0 1 65 83"/>
+        </g>`;
+
+      const halfTop = `
+        <rect width="100" height="100" fill="${grass}"/>
+        <g fill="none" ${stroke} stroke-width="0.8">
+          <rect x="1" y="1" width="98" height="98"/>
+          <line x1="1" y1="99" x2="99" y2="99"/>
+          <rect x="20" y="1" width="60" height="16"/>
+          <rect x="35" y="1" width="30" height="6"/>
+          <circle cx="50" cy="11" r="1.5" fill="${line}"/>
+          <path d="M35 17 A15 15 0 0 0 65 17"/>
+          <path d="M35 99 A15 15 0 0 1 65 99"/>
+        </g>`;
+
+      const halfBottom = `
+        <rect width="100" height="100" fill="${grass}"/>
+        <g fill="none" ${stroke} stroke-width="0.8">
+          <rect x="1" y="1" width="98" height="98"/>
+          <line x1="1" y1="1" x2="99" y2="1"/>
+          <rect x="20" y="83" width="60" height="16"/>
+          <rect x="35" y="93" width="30" height="6"/>
+          <circle cx="50" cy="89" r="1.5" fill="${line}"/>
+          <path d="M35 83 A15 15 0 0 1 65 83"/>
+          <path d="M35 1 A15 15 0 0 0 65 1"/>
+        </g>`;
+
+      let body = full;
+      if(type === 'top') body = halfTop;
+      else if(type === 'bottom') body = halfBottom;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">${body}</svg>`;
     }
+
     function applyTacticsFieldBackground(){
       const layer=document.getElementById('tactics-bg-layer'), sel=document.getElementById('tactics-field-background');
       if(!layer)return;
@@ -2298,8 +2346,21 @@
       if(type==='current' || type==='vertical') type='full';
       tacticsFieldBackground.type=type;
       if(sel)sel.value=type;
-      if(type==='custom' && tacticsFieldBackground.image){layer.style.backgroundImage=`url("${tacticsFieldBackground.image}")`;layer.style.backgroundColor='#047857';layer.style.backgroundSize='cover';}
-      else {layer.style.backgroundImage=`url("${tacticsSvgData(getTacticsFieldSvg(type))}")`;layer.style.backgroundSize='100% 100%';layer.style.backgroundColor=type==='white'?'#fff':'#047857';}
+
+      // Los cuatro fondos predefinidos se construyen directamente en el DOM como SVG vectorial.
+      // No se estira ninguna imagen rasterizada y las líneas permanecen nítidas a cualquier resolución.
+      if(type==='custom' && tacticsFieldBackground.image){
+        layer.innerHTML='';
+        layer.style.backgroundImage=`url("${tacticsFieldBackground.image}")`;
+        layer.style.backgroundColor='#047857';
+        layer.style.backgroundSize='cover';
+      }else{
+        layer.style.backgroundImage='none';
+        layer.style.backgroundColor=type==='white'?'#ffffff':'#047857';
+        layer.innerHTML=getTacticsFieldSvg(type);
+        const svg=layer.firstElementChild;
+        if(svg){svg.style.display='block';svg.style.width='100%';svg.style.height='100%';}
+      }
     }
     function initTacticsFieldBackgroundControls(){
       const sel=document.getElementById('tactics-field-background'), input=document.getElementById('tactics-field-background-input'), upload=document.getElementById('btn-upload-tactics-field');
