@@ -696,7 +696,7 @@
               <select id="score-home-team-select" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg p-2"><option value="">Local: elegir equipo</option></select>
               <select id="score-away-team-select" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg p-2"><option value="">Visitante: elegir rival</option></select>
             </div>
-            <div class="flex flex-wrap gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button><button id="btn-capture-scoreboard" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg">📸 Captura</button><button id="btn-close-live-scoreboard" class="flex-1 sm:flex-none bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg border-2 border-red-400 shadow-lg">✖️ CERRAR MARCADOR</button><button id="btn-show-annotations" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📝 Anotaciones</button></div>
+            <div class="flex flex-wrap gap-2"><button id="btn-save-scoreboard" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg">💾 Guardar marcador</button><button id="btn-load-scoreboard" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📂 Cargar marcador</button><button id="btn-capture-scoreboard" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg">📸 Captura</button><button id="btn-close-live-scoreboard" type="button" onclick="window.closeLiveScoreboard && window.closeLiveScoreboard(); return false;" class="flex-1 sm:flex-none bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg border-2 border-red-400 shadow-lg">✖️ CERRAR MARCADOR</button><button id="btn-show-annotations" class="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-600">📝 Anotaciones</button></div>
           </div>
         </div>
         <!-- DISTRIBUCIÓN DEL MARCADOR: 11 + SUPLENTES A LOS LADOS Y MARCADOR PRINCIPAL EN EL CENTRO -->
@@ -4406,7 +4406,7 @@ function finishSecondHalf(){if(scoreboard.matchStatus!=='second')return;freezeEl
 function savedMatchPayload(){const copy=JSON.parse(JSON.stringify(scoreboard));copy.running=false;copy.lastStartedAt=null;copy.updatedAt=Date.now();return copy;}
 function finalizeMatch(){if(scoreboard.matchStatus!=='secondEnded')return;const name=prompt('Nombre para este partido:',`${scoreboard.homeName} - ${scoreboard.awayName}`);if(!name)return;scoreboard.finishedAt=Date.now();scoreboard.matchStatus='finished';scoreboard.matchName=name.trim();scoreboard.date=new Date().toISOString().split('T')[0];const payload=savedMatchPayload();payload.name=scoreboard.matchName;payload.date=scoreboard.date;if(scoreboard.editingSavedId){const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i>=0)savedScoreboards[i]={...savedScoreboards[i],...payload};else savedScoreboards.unshift({id:scoreboard.editingSavedId,...payload});}else savedScoreboards.unshift({id:Date.now(),...payload});localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));saveSB();renderMatchWorkflow();renderSB();renderSaved();renderPartidosScoreboards();alert('¡Partido guardado!');}
 function saveEditedSavedMatch(){if(!scoreboard.editingSavedId)return;const i=savedScoreboards.findIndex(x=>x.id===scoreboard.editingSavedId);if(i<0)return;const payload=savedMatchPayload();payload.name=scoreboard.matchName||savedScoreboards[i].name;payload.date=scoreboard.date||savedScoreboards[i].date;savedScoreboards[i]={...savedScoreboards[i],...payload};localStorage.setItem('f11_scoreboards',JSON.stringify(savedScoreboards));renderSaved();renderPartidosScoreboards();alert('Cambios guardados.');}
-async function closeLiveScoreboard(){
+function closeLiveScoreboard(){
   if(!matchIsActive() && scoreboard.matchStatus!=='finished'){alert('No hay un partido activo para cerrar.');return;}
   if(!confirm('¿Cerrar el marcador actual?\n\nSe guardará el partido tal y como está ahora en «Partidos Guardados» y podrás abrirlo y editarlo después. Después podrás empezar un partido nuevo.'))return;
   try{
@@ -4426,12 +4426,13 @@ async function closeLiveScoreboard(){
     localStorage.removeItem('f11_live_scoreboard');
     localStorage.removeItem(F11_LIVE_BACKUP_KEY);
     localStorage.removeItem(F11_LIVE_PERSISTENT_KEY);
-    await f11IDBDeleteLive();
+    f11IDBDeleteLive();
     scoreboard=normalizeScoreboard({matchStatus:'lobby'});
     renderMatchWorkflow();renderSB();renderSaved();renderPartidosScoreboards();
     if(f11CloudUser&&f11CloudReady)f11QueueCloudSave(50);
   }catch(e){console.error('No se pudo cerrar el marcador',e);alert('No se pudo cerrar el marcador correctamente. El partido actual sigue disponible.');}
 }
+window.closeLiveScoreboard=closeLiveScoreboard;
 function openRestSub(){if(scoreboard.matchStatus!=='halftime')return;openSub();se.sm.value='45:00';se.sml.textContent='45:00';}
 function resumeCurrentMatch(){if(!matchIsActive())return;renderMatchWorkflow();renderSB();}
 function openSavedMatchForEdit(id){const x=savedScoreboards.find(y=>y.id===id);if(!x)return;scoreboard=normalizeScoreboard({...x,matchStatus:'finished',running:false,lastStartedAt:null,editingSavedId:x.id});saveSB();renderMatchWorkflow();renderSB();se.savedPanel.classList.add('hidden');switchView('marcador');}
