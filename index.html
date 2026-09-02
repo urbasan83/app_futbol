@@ -156,6 +156,78 @@
   /* Tácticas: las zonas laterales pertenecen solo a esta pizarra. */
   #sec-tacticas { overflow: visible !important; }
   #sec-tacticas > .flex-1, #sec-tacticas .relative.flex.items-center.justify-center { overflow: visible !important; }
+
+<style id="tactics-mobile-toolbar">
+  /* En móvil, la pizarra ocupa todo el ancho y las herramientas se despliegan desde arriba. */
+  #tactics-mobile-toolbar-toggle { display:none; }
+  @media (max-width: 639px) {
+    #sec-tacticas { position:relative; padding:0 !important; overflow:hidden !important; }
+    #sec-tacticas > .flex-1 {
+      display:block !important;
+      position:relative;
+      width:100%;
+      height:100%;
+      overflow:hidden !important;
+    }
+    #sec-tacticas > .flex-1 > div:first-child {
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden !important;
+    }
+    #tactics-pitch {
+      width:100% !important;
+      max-width:none !important;
+      height:100% !important;
+      border-radius:0 !important;
+      border-width:0 !important;
+    }
+    #tactics-mobile-toolbar-toggle {
+      display:flex;
+      position:absolute;
+      top:6px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:60;
+      width:42px;
+      height:30px;
+      align-items:center;
+      justify-content:center;
+      border-radius:0 0 10px 10px;
+      background:rgba(15,23,42,.92);
+      border:1px solid rgba(71,85,105,.95);
+      color:white;
+      font-size:18px;
+      line-height:1;
+      box-shadow:0 4px 12px rgba(0,0,0,.3);
+      touch-action:manipulation;
+    }
+    #tactics-mobile-toolbar-toggle.open {
+      top:0;
+      border-radius:0 0 10px 10px;
+    }
+    #tactics-mobile-toolbar-panel {
+      display:none !important;
+      position:absolute !important;
+      top:0;
+      left:0;
+      right:0;
+      z-index:50;
+      max-height:72vh;
+      height:auto !important;
+      width:100% !important;
+      border-radius:0 0 14px 14px !important;
+      overflow-y:auto !important;
+      background:rgba(30,41,59,.98);
+      box-shadow:0 8px 24px rgba(0,0,0,.45);
+      padding-top:38px !important;
+    }
+    #tactics-mobile-toolbar-panel.mobile-open { display:flex !important; }
+    #tactics-mobile-toolbar-panel > div:first-child { position:absolute; top:0; left:0; right:0; }
+  }
+</style>
 </style>
 </head>
 <body class="bg-slate-900 text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
@@ -335,6 +407,7 @@
 
     <!-- SECCIÓN 2: TÁCTICAS (MEDIO CAMPO + HERRAMIENTAS Y GUARDADO) -->
     <section id="sec-tacticas" class="flex-1 hidden flex flex-col h-full overflow-hidden p-2">
+      <button id="tactics-mobile-toolbar-toggle" type="button" aria-expanded="false" aria-label="Abrir herramientas de tácticas">⌄</button>
       <div class="flex-1 flex gap-2 overflow-visible min-h-0 relative">
         <!-- Media Cancha -->
         <div class="flex-1 relative flex items-center justify-center overflow-visible h-full">
@@ -345,7 +418,7 @@
         </div>
 
         <!-- Panel Lateral Desplegable de Herramientas + Guardado -->
-        <div class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
+        <div id="tactics-mobile-toolbar-panel" class="w-20 sm:w-60 bg-slate-800 p-2 rounded-xl border border-slate-700 flex flex-col flex-shrink-0 h-full shadow-md z-20 overflow-y-auto">
           <div class="flex items-center justify-between text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 border-b border-slate-700 pb-2">
             <span>🛠️ Herramientas</span>
             <button id="btn-select-tactics" type="button" class="bg-slate-900 border border-slate-600 text-white text-[10px] rounded-lg px-2 py-1" title="Seleccionar varios jugadores">▱ Seleccionar</button>
@@ -2276,6 +2349,21 @@
     let tacticsFieldBackground = JSON.parse(localStorage.getItem('f11_tactics_field_background')) || {type:'full',image:''};
     function saveTacticsDisplaySettings(){localStorage.setItem('f11_tactics_display_settings',JSON.stringify(tacticsDisplaySettings));}
     function tacticsPropScale(type){return Number(tacticsDisplaySettings.props?.[type]||1);}
+    function initTacticsMobileToolbar(){
+      const toggle=document.getElementById('tactics-mobile-toolbar-toggle');
+      const panel=document.getElementById('tactics-mobile-toolbar-panel');
+      if(!toggle||!panel||toggle.dataset.bound)return;
+      toggle.dataset.bound='1';
+      toggle.addEventListener('click',()=>{
+        const open=panel.classList.toggle('mobile-open');
+        toggle.classList.toggle('open',open);
+        toggle.innerHTML=open?'⌃':'⌄';
+        toggle.setAttribute('aria-expanded',open?'true':'false');
+        toggle.setAttribute('aria-label',open?'Cerrar herramientas de tácticas':'Abrir herramientas de tácticas');
+      });
+    }
+    initTacticsMobileToolbar();
+
     function applyTacticsSizes(){
       document.querySelectorAll('#tactics-pitch .tactics-token').forEach(el=>{const scale=Number(tacticsDisplaySettings.playerScale||1);el.style.width=(42*scale)+'px';el.style.height=(42*scale)+'px';});
       document.querySelectorAll('#tactics-pitch .tactics-prop').forEach(el=>{const type=el.dataset.type||'ball';const scale=tacticsPropScale(type);el.style.fontSize=(20*scale)+'px';});
