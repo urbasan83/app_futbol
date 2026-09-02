@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pizarra Táctica F11</title>
+  <title>11 Inicial F11</title>
   
   <!-- Enlace al Manifest de la PWA -->
   <link rel="manifest" href="manifest.json">
@@ -107,12 +107,12 @@
     }
 
 <style id="tactics-no-duplicate-field-lines">
-  /* Tácticas Balón Parado: el fondo seleccionado ya contiene sus propias líneas.
+  /* Tácticas: el fondo seleccionado ya contiene sus propias líneas.
      Ocultamos la capa SVG adicional para evitar que las marcas del campo se superpongan. */
   #tactics-pitch > svg { display: none !important; }
 </style>
 <style id="tactics-thin-player-border">
-  /* Tácticas Balón Parado: borde fino negro para jugadores */
+  /* Tácticas: borde fino negro para jugadores */
   #tactics-pitch .tactics-token {
     border: 1.5px solid #000 !important;
   }
@@ -153,7 +153,7 @@
 </style>
 
 <style id="tactics-text-side-zones">
-  /* Tácticas Balón Parado: las zonas laterales pertenecen solo a esta pizarra. */
+  /* Tácticas: las zonas laterales pertenecen solo a esta pizarra. */
   #sec-tacticas { overflow: visible !important; }
   #sec-tacticas > .flex-1, #sec-tacticas .relative.flex.items-center.justify-center { overflow: visible !important; }
 </style>
@@ -169,7 +169,7 @@
         </svg>
       </button>
       <h1 id="header-title" class="text-base font-bold text-emerald-400 flex items-center gap-2">
-        ⚽ Pizarra Táctica
+        ⚽ 11 Inicial
       </h1>
     </div>
     <div id="header-actions" class="flex gap-2">
@@ -206,26 +206,26 @@
       </button>
     </div>
     <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
-      <button id="nav-pizarra" class="w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition">
-        📋 Pizarra Táctica
+      <button id="nav-plantilla" class="w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition">
+        👥 Mi Plantilla
+      </button>
+      <button id="nav-pizarra" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        📋 11 Inicial
       </button>
       <button id="nav-tacticas" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
-        📐 Tácticas (Balón Parado)
-      </button>
-      <button id="nav-enfrentamiento" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
-        ⚔️ Enfrentamiento (11 vs 11)
+        📐 Tácticas
       </button>
       <button id="nav-rivales" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
         🛡️ Equipos Rivales
       </button>
-      <button id="nav-plantilla" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
-        👥 Plantilla Mi Equipo
-      </button>
-      <button id="nav-partidos" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
-        📅 Partidos Guardados
+      <button id="nav-enfrentamiento" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        ⚔️ Enfrentamiento 11vs11
       </button>
       <button id="nav-marcador" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
         🏟️ Marcador en Directo
+      </button>
+      <button id="nav-partidos" class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-700/50 text-slate-300 font-medium flex items-center gap-3 transition">
+        📅 Partidos Guardados
       </button>
     </nav>
   </aside>
@@ -249,7 +249,7 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Texto secundario</label>
-            <input id="capture-subtitle" type="text" value="Pizarra Táctica" maxlength="120" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-emerald-500">
+            <input id="capture-subtitle" type="text" value="11 Inicial" maxlength="120" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-emerald-500">
           </div>
         </div>
 
@@ -1861,18 +1861,18 @@
       if (view === 'pizarra') {
         secPizarra.classList.remove('hidden');
         navPizarra.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
-        headerTitle.innerHTML = '⚽ Pizarra Táctica';
+        headerTitle.innerHTML = '⚽ 11 Inicial';
         headerActions.classList.remove('hidden');
       } else if (view === 'tacticas') {
         secTacticas.classList.remove('hidden');
         navTacticas.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
-        headerTitle.innerHTML = '📐 Tácticas (Balón Parado)';
+        headerTitle.innerHTML = '📐 Tácticas';
         headerActions.classList.add('hidden');
         initTacticsView();
       } else if (view === 'enfrentamiento') {
         secEnfrentamiento.classList.remove('hidden');
         navEnfrentamiento.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
-        headerTitle.innerHTML = '⚔️ Enfrentamiento (11 vs 11)';
+        headerTitle.innerHTML = '⚔️ Enfrentamiento 11vs11';
         headerActions.classList.add('hidden');
         initMatchupView();
       } else if (view === 'rivales') {
@@ -1884,7 +1884,7 @@
       } else if (view === 'plantilla') {
         secPlantilla.classList.remove('hidden');
         navPlantilla.className = "w-full text-left px-4 py-3 rounded-xl bg-slate-700 text-white font-medium flex items-center gap-3 transition";
-        headerTitle.innerHTML = '👥 Plantilla Mi Equipo';
+        headerTitle.innerHTML = '👥 Mi Plantilla';
         headerActions.classList.add('hidden');
         renderSquadList();
       } else if (view === 'partidos') {
@@ -1921,7 +1921,7 @@
     function openLineupCaptureModal() {
       if (!activeTokens) return;
       captureTitleInput.value = captureTitleInput.value || 'Mi alineación titular';
-      captureSubtitleInput.value = captureSubtitleInput.value || 'Pizarra Táctica';
+      captureSubtitleInput.value = captureSubtitleInput.value || '11 Inicial';
       modalCaptureLineup.classList.remove('hidden');
       modalCaptureLineup.classList.add('flex');
       requestAnimationFrame(renderLineupCapturePreview);
@@ -2096,7 +2096,7 @@
       ctx.fillRect(0, 0, W, H);
 
       const title = captureTitleInput.value.trim() || 'Mi alineación titular';
-      const subtitle = captureSubtitleInput.value.trim() || 'Pizarra Táctica';
+      const subtitle = captureSubtitleInput.value.trim() || '11 Inicial';
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -2284,7 +2284,7 @@
 
     function tacticsSvgData(svg){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);}
     function getTacticsFieldSvg(type){
-      // El Campo Entero reproduce exactamente el diseño del campo de Pizarra Táctica.
+      // El Campo Entero reproduce exactamente el diseño del campo de 11 Inicial.
       const fullField = `<rect width="100" height="100" fill="#047857"/><g fill="none" stroke="white" stroke-width="0.8"><rect x="1" y="1" width="98" height="98"/><line x1="1" y1="50" x2="99" y2="50"/><circle cx="50" cy="50" r="15"/><circle cx="50" cy="50" r="1.5" fill="white"/><rect x="20" y="1" width="60" height="16"/><rect x="35" y="1" width="30" height="6"/><circle cx="50" cy="11" r="1.5" fill="white"/><rect x="20" y="83" width="60" height="16"/><rect x="35" y="93" width="30" height="6"/><circle cx="50" cy="89" r="1.5" fill="white"/></g>`;
       if(type==='white') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${fullField.replace('#047857','#ffffff').replaceAll('stroke="white"','stroke="#111111"').replaceAll('fill="white"','fill="#111111"')}</svg>`;
       if(type==='top') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none">${fullField}</svg>`;
@@ -2322,7 +2322,7 @@
 
       document.querySelectorAll('#tactics-pitch .tactics-token, #tactics-pitch .tactics-prop').forEach(e => e.remove());
 
-      // Sincronización exacta con los 11 jugadores de Pizarra Táctica
+      // Sincronización exacta con los 11 jugadores de 11 Inicial
       currentTacticsTokens = activeTokens.map(t => {
         // Mapear posición Y de campo completo a medio campo (0% a 90%)
         const halfY = Math.max(8, Math.min(92, (t.y - 15) * 1.1));
@@ -3724,7 +3724,7 @@
       renderPitch();
     });
 
-    // Gestión Plantilla Mi Equipo
+    // Gestión Mi Plantilla
     const formAddPlayer = document.getElementById('form-add-player');
     const editPlayerIdInput = document.getElementById('edit-player-id');
     const formTitle = document.getElementById('player-form-title');
@@ -4542,7 +4542,7 @@ function initWorkflowOnScoreboard(){scoreboard=normalizeScoreboard(scoreboard);i
       localStorage.setItem('f11_rivals',JSON.stringify(rivalTeams));renderRivalsList();closeRivalXI();populateScoreTeamSelectors();renderSB();
     });
 
-    // Tamaños de Tácticas Balón Parado
+    // Tamaños de Tácticas
     function initTacticsDisplayControls(){
       const map=[['tactics-player-size',v=>tacticsDisplaySettings.playerScale=Number(v)],['tactics-cone-size',v=>tacticsDisplaySettings.props.cone=Number(v)],['tactics-wall-size',v=>tacticsDisplaySettings.props.wall=Number(v)],['tactics-ball-size',v=>tacticsDisplaySettings.props.ball=Number(v)]];
       map.forEach(([id,fn])=>{const el=document.getElementById(id);if(!el)return;const key=id.replace('tactics-','').replace('-size','');let value=key==='player'?tacticsDisplaySettings.playerScale:tacticsDisplaySettings.props[key]??1;el.value=value;el.addEventListener('input',e=>{fn(e.target.value);saveTacticsDisplaySettings();applyTacticsSizes();});});
